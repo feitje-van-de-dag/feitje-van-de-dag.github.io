@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Thema's · Feitje van de dag</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png?v=4">
+<meta name="theme-color" content="#fff6d6">
+<style>
+main { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; padding: 24px 16px 40px; min-width: 0; }
+.kop h1 { margin: 6px 0 0; font-size: clamp(30px, 8vw, 40px); }
+.ring-kaart { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 22px 18px; }
+.ring { width: 230px; max-width: 100%; }
+.ring text { font-family: inherit; fill: var(--inkt); text-anchor: middle; }
+.ring-stand { font-size: 36px; font-weight: 800; }
+.thema-lijst { display: flex; flex-direction: column; gap: 10px; }
+.thema-rij { display: grid; grid-template-columns: 14px 1fr 52px; align-items: center; gap: 12px; padding: 12px 16px; background: var(--vlak); border-radius: 16px; box-shadow: 0 3px 0 var(--lijn); }
+.stip { width: 14px; height: 14px; border-radius: 50%; }
+.thema-naam { font-size: 15px; font-weight: 800; }
+.balk { grid-column: 2 / span 2; height: 10px; border-radius: 999px; background: var(--bg); overflow: hidden; }
+.balk > i { display: block; height: 100%; width: 0; border-radius: 999px; transition: width 1s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.pct { text-align: right; font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.leeg { text-align: center; color: var(--zacht); }
+</style>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<main>
+  <header class="kop">
+    <p class="eyebrow" id="kop-naam">Thema's</p>
+    <h1 id="titel">Thema's</h1>
+  </header>
+  <section class="card ring-kaart" id="ring-kaart"></section>
+  <section class="thema-lijst" id="lijst"></section>
+  <a class="tq-knop terug-knop" href="punten.html">Terug naar punten</a>
+</main>
+<script src="supabase-shim.js"></script>
+<script src="kleuren.js"></script>
+<script>
+const THEMA_KLEUR = { "Geschiedenis": "#f9c98a", "Aardrijkskunde": "#a8e6cf", "Wetenschap": "#b8c9ff", "Natuur": "#d4eeaa", "Cultuur": "#ffc2dc", "Sport": "#ffb8a8", "Filosofie": "#dcc8ff", "Algemene kennis": "#fff0a6", "Nieuws": "#5b4e7a", "Overig": "#b8aed1" };
+const THEMA_MAP = { "techniek": "Wetenschap", "taal": "Cultuur" };
+const NAMEN = ["Ritchie", "Rachel"];
+const params = new URLSearchParams(location.search);
+const wie = NAMEN.indexOf(params.get("wie")) >= 0 ? params.get("wie") : null;
+
+function themaNaam(o) {
+  const l = String(o || "").trim().toLowerCase();
+  if (THEMA_MAP[l]) return THEMA_MAP[l];
+  const g = Object.keys(THEMA_KLEUR).find(function (k) { return k.toLowerCase() === l; });
+  return g || "Overig";
+}
+function svg(naam, attrs) {
+  const e = document.createElementNS("http://www.w3.org/2000/svg", naam);
+  Object.keys(attrs || {}).forEach(function (k) { e.setAttribute(k, attrs[k]); });
+  return e;
+}
+function telling(d) {
+  const stand = {};
+  function tel(thema, goed) {
+    const t = stand[thema] = stand[thema] || { goed: 0, antwoord: 0 };
+    t.antwoord += 1;
+    if (goed) t.goed += 1;
+  }
+  return { stand: stand, tel: tel };
+}
+function ring(perThema, klik) {
+  const r = 57, omtrek = 2 * Math.PI * r;
+  const totaal = Object.keys(perThema).reduce(function (a, k) { return a + perThema[k].goed; }, 0);
+  const s = svg("svg", { viewBox: "0 0 140 140", class: "ring", role: "img" });
+  s.appendChild(svg("circle", { cx: 70, cy: 70, r: r, fill: "none", stroke: "#ffffff", "stroke-width": 13 }));
+  let begin = 0;
+  Object.keys(perThema).sort().forEach(function (k) {
+    const v = perThema[k].goed;
+    if (!v || !totaal) return;
+    const lengte = omtrek * v / totaal;
+    const stuk = svg("circle", { cx: 70, cy: 70, r: r, fill: "none", stroke: THEMA_KLEUR[k], "stroke-width": 13,
+      "stroke-dasharray": Math.max(lengte - 1.5, 0.5) + " " + (omtrek - Math.max(lengte - 1.5, 0.5)),
+      "stroke-dashoffset": -begin, transform: "rotate(-90 70 70)", style: "cursor:pointer" });
+    stuk.addEventListener("click", function () { klik(k); });
+    s.appendChild(stuk);
+    begin += lengte;
+  });
+  return s;
+}
+// Het percentage telt op van 0 naar de echte waarde, en de balken groeien mee.
+function telOp(el, doel, duur) {
+  const start = performance.now();
+  function tik(nu) {
+    const t = Math.min(1, (nu - start) / duur);
+    el.textContent = Math.round(doel * (1 - Math.pow(1 - t, 3))) + "%";
+    if (t < 1) requestAnimationFrame(tik);
+  }
+  requestAnimationFrame(tik);
+}
+
+async function start() {
+  if (!wie) {
+    document.getElementById("lijst").appendChild(Object.assign(document.createElement("p"), { className: "leeg", textContent: "Kies eerst een naam op de beginpagina." }));
+    return;
+  }
+  document.getElementById("kop-naam").textContent = wie;
+  document.getElementById("titel").textContent = "Thema's van " + wie;
+  const db = await window.claude.use("db");
+  const onderwerp = await db.collection("questions").veld("onderwerp");
+  const themaOnderwerp = await db.collection("themavragen").veld("onderwerp");
+  const at = await db.collection("attempts").get();
+  const ta = await db.collection("themaantwoorden").get();
+  const t = telling();
+  at.docs.filter(function (d) { return d.exists; }).map(function (d) { return d.data(); })
+    .filter(function (a) { return a.wie === wie; })
+    .forEach(function (a) { t.tel(themaNaam(onderwerp[a.vraag_id]), a.goed === true); });
+  ta.docs.filter(function (d) { return d.exists; }).map(function (d) { return d.data(); })
+    .filter(function (a) { return a.wie === wie; })
+    .forEach(function (a) { t.tel(themaNaam(themaOnderwerp[a.vraag_id]), a.goed === true); });
+  const stand = t.stand;
+  const namen = Object.keys(stand).filter(function (k) { return stand[k].antwoord > 0; });
+  const kaart = document.getElementById("ring-kaart");
+  if (!namen.length) {
+    kaart.appendChild(Object.assign(document.createElement("p"), { className: "leeg", textContent: "Nog geen antwoorden." }));
+    return;
+  }
+  // Beste thema: hoogste percentage (vanaf 3 antwoorden), en de cirkel in het midden.
+  const pct = function (k) { return stand[k].goed / stand[k].antwoord; };
+  const kandidaten = namen.filter(function (k) { return stand[k].antwoord >= 3; });
+  const beste = (kandidaten.length ? kandidaten : namen).sort(function (a, b) { return pct(b) - pct(a); })[0];
+  kaart.appendChild(ring(stand, function (k) {
+    // Tik op een stuk: het percentage van dat thema. Tik nog eens: weer het beste thema.
+    if (midden.dataset.thema === k) {
+      midden.dataset.thema = "";
+      midden.textContent = Math.round(pct(beste) * 100) + "%";
+      info.textContent = "Beste thema: " + beste;
+      return;
+    }
+    midden.dataset.thema = k;
+    midden.textContent = Math.round(pct(k) * 100) + "%";
+    info.textContent = k + " · " + stand[k].goed + " van " + stand[k].antwoord + " goed";
+  }));
+  const midden = document.createElement("p");
+  midden.className = "ring-stand";
+  kaart.appendChild(midden);
+  const info = document.createElement("p");
+  info.style.margin = "0";
+  info.style.color = "var(--zacht)";
+  info.textContent = "Beste thema: " + beste;
+  kaart.appendChild(info);
+  telOp(midden, Math.round(pct(beste) * 100), 1200);
+
+  const lijst = document.getElementById("lijst");
+  namen.sort(function (a, b) { return pct(b) - pct(a); }).forEach(function (k) {
+    const rij = document.createElement("div");
+    rij.className = "thema-rij";
+    const stip = document.createElement("span");
+    stip.className = "stip";
+    stip.style.background = THEMA_KLEUR[k];
+    const naam = document.createElement("span");
+    naam.className = "thema-naam";
+    naam.textContent = k;
+    const p = document.createElement("span");
+    p.className = "pct";
+    const balk = document.createElement("div");
+    balk.className = "balk";
+    const vul = document.createElement("i");
+    vul.style.background = THEMA_KLEUR[k];
+    balk.appendChild(vul);
+    rij.append(stip, naam, p, balk);
+    lijst.appendChild(rij);
+    // Het laden: eerst leeg, daarna groeien naar de echte waarde.
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        vul.style.width = Math.round(pct(k) * 100) + "%";
+        telOp(p, Math.round(pct(k) * 100), 1000);
+      });
+    });
+  });
+}
+start();
+</script>
+</body>
+</html>

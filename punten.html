@@ -1,0 +1,826 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Punten Ritchie vs Rachel</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: één kolom. Totalen per persoon, daarna de laatste antwoorden. Punten komen uit de quiz. */
+:root {
+  --surface: var(--vlak);
+  --ink: var(--inkt);
+  --muted: var(--zacht);
+  --line: var(--lijn);
+  --r: var(--roze);
+  --r-soft: var(--roze-zacht);
+  --k: var(--mint);
+  --k-soft: var(--mint-zacht);
+  --warn: var(--fout-diep);
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  --zij: max(16px, env(safe-area-inset-left, 0px));
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 40px;
+}
+main { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.back { color: var(--r); font-weight: 700; text-decoration: none; }
+.muted { color: var(--muted); font-size: 14px; margin: 0; }
+.totals { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.person { border-radius: 14px; padding: 14px; min-width: 0; }
+.person .name { margin: 0; font-weight: 800; }
+.person .score { margin: 4px 0 0; font-size: clamp(34px, 10vw, 46px); font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.person .sub { margin: 6px 0 0; font-size: 13px; color: var(--muted); }
+.lead { margin: 12px 0 0; text-align: center; font-weight: 700; }
+.hist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.hist li { border-radius: 12px; background: var(--bg); min-width: 0; }
+.hist a.hlink { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 12px; color: inherit; text-decoration: none; min-width: 0; }
+.hist a.hlink:hover { box-shadow: inset 0 0 0 2px var(--r); }
+.hist a.hlink:focus-visible { outline: 3px solid var(--r); outline-offset: 2px; }
+.mark { font-weight: 800; font-size: 14px; border-radius: 999px; padding: 4px 10px; white-space: nowrap; }
+.mark.good { background: var(--k); color: var(--vlak); }
+.mark.bad { background: var(--warn); color: var(--vlak); }
+.who { margin: 0; font-weight: 700; font-size: 14px; }
+.what { margin: 2px 0 0; font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
+.paren { gap: 10px; }
+.paar { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; list-style: none; background: var(--vlak); border-radius: 14px; box-shadow: 0 2px 0 var(--lijn); padding: 10px 12px; min-width: 0; }
+.paar-vraag { grid-column: 1 / -1; margin: 0; font-size: 13px; font-weight: 700; color: var(--muted); overflow-wrap: anywhere; }
+.paar-cellen { display: contents; }
+.paar-cel { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0; padding: 4px 0; border-radius: 10px; color: inherit; text-decoration: none; }
+.paar-naam { font-size: 12px; font-weight: 800; }
+.quiz-naam { display: block; }
+.quiz-sub { display: block; margin-top: 2px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.paar-cel:focus-visible { outline: 3px solid var(--r); outline-offset: 2px; }
+.paar-cel .tijd { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.paar-cel .mark { display: inline-block; }
+.paar-leeg { font-size: 14px; color: var(--muted); padding: 4px; }
+.paar-kop { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 12px 8px; font-weight: 800; font-size: 13px; }
+.banner { background: #ffe3e0; color: var(--warn); border-radius: 12px; padding: 12px 14px; font-weight: 700; font-size: 14px; margin: 0; }
+.tqlijst { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+.tqlijst details { background: var(--bg); border-radius: 12px; padding: 10px 12px; min-width: 0; }
+.tqlijst summary { cursor: pointer; font-weight: 700; display: flex; flex-direction: column; gap: 2px; }
+.tqlijst summary small { font-weight: 400; color: var(--muted); font-size: 13px; }
+.tqvraag { margin: 10px 0 0; padding-top: 10px; border-top: 1px solid var(--line); }
+.tqvraag p { margin: 0; overflow-wrap: anywhere; }
+.tqvraag .goedantw { font-size: 14px; color: var(--muted); margin-top: 2px; }
+.tqvraag .wie { margin-top: 4px; font-size: 14px; display: flex; gap: 8px; flex-wrap: wrap; }
+.tqvraag .wie span { border-radius: 999px; padding: 2px 10px; font-weight: 700; color: var(--vlak); }
+.tqvraag .wie .g { background: var(--k); }
+.tqvraag .wie .f { background: var(--warn); }
+.tqvraag .wie .n { background: var(--muted); }
+.tqvraag a { color: var(--ink); font-weight: 600; font-size: 13px; }
+.th-rij { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+@media (max-width: 420px) { .th-rij { grid-template-columns: 1fr; } }
+.th-speler { border-radius: 14px; padding: 12px; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.th-speler { background: var(--p-zacht, var(--vlak)); }
+.th-speler h3 { margin: 0; font-size: 16px; font-weight: 800; }
+.th-ring { width: 100%; max-width: 190px; margin: 0 auto; display: block; }
+.th-ring text { font-family: inherit; fill: var(--ink); text-anchor: middle; }
+.th-lijst { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.th-lijst li { display: grid; grid-template-columns: 12px 1fr auto; gap: 8px; align-items: center; font-size: 13px; min-width: 0; }
+.th-lijst .stip { width: 12px; height: 12px; border-radius: 50%; }
+.th-lijst .naam { overflow-wrap: anywhere; font-weight: 600; }
+.th-lijst .pct { font-variant-numeric: tabular-nums; color: var(--muted); }
+.th-leeg { margin: 0; font-size: 14px; color: var(--muted); }
+/* Beweging: kort en zacht. Wie verminderde beweging aanzet, ziet niets bewegen (zie onderaan). */
+button, a { transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease, opacity 0.2s ease; }
+a.hlink:active { transform: scale(0.98); }
+@keyframes omhoog { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes vervaag { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+.quizlijst { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.quizlijst { display: flex; flex-direction: column; gap: 8px; }
+.quiz-rij > summary { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 56px; padding: 12px 16px; background: var(--vlak); border-radius: 16px; box-shadow: 0 3px 0 var(--lijn); cursor: pointer; }
+.quiz-rij > summary::-webkit-details-marker { display: none; }
+.quiz-titel { display: flex; flex-direction: column; min-width: 0; }
+.quiz-score { align-self: flex-start; display: inline-flex; margin-top: 6px; padding: 3px 12px; border-radius: 999px; background: var(--bg); color: var(--inkt); font-size: 13px; font-weight: 800; }
+.quiz-detail { padding: 8px 0 4px; }
+.quiz-detail .hist li { background: var(--vlak); box-shadow: 0 2px 0 var(--lijn); }
+.quiz-detail p { margin: 0; }
+.scoreregel { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; }
+.scoreregel .naam { font-weight: 800; font-size: 15px; }
+.scoreregel .naam[data-persoon] { color: var(--p-tekst); }
+.scoreregel .naam:last-of-type { text-align: right; }
+.cijfers { font-size: 44px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; display: inline-flex; gap: 10px; align-items: baseline; }
+.streep { color: var(--muted); font-weight: 700; }
+.quizlijst li { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; padding: 8px 14px; background: var(--bg); border-radius: 14px; }
+.quiz-naam { font-weight: 700; font-size: 15px; }
+.quiz-winnaar { display: inline-flex; align-items: center; min-height: 28px; padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 800; }
+.quiz-winnaar.persoon { background: var(--p-zacht); color: var(--p-tekst); }
+.quiz-winnaar.g { background: var(--vlak); color: var(--muted); }
+.badge-kiezer { display: flex; gap: 10px; margin: 4px 0 8px; }
+.badge-foto { width: 96px; height: 96px; margin: 4px auto 8px; font-size: 40px; }
+.badge-kies { display: inline-flex; align-items: center; gap: 10px; min-height: 52px; padding: 6px 16px 6px 6px; border: 2px solid transparent; border-radius: 999px; background: var(--vlak); color: var(--inkt); box-shadow: 0 3px 0 var(--lijn); font-size: 15px; font-weight: 800; }
+.badge-kies .avatar { width: 40px; height: 40px; font-size: 16px; }
+.badge-kies[aria-selected="true"] { border-color: var(--inkt); }
+.level-blok { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; margin-bottom: 12px; background: var(--bg); border-radius: 16px; }
+.level-kop { display: flex; justify-content: space-between; align-items: baseline; }
+.level-naam { font-size: 20px; font-weight: 800; }
+.level-xp { font-size: 14px; font-weight: 700; color: var(--zacht); font-variant-numeric: tabular-nums; }
+.level-balk { height: 12px; border-radius: 999px; background: var(--vlak); overflow: hidden; }
+.level-balk > i { display: block; height: 100%; border-radius: 999px; background: var(--roze); transition: width 1.2s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.level-sub { margin: 0; font-size: 13px; color: var(--zacht); }
+</style>
+<link rel="stylesheet" href="app.css">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png?v=4">
+<link rel="icon" href="icon-180.png?v=4">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Feitje van de dag">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#fff6d6">
+</head>
+<body class="heeft-tabs"><div class="app-inhoud">
+<main class="snel">
+  <a class="back" href="index.html">&larr; Alle dagen</a>
+  <header>
+    <p class="eyebrow">Punten</p>
+    <h1>Ritchie vs Rachel</h1>
+  </header>
+
+  <p class="banner" id="banner" hidden></p>
+
+  <details class="card week tap">
+    <summary class="week-kop">
+      <p class="eyebrow" id="stand-dag">Punten van de week</p>
+      <div class="scoreregel">
+        <span class="speler"><span class="avatar" data-avatar="Ritchie"></span><span class="naam" data-persoon="Ritchie">Ritchie</span></span>
+        <span class="cijfers"><span id="score-Ritchie">0</span><span class="streep">–</span><span id="score-Rachel">0</span></span>
+        <span class="speler"><span class="avatar" data-avatar="Rachel"></span><span class="naam" data-persoon="Rachel">Rachel</span></span>
+      </div>
+      <p class="muted week-timer" id="week-timer" hidden></p>
+    </summary>
+    <div class="quizlijst" id="quizlijst"></div>
+    <details class="alle-uitslagen" id="alle-uitslagen">
+      <summary class="tq-knop alle-knop">Alle quiz uitslagen</summary>
+      <ul class="alle-lijst" id="alle-lijst"></ul>
+      <p class="muted" id="uitslag-leeg" hidden>Nog geen uitslagen.</p>
+    </details>
+  </details>
+  <section class="card" id="th-kaart">
+    <p class="label">Thema's</p>
+    <div class="th-rij" id="th-rij"></div>
+  </section>
+
+
+  <details class="card tap" id="badges">
+    <summary><p class="label">Voortgang</p></summary>
+    <div class="badge-kiezer" id="badge-kiezer"></div>
+    <div id="badgelijst"></div>
+  </details>
+</main>
+</div>
+<nav class="tabs" aria-label="Hoofdmenu">
+  <a href="index.html" class="tab" data-tab="vandaag">Vandaag</a>
+  <a href="punten.html" class="tab" data-tab="punten" aria-current="page">Punten</a>
+  <a href="chat.html" class="tab" data-tab="chat">Chat</a>
+  <a href="logboek.html" class="tab" data-tab="logboek">Terugblik</a>
+  <a href="catalogus.html" class="tab" data-tab="winkel">Winkel</a></nav>
+
+<script src="supabase-shim.js"></script>
+<script src="chatteller.js"></script>
+<script src="kleuren.js"></script>
+<script src="naam.js"></script>
+<script src="uitslagen.js?v=4"></script>
+<script src="uitslag.js"></script>
+<script src="weekrad.js"></script>
+<script>
+
+function getDb() {
+  try {
+    return (window.claude && window.claude.use) ? window.claude.use("db") : Promise.resolve(null);
+  } catch (e) {
+    return Promise.resolve(null);
+  }
+}
+
+function maak2(tag, cls, tekst) {
+  const e = document.createElement(tag);
+  e.className = cls;
+  e.textContent = tekst;
+  return e;
+}
+
+function datum(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (isNaN(d)) return "";
+  return d.toLocaleString("nl-NL", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
+}
+
+
+// Waar hoort dit antwoord bij: de pagina en de vraag, zonder het antwoord te noemen.
+function doel(p) {
+  if (p.thema) {
+    return { href: "themaquiz.html?id=" + encodeURIComponent(p.thema.quiz) + "#k-" + p.thema.i, tekst: "Themaquiz, vraag " + p.thema.i };
+  }
+  const m = /^(\d{4})-(\d{2})-(\d{2})-(?:q(\d+)-)?(\d+)$/.exec(p.vraag_id || "");
+  if (!m) return { href: "index.html", tekst: "Vraag " + (p.vraag_id || "") };
+  const dag = m[1] + "-" + m[2] + "-" + m[3];
+  const tekst = "Dagquiz " + parseInt(m[3], 10) + " " + MND[parseInt(m[2], 10) - 1] + ", quiz " + (m[4] || "1") + ", vraag " + m[5];
+  const href = "dagquiz.html?d=" + dag + "#k-" + p.vraag_id;
+  return { href: href, tekst: tekst };
+}
+
+// Bovenste kaart: zelfde dagscore als op de beginpagina (alle quizzen van de dag, elke dag 0-0 op QUIZ_UUR).
+function standDag() {
+  const nu = window.amsterdamNu ? window.amsterdamNu() : null;
+  if (!nu) return null;
+  return nu.datum;
+}
+// Eén antwoord: goed of fout, wie, tijd en de vraag (klikbaar naar de vraag).
+function antwoordRij(p) {
+  const li = document.createElement("li");
+  const link = document.createElement("a");
+  link.className = "hlink";
+  const d = doel(p);
+  link.href = d.href;
+  link.setAttribute("aria-label", p.wie + " " + (p.goed ? "goed" : "fout") + ": " + d.tekst + ". Open de vraag.");
+  const mark = document.createElement("span");
+  mark.className = "mark " + (p.goed ? "good" : "bad");
+  mark.textContent = p.goed ? "goed" : "fout";
+  const tekst = document.createElement("div");
+  const who = document.createElement("p");
+  who.className = "who";
+  who.textContent = p.wie;
+  const tijd = document.createElement("span");
+  tijd.className = "tijd";
+  tijd.textContent = datum(p.gezet_op);
+  who.appendChild(tijd);
+  const what = document.createElement("p");
+  what.className = "what";
+  what.textContent = d.tekst;
+  tekst.append(who, what);
+  link.append(mark, tekst);
+  li.appendChild(link);
+  return li;
+}
+
+// Overzicht van de themaquizzen: afgesloten quizzen met punten en vragen, onder de punten bewaard.
+
+// Thema's per speler: een ring met per thema het aandeel goede antwoorden, en het beste thema in het midden.
+const THEMA_KLEUR = { "Geschiedenis": "#f9c98a", "Aardrijkskunde": "#a8e6cf", "Wetenschap": "#b8c9ff", "Natuur": "#d4eeaa", "Cultuur": "#ffc2dc", "Sport": "#ffb8a8", "Filosofie": "#dcc8ff", "Algemene kennis": "#fff0a6", "Nieuws": "#5b4e7a", "Overig": "#b8aed1" };
+const THEMA_MAP = { "techniek": "Wetenschap", "taal": "Cultuur" };
+function themaNaam(o) {
+  const t = String(o || "").trim();
+  const l = t.toLowerCase();
+  if (THEMA_MAP[l]) return THEMA_MAP[l];
+  const gevonden = Object.keys(THEMA_KLEUR).find((k) => k.toLowerCase() === l);
+  return gevonden || "Overig";
+}
+
+function svg(naam, attrs) {
+  const e = document.createElementNS("http://www.w3.org/2000/svg", naam);
+  Object.keys(attrs || {}).forEach((k) => e.setAttribute(k, attrs[k]));
+  return e;
+}
+
+function themaRing(perThema) {
+  const r = 57, omtrek = 2 * Math.PI * r;
+  const totaalGoed = Object.keys(perThema).reduce((a, k) => a + perThema[k].goed, 0);
+  const s = svg("svg", { viewBox: "0 0 140 140", class: "th-ring", role: "img" });
+  s.appendChild(svg("circle", { cx: 70, cy: 70, r: r, fill: "none", stroke: "#ffffff", "stroke-width": 13 }));
+  let begin = 0;
+  Object.keys(perThema).sort().forEach((k) => {
+    const v = perThema[k].goed;
+    if (!v || !totaalGoed) return;
+    const lengte = omtrek * v / totaalGoed;
+    const c = svg("circle", { cx: 70, cy: 70, r: r, fill: "none", stroke: THEMA_KLEUR[k], "stroke-width": 13,
+      "stroke-dasharray": Math.max(lengte - 1.5, 0.5) + " " + (omtrek - Math.max(lengte - 1.5, 0.5)), "stroke-dashoffset": -begin, transform: "rotate(-90 70 70)" });
+    s.appendChild(c);
+    begin += lengte;
+  });
+  return s;
+}
+
+function themaKaart(naam, perThema) {
+  const doos = document.createElement("div");
+  doos.className = "th-speler";
+  zetPersoonKleur(doos, naam);
+  const h = document.createElement("h3");
+  h.textContent = naam;
+  doos.appendChild(h);
+  const pct = (k) => perThema[k].goed / perThema[k].antwoord;
+  // Alleen thema's met minstens 1% goed worden getoond (0% of bijna 0% staat niet in de cirkel en niet in de lijst).
+  const namen = Object.keys(perThema).filter((k) => perThema[k].antwoord > 0 && Math.round(pct(k) * 100) >= 1);
+  if (!namen.length) {
+    const p = document.createElement("p");
+    p.className = "th-leeg";
+    p.textContent = Object.keys(perThema).some((k) => perThema[k].antwoord > 0) ? "Nog geen goede antwoorden." : "Nog geen antwoorden.";
+    doos.appendChild(p);
+    return doos;
+  }
+  const zichtbaar = {};
+  namen.forEach((k) => { zichtbaar[k] = perThema[k]; });
+  // Beste thema: hoogste percentage goed, met minstens 3 antwoorden (anders voorlopig het hoogste).
+  let kandidaten = namen.filter((k) => perThema[k].antwoord >= 3);
+  const voorlopig = kandidaten.length === 0;
+  if (voorlopig) kandidaten = namen;
+  kandidaten.sort((a, b) => pct(b) - pct(a) || perThema[b].antwoord - perThema[a].antwoord);
+  const beste = kandidaten[0];
+  const ring = themaRing(zichtbaar);
+  const t1 = svg("text", { x: 70, y: 64, "font-size": 9, "font-weight": 700 });
+  t1.textContent = "Beste thema";
+  const t2 = svg("text", { x: 70, y: 80, "font-size": beste.length > 12 ? 9.5 : (beste.length > 9 ? 11 : 13), "font-weight": 800 });
+  t2.textContent = beste;
+  const t3 = svg("text", { x: 70, y: 94, "font-size": 10 });
+  t3.textContent = Math.round(pct(beste) * 100) + "%" + (voorlopig ? " (voorlopig)" : "");
+  ring.appendChild(t1); ring.appendChild(t2); ring.appendChild(t3);
+  ring.setAttribute("aria-label", naam + ": beste thema " + beste + ", " + Math.round(pct(beste) * 100) + " procent goed");
+  // Tik op de cirkel: de percentages per thema komen op een eigen pagina.
+  const det = document.createElement("a");
+  det.className = "th-detail";
+  det.href = "themas.html?wie=" + encodeURIComponent(naam);
+  det.appendChild(ring);
+  const ul = document.createElement("ul");
+  ul.className = "th-lijst";
+  namen.sort((a, b) => pct(b) - pct(a) || perThema[b].antwoord - perThema[a].antwoord).forEach((k) => {
+    const li = document.createElement("li");
+    const stip = document.createElement("span");
+    stip.className = "stip";
+    stip.style.background = THEMA_KLEUR[k];
+    const n = document.createElement("span");
+    n.className = "naam";
+    n.textContent = k;
+    const pc = document.createElement("span");
+    pc.className = "pct";
+    pc.textContent = Math.round(pct(k) * 100) + "%";
+    li.append(stip, n, pc);
+    ul.appendChild(li);
+  });
+  doos.appendChild(det);
+  return doos;
+}
+
+async function themaStand(db, attempts, themaAntwoorden) {
+  const onderwerp = await db.collection("questions").veld("onderwerp");
+  const themaOnderwerp = await db.collection("themavragen").veld("onderwerp");
+  const stand = { Ritchie: {}, Rachel: {} };
+  function tel(wie, thema, goed) {
+    const t = stand[wie][thema] = stand[wie][thema] || { goed: 0, antwoord: 0 };
+    t.antwoord += 1;
+    if (goed) t.goed += 1;
+  }
+  attempts.forEach((a) => { if (stand[a.wie]) tel(a.wie, themaNaam(onderwerp[a.vraag_id]), a.goed === true); });
+  themaAntwoorden.forEach((a) => { if (stand[a.wie]) tel(a.wie, themaNaam(themaOnderwerp[a.vraag_id]), a.goed === true); });
+  const rij = document.getElementById("th-rij");
+  rij.textContent = "";
+  rij.appendChild(themaKaart("Ritchie", stand.Ritchie));
+  rij.appendChild(themaKaart("Rachel", stand.Rachel));
+}
+
+// Punten van de week: per quiz wint wie de meeste goede antwoorden heeft (1 punt). Gelijk: allebei 1 punt.
+// Een quiz telt pas mee als beide spelers alle vragen hebben beantwoord. Een week loopt van maandag tot en met zondag.
+// Label van een dagquiz: "Naam · Dagquiz 29 okt" (extra quizzen: "Naam · Quiz 2 · 29 okt").
+// Confetti: korte losse vallende stukjes op een tijdelijk canvas. Geen externe bibliotheek.
+function confetti(duur) {
+  const c = document.createElement("canvas");
+  c.style.cssText = "position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:200";
+  document.body.appendChild(c);
+  const dpr = window.devicePixelRatio || 1;
+  c.width = innerWidth * dpr;
+  c.height = innerHeight * dpr;
+  const ctx = c.getContext("2d");
+  ctx.scale(dpr, dpr);
+  const kleuren = ["#ff4f9a", "#1fae8c", "#ffb35c", "#8fb8ff", "#ffe066", "#b5e27a"];
+  const stukjes = [];
+  for (let i = 0; i < 140; i++) {
+    stukjes.push({
+      x: innerWidth / 2 + (Math.random() - 0.5) * 120,
+      y: innerHeight * 0.4,
+      vx: (Math.random() - 0.5) * 11,
+      vy: -Math.random() * 12 - 5,
+      r: Math.random() * 6 + 5,
+      k: kleuren[i % kleuren.length],
+      hoek: Math.random() * 6,
+      draai: (Math.random() - 0.5) * 0.3
+    });
+  }
+  const start = performance.now();
+  function tik(nu) {
+    const t = nu - start;
+    ctx.clearRect(0, 0, innerWidth, innerHeight);
+    stukjes.forEach(function (s) {
+      s.vy += 0.3;
+      s.vx *= 0.99;
+      s.x += s.vx;
+      s.y += s.vy;
+      s.hoek += s.draai;
+      ctx.save();
+      ctx.translate(s.x, s.y);
+      ctx.rotate(s.hoek);
+      ctx.globalAlpha = Math.max(0, 1 - t / duur);
+      ctx.fillStyle = s.k;
+      ctx.fillRect(-s.r / 2, -s.r / 4, s.r, s.r / 2);
+      ctx.restore();
+    });
+    if (t < duur) requestAnimationFrame(tik);
+    else c.remove();
+  }
+  requestAnimationFrame(tik);
+}
+
+// Winnaar van de week: zodra een week is afgesloten (zondag 23:59) krijgt de winnaar confetti, één keer per week.
+function weekWinnaarConfetti(vorige, punten) {
+  return; // Vervangen door het weekrad (weekrad.js).
+  if (punten.Ritchie === punten.Rachel) return;
+  const sleutel = "weekwinnaar-" + vorige;
+  try {
+    if (localStorage.getItem(sleutel)) return;
+    localStorage.setItem(sleutel, "1");
+  } catch (e) { /* zonder opslag dan elke keer */ }
+  const wint = punten.Ritchie > punten.Rachel ? "Ritchie" : "Rachel";
+  const ikWin = (function () { try { return localStorage.getItem("wie") === wint; } catch (e) { return false; } })();
+  toonUitslagScherm({
+    kop: "Weekwinnaar",
+    titel: ikWin ? "Jij wint de week!" : wint + " wint de week",
+    scores: [{ naam: "Ritchie", aantal: punten.Ritchie }, { naam: "Rachel", aantal: punten.Rachel }],
+    xp: ikWin ? 1500 : undefined,
+    confetti: ikWin
+  });
+}
+
+// Eén vraag als één rij: links het antwoord van Ritchie, rechts dat van Rachel. Ontbreekt een antwoord, dan een streepje.
+function paarRij(g) {
+  const li = document.createElement("li");
+  li.className = "paar";
+  const vraag = document.createElement("p");
+  vraag.className = "paar-vraag";
+  // Alleen "vraag N": de quiz staat al in de titel van de kaart.
+  vraag.textContent = g.tekst.split(", ").pop();
+  const cellen = document.createElement("div");
+  cellen.className = "paar-cellen";
+  ["Ritchie", "Rachel"].forEach(function (naam) {
+    const p = g.per[naam];
+    const cel = document.createElement(p ? "a" : "div");
+    cel.className = "paar-cel";
+    const who = document.createElement("span");
+    who.className = "paar-naam";
+    who.textContent = naam;
+    zetPersoonKleur(who, naam);
+    cel.appendChild(who);
+    if (!p) {
+      const leeg = document.createElement("span");
+      leeg.className = "paar-leeg";
+      leeg.textContent = "—";
+      cel.appendChild(leeg);
+      cellen.appendChild(cel);
+      return;
+    }
+    cel.href = g.href;
+    cel.setAttribute("aria-label", naam + " " + (p.goed ? "goed" : "fout") + ": " + g.tekst + ". Open de vraag.");
+    const mark = document.createElement("span");
+    mark.className = "mark " + (p.goed ? "good" : "bad");
+    mark.textContent = p.goed ? "goed" : "fout";
+    const tijd = document.createElement("span");
+    tijd.className = "tijd";
+    // Alleen het tijdstip: de dag staat al in de titel van de kaart.
+    tijd.textContent = datum(p.gezet_op).split(", ").pop();
+    cel.append(mark, tijd);
+    cellen.appendChild(cel);
+  });
+  li.append(vraag, cellen);
+  return li;
+}
+
+// Eén quiz als klikbare kaart: de score, de winnaar en de antwoorden per speler (achter een tik). Gebruikt door de weeklijst en de lijst van alle uitslagen.
+function quizRij(r, nieuwste) {
+    let winnaar = "Gelijk";
+    if (rijWinnaar(r) === "Ritchie") winnaar = "Ritchie";
+    else if (rijWinnaar(r) === "Rachel") winnaar = "Rachel";
+    const rij = document.createElement("details");
+    rij.className = "quiz-rij";
+    const kop = document.createElement("summary");
+    kop.className = "quiz-kop";
+    const titel = document.createElement("span");
+    titel.className = "quiz-titel";
+    const naam = document.createElement("span");
+    naam.className = "quiz-naam";
+    // Titel op twee regels: "Quizgekken 12" vet, en daaronder het soort quiz en de datum, klein.
+    const delen = r.label.split(" · ");
+    naam.textContent = delen[0];
+    if (delen[1]) {
+      const sub = document.createElement("span");
+      sub.className = "quiz-sub";
+      sub.textContent = delen.slice(1).join(" ");
+      naam.appendChild(sub);
+    }
+    const score = document.createElement("span");
+    score.className = "quiz-score";
+    score.textContent = "Ritchie " + r.r + " vs " + r.c + " Rachel";
+    titel.append(naam, score);
+    const chip = document.createElement("span");
+    const persoonWint = winnaar === "Ritchie" || winnaar === "Rachel";
+    chip.className = "quiz-winnaar " + (persoonWint ? "persoon" : "g");
+    if (persoonWint) zetPersoonKleur(chip, winnaar);
+    chip.textContent = winnaar === "Gelijk" ? "Gelijk" : winnaar;
+    kop.append(titel, chip);
+    if (nieuwste) {
+      rij.classList.add("nieuw");
+      const kenlabel = document.createElement("span");
+      kenlabel.className = "nieuw-label";
+      kenlabel.textContent = "Nieuwste";
+      titel.prepend(kenlabel);
+    }
+    // Per vraag één rij: Ritchie links, Rachel rechts. Zo staan de antwoorden van dezelfde vraag naast elkaar.
+    const groepen = new Map();
+    alleAntwoorden
+      .filter((p) => horaBij(p, r.sleutel))
+      .sort((a, b) => String(a.gezet_op || "").localeCompare(String(b.gezet_op || "")))
+      .forEach((p) => {
+        const d = doel(p);
+        if (!groepen.has(d.tekst)) groepen.set(d.tekst, { tekst: d.tekst, href: d.href, per: {} });
+        groepen.get(d.tekst).per[p.wie] = p;
+      });
+    const lijstAntwoorden = document.createElement("ul");
+    lijstAntwoorden.className = "hist paren";
+    groepen.forEach((g) => lijstAntwoorden.appendChild(paarRij(g)));
+    const uitleg = document.createElement("div");
+    uitleg.className = "quiz-detail";
+    uitleg.appendChild(lijstAntwoorden);
+    rij.append(kop, uitleg);
+    return rij;
+}
+
+// Aftelling tot het einde van de week (zondag 23:59 Amsterdamse tijd).
+let weekMaandag = null;
+function amsterdamTijd(dagStr, tijd) {
+  const gok = new Date(dagStr + "T" + tijd + "Z");
+  const p = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Amsterdam", hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" }).formatToParts(gok);
+  const deel = function (soort) { return Number(p.find(function (x) { return x.type === soort; }).value); };
+  const alsUtc = Date.UTC(deel("year"), deel("month") - 1, deel("day"), deel("hour"), deel("minute"), deel("second"));
+  return new Date(gok.getTime() - (alsUtc - gok.getTime()));
+}
+function tekstWeekTijd(ma) {
+  const zondag = new Date(ma + "T12:00:00Z");
+  zondag.setUTCDate(zondag.getUTCDate() + 6);
+  const einde = amsterdamTijd(zondag.toISOString().slice(0, 10), "23:59:59");
+  const t = Math.floor((einde.getTime() - Date.now()) / 1000);
+  if (t <= 0) return "Deze week is afgesloten";
+  const dagen = Math.floor(t / 86400);
+  const pad = function (n) { return String(n).padStart(2, "0"); };
+  const klok = pad(Math.floor((t % 86400) / 3600)) + ":" + pad(Math.floor((t % 3600) / 60)) + ":" + pad(t % 60);
+  return "Nog " + (dagen > 0 ? dagen + " d " : "") + klok + " tot het einde van de week";
+}
+function zetWeekTimer(ma) {
+  weekMaandag = ma;
+  const el = document.getElementById("week-timer");
+  el.hidden = false;
+  el.textContent = tekstWeekTijd(ma);
+}
+setInterval(function () {
+  if (!weekMaandag) return;
+  document.getElementById("week-timer").textContent = tekstWeekTijd(weekMaandag);
+}, 1000);
+
+let laatsteStand = null;
+async function toonWeek(db) {
+  const ma = weekVan(new Date().toISOString());
+  const vorige = datumPlus(ma, -7);
+  const stand = await berekenStand(db);
+  laatsteStand = stand;
+  const at = await db.collection("attempts").get();
+  const pogingen = at.docs.filter(function (d) { return d.exists; }).map(function (d) { return d.data(); });
+  const punten = puntenVanWeek(ma, stand.rijen, pogingen);
+  const rijen = stand.rijen.filter(function (r) { return r.week === ma; });
+  rijen.sort(function (a, b) { return a.dag < b.dag ? 1 : -1; });
+  const lijst = document.getElementById("quizlijst");
+  lijst.textContent = "";
+  rijen.forEach(function (r, i) { lijst.appendChild(quizRij(r, i === 0)); });
+  document.getElementById("score-Ritchie").textContent = punten.Ritchie;
+  document.getElementById("score-Rachel").textContent = punten.Rachel;
+  zetWeekTimer(ma);
+  // Weekkoploper bewaren in het profiel, zodat elke pagina de kroon kan tonen.
+  const weekKoploper = punten.Ritchie === punten.Rachel ? null : (punten.Ritchie > punten.Rachel ? "Ritchie" : "Rachel");
+  for (const n of NAMEN) {
+    try {
+      const d = await db.doc("profielen/" + n).get();
+      const data = d.exists ? d.data() : {};
+      data.weekkoploper = { week: ma, kroon: weekKoploper === n };
+      await db.doc("profielen/" + n).set(data);
+    } catch (e) { /* later opnieuw */ }
+  }
+  zetWeekKroon();
+  // De vorige week is net afgesloten: de winnaar daarvan krijgt de confetti (één keer).
+  weekWinnaarConfetti(vorige, puntenVanWeek(vorige, stand.rijen, pogingen));
+  // Badges en level: over alle quizzen samen
+  toonBadges(stand);
+  // XP-stand bewaren in het profiel, zodat de beginpagina het level kan tonen.
+  for (const n of NAMEN) {
+    try {
+      const d = await db.doc("profielen/" + n).get();
+      const data = d.exists ? d.data() : {};
+      data.xp = stand.xp[n];
+      await db.doc("profielen/" + n).set(data);
+    } catch (e) { /* later opnieuw */ }
+  }
+}
+// Medailles: een echt icoon per prestatie. Behaald is in kleur, nog niet behaald is grijs met de voortgang.
+const KLEUREN_MEDAILLE = ["#ffe066", "#ffb35c", "#8fb8ff", "#b5e27a", "#ff9ecf", "#a8e6cf", "#f9c98a"];
+const ICOON_SPEELD = "M4 6h16v12H4z M10 9.5l5 2.5-5 2.5z";
+const ICOON_GEWONNEN = "M8 4h8v5a4 4 0 0 1-8 0V4z M8 6H5a3 3 0 0 0 3 4 M16 6h3a3 3 0 0 1-3 4 M12 13v4 M9 21h6 M9 17h6";
+const MEDAILLES = [];
+[50, 100, 200, 500].forEach(function (n, i) {
+  MEDAILLES.push({ naam: n + " quizzen gespeeld", doel: n, kleur: KLEUREN_MEDAILLE[i % KLEUREN_MEDAILLE.length], icoon: ICOON_SPEELD, teller: function (s, p) { return s.gespeeld[p]; } });
+});
+[5, 10, 20, 50, 100, 200, 500].forEach(function (n, i) {
+  MEDAILLES.push({ naam: n + " quizzen gewonnen", doel: n, kleur: KLEUREN_MEDAILLE[(i + 2) % KLEUREN_MEDAILLE.length], icoon: ICOON_GEWONNEN, teller: function (s, p) { return s.gewonnen[p]; } });
+});
+// Medailles per persoon: je ziet er één tegelijk. Tik op een profielfoto om de medailles van die persoon te zien.
+let badgeStand = null;
+let alleAntwoorden = [];
+// Hoort een poging bij een quizregel van de week? Sleutel: "dag|quizdeel" of "thema|quizId".
+function horaBij(p, sleutel) {
+  if (sleutel.indexOf("thema|") === 0) return !!p.thema && p.thema.quiz === sleutel.slice(6);
+  if (p.thema) return false;
+  const m = /^(\d{4}-\d{2}-\d{2})-(?:(q\d+)-)?\d+$/.exec(p.vraag_id || "");
+  return !!m && m[1] + "|" + (m[2] || "main") === sleutel;
+}
+
+let badgePersoon = (function () {
+  try { const w = localStorage.getItem("wie"); if (NAMEN.indexOf(w) >= 0) return w; } catch (e) { /* geen opslag */ }
+  return NAMEN[0];
+})();
+function toonBadgeKiezer() {
+  const box = document.getElementById("badge-kiezer");
+  if (!box) return;
+  box.textContent = "";
+  NAMEN.forEach(function (n) {
+    const knop = document.createElement("button");
+    knop.type = "button";
+    knop.className = "badge-kies";
+    knop.dataset.naam = n;
+    knop.setAttribute("aria-selected", String(n === badgePersoon));
+    const foto = document.createElement("span");
+    foto.className = "avatar" + (n === "Rachel" ? " r" : "");
+    foto.dataset.avatar = n;
+    foto.textContent = n.charAt(0);
+    const naam = document.createElement("span");
+    naam.textContent = n;
+    knop.append(foto, naam);
+    knop.addEventListener("click", function () {
+      badgePersoon = n;
+      toonBadgeKiezer();
+      toonBadges(badgeStand);
+      verversFotos();
+    });
+    box.appendChild(knop);
+  });
+}
+function toonBadges(s) {
+  if (s) badgeStand = s;
+  const lijst = document.getElementById("badgelijst");
+  if (!lijst || !badgeStand) return;
+  toonBadgeKiezer();
+  lijst.textContent = "";
+  const p = badgePersoon;
+  if (s.xp) {
+    // Level: level L is bereikt bij 132 × L² XP. Dat wordt steeds moeilijker per level.
+    const xp = s.xp[p] || 0;
+    const l = Math.floor(Math.sqrt(xp / 132));
+    const van = 132 * l * l;
+    const tot = 132 * (l + 1) * (l + 1);
+    const blok = document.createElement("div");
+    blok.className = "level-blok";
+    // Grote profielfoto van de gekozen persoon, vult verversFotos().
+    const foto = document.createElement("span");
+    foto.className = "avatar badge-foto" + (p === "Rachel" ? " r" : "");
+    foto.dataset.avatar = p;
+    foto.textContent = p.charAt(0);
+    blok.appendChild(foto);
+    const kop = document.createElement("div");
+    kop.className = "level-kop";
+    kop.append(maak2("span", "level-naam", "Level " + l), maak2("span", "level-xp", xp.toLocaleString("nl-NL") + " XP"));
+    const balk = document.createElement("div");
+    balk.className = "level-balk";
+    const vul = document.createElement("i");
+    vul.style.width = Math.round(100 * (xp - van) / (tot - van)) + "%";
+    balk.appendChild(vul);
+    blok.append(kop, balk, maak2("p", "level-sub", "Nog " + (tot - xp).toLocaleString("nl-NL") + " XP tot level " + (l + 1)), maak2("p", "level-sub", "Quizzen gewonnen: " + ((s.gewonnen && s.gewonnen[p]) || 0)));
+    lijst.appendChild(blok);
+    verversFotos();
+  }
+  MEDAILLES.forEach(function (m) {
+    const n = m.teller(badgeStand, p);
+    const behaald = n >= m.doel;
+    const rij = document.createElement("div");
+    rij.className = "medaille " + (behaald ? "on" : "off");
+    const ring = document.createElement("span");
+    ring.className = "medaille-ring";
+    ring.style.setProperty("--m", m.kleur);
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("aria-hidden", "true");
+    const pad = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    pad.setAttribute("d", m.icoon);
+    svg.appendChild(pad);
+    ring.appendChild(svg);
+    const tekst = document.createElement("span");
+    tekst.className = "medaille-tekst";
+    const titel = document.createElement("span");
+    titel.className = "medaille-titel";
+    titel.textContent = m.naam;
+    const sub = document.createElement("span");
+    sub.className = "medaille-sub";
+    sub.textContent = behaald ? "Behaald" : Math.min(n, m.doel) + " van " + m.doel;
+    tekst.append(titel, sub);
+    rij.append(ring, tekst);
+    lijst.appendChild(rij);
+  });
+}
+
+function toonAvatar(el, naam, foto) {
+  zetPersoonKleur(el, naam);
+  el.textContent = "";
+  if (foto) {
+    const img = document.createElement("img");
+    img.src = foto;
+    img.alt = naam;
+    el.appendChild(img);
+  } else {
+    el.textContent = naam.charAt(0);
+  }
+}
+async function verversFotos() {
+  try {
+    const db = await getDb();
+    const r = await db.collection("profielen").get();
+    const fotos = {};
+    r.docs.forEach(function (d) { if (d.exists) fotos[d.id] = d.data().foto; });
+    document.querySelectorAll("[data-avatar]").forEach(function (el) {
+      toonAvatar(el, el.dataset.avatar, fotos[el.dataset.avatar]);
+    });
+  } catch (e) { /* de letters blijven staan */ }
+}
+
+async function start() {
+  const db = await getDb();
+  if (!db) {
+    const b = document.getElementById("banner");
+    b.textContent = "De punten zijn nu niet te zien. Open de pagina via de link van de eigenaar.";
+    b.hidden = false;
+    return;
+  }
+  try {
+    const snap = await db.collection("attempts").get();
+    const themaSnap = await db.collection("themaantwoorden").get();
+    const pogingen = snap.docs
+      .filter((d) => d.exists)
+      .map((d) => d.data())
+      .filter((p) => NAMEN.includes(p.wie));
+    themaSnap.docs.filter((d) => d.exists).map((d) => d.data()).filter((p) => NAMEN.includes(p.wie)).forEach((p) => {
+      pogingen.push({ wie: p.wie, goed: p.goed === true, gezet_op: p.gezet_op, thema: { quiz: p.quiz, i: p.i } });
+    });
+    alleAntwoorden = pogingen;
+    await toonWeek(db);
+    toonAlleUitslagen();
+    const themaDocs = themaSnap.docs.filter((d) => d.exists).map((d) => d.data());
+    await themaStand(db, snap.docs.filter((d) => d.exists).map((d) => d.data()), themaDocs);
+  } catch (e) {
+    const b = document.getElementById("banner");
+    b.textContent = "Kan de punten niet laden. Probeer de pagina opnieuw te openen.";
+    b.hidden = false;
+  }
+}
+
+start();
+verversFotos();
+setInterval(start, 30000);
+setInterval(verversFotos, 60000);
+
+// Teller op het Chat-tabblad: zie chatteller.js
+
+// Alle quiz uitslagen: meteen laden bij het openen van de pagina, zodat de lijst direct klaar staat als je hem opent.
+// Alle uitslagen: dezelfde klikbare kaarten als de weeklijst, nieuwste eerst. Alleen opnieuw opbouwen als er iets is veranderd.
+let alleSig = "";
+function toonAlleUitslagen() {
+  if (!laatsteStand) return;
+  const el = document.getElementById("alle-uitslagen");
+  el.dataset.geladen = "1";
+  const rijen = laatsteStand.rijen.slice().sort(function (a, b) { return a.dag < b.dag ? 1 : -1; });
+  const sig = rijen.map(function (r) { return r.sleutel + ":" + r.r + ":" + r.c; }).join("|") + "#" + alleAntwoorden.length;
+  if (sig === alleSig) return;
+  alleSig = sig;
+  const lijst = document.getElementById("alle-lijst");
+  lijst.textContent = "";
+  document.getElementById("uitslag-leeg").hidden = rijen.length > 0;
+  rijen.forEach(function (r) { lijst.appendChild(quizRij(r, false)); });
+}
+</script>
+</body>
+</html>

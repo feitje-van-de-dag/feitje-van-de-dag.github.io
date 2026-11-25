@@ -1,0 +1,903 @@
+/* Feitje van de dag: één stijl voor de hele app.
+   Wordt op elke pagina NA de eigen stijl geladen, zodat deze regels gelijk trekken.
+   Kleuren: crème achtergrond, wit vlak, inkt paars, roze als actiekleur, mint voor Ritchie, roze-soft voor Rachel.
+   Lettertype: één familie (systeem-sans), dikte 400 / 600 / 800. */
+
+:root {
+  --paars: #c9b3ff;
+  --paars-diep: #8a6fe0;
+  --paars-zacht: #f6f1ff;
+  --paars-lijn: #e7dcff;
+  --roze-licht: #ff9ecf;
+  --goed-licht: #9ef0d0;
+  --goed-diep: #167a68;
+  --fout-diep: #b3261e;
+  --beige-lijn: #eadfbf;
+  --beige-diep: #b9b0a0;
+  --geel: #ffe066;
+  --oranje: #ffb35c;
+  --blauw: #8fb8ff;
+  --bg: #fff6d6;
+  --vlak: #ffffff;
+  --inkt: #2a1f4a;
+  --zacht: #5b4e7a;
+  --roze: #ff4f9a;
+  --roze-diep: #d63a80;
+  --roze-zacht: #ffe0ef;
+  --mint: #1fae8c;
+  --mint-zacht: #d6f7ee;
+  --lijn: #ffd0e8;
+  --goed: #17694d;
+  --fout: #9c2650;
+  --lettertype: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, sans-serif;
+  --display: var(--lettertype);
+  --body: var(--lettertype);
+  --radius-kaart: 20px;
+  --radius-knop: 18px;
+  --schaduw-kaart: 0 6px 0 var(--lijn);
+}
+
+/* Lettertype en basis */
+html, body, button, input, select, textarea { font-family: var(--lettertype); }
+body { color: var(--inkt); background: var(--bg); }
+h1 { font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
+h2, h3 { font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: 20px; }
+
+/* Kopjes met de roze eyebrow-stijl */
+.eyebrow, .label, .plus h2, .bronnen h2, .oef-kop, .instel .eyebrow {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--roze-diep);
+}
+
+.muted, .uitleg, .intro, .datum, .bronwacht, .leeg { color: var(--zacht); }
+
+/* Jaartal en maand in het overzicht: geen streepjes, wel een duidelijke kop */
+.year h2 { border: 0; padding: 0; font-size: 12px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--roze-diep); }
+.days a { border: 0; }
+
+/* Kaarten: één uiterlijk */
+.kaart, .card, .score-link, .instel, .stand, .uitslag, .bronnen, .plus, .tq-actief, .tqlijst details {
+  background: var(--vlak);
+  border: 0;
+  border-radius: var(--radius-kaart);
+  box-shadow: var(--schaduw-kaart);
+  padding: 18px;
+}
+.kaart { gap: 14px; }
+.tqlijst details { padding: 14px 16px; }
+
+/* Chips: naam, terugknop en tellers */
+.wie, .terug, .chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--vlak);
+  box-shadow: 0 2px 0 var(--lijn);
+  color: var(--inkt);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.chip { text-transform: uppercase; letter-spacing: 0.06em; font-size: 12px; color: var(--zacht); }
+
+/* Knoppen: drie varianten, overal dezelfde */
+.tq-knop, .plusknop, .tq-spelen, .paars, .tq-nieuws {
+  min-height: 56px;
+  padding: 12px 18px;
+  border: 0;
+  border-radius: var(--radius-knop);
+  background: var(--roze);
+  color: var(--vlak);
+  font-size: 17px;
+  font-weight: 800;
+  text-align: center;
+  box-shadow: 0 6px 0 var(--roze-diep);
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.tq-knop.tq-random, .tq-knop.tq-nieuws, .tq-open, .wissel, .opnieuw, .extra {
+  min-height: 48px;
+  padding: 10px 16px;
+  border: 2px solid var(--inkt);
+  border-radius: 16px;
+  background: var(--vlak);
+  color: var(--inkt);
+  font-size: 15px;
+  font-weight: 700;
+  box-shadow: 0 4px 0 var(--lijn);
+}
+.verwijder, .stop {
+  min-height: 48px;
+  padding: 10px 16px;
+  border: 2px solid var(--fout);
+  border-radius: 16px;
+  background: var(--vlak);
+  color: var(--fout);
+  font-size: 15px;
+  font-weight: 700;
+  box-shadow: none;
+}
+.verwijder.ja, .stop.ja { background: var(--fout); color: var(--vlak); }
+
+button:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 2px 0 var(--roze-diep); }
+.tq-knop.tq-random:active:not(:disabled), .wissel:active:not(:disabled), .opnieuw:active:not(:disabled), .extra:active:not(:disabled) { box-shadow: 0 2px 0 var(--lijn); }
+button:disabled { opacity: 0.5; box-shadow: none; }
+button:focus-visible, a:focus-visible { outline: 3px solid var(--inkt); outline-offset: 3px; }
+
+/* Antwoordopties: vaste quizkleuren */
+.opt { border-radius: 16px; font-weight: 700; color: var(--inkt); }
+.opt.a { background: var(--geel); }
+.opt.b { background: var(--roze-licht); }
+.opt.c { background: var(--goed-licht); }
+.opt.d { background: var(--paars); }
+
+/* Scorechips */
+.score { display: flex; flex-wrap: wrap; gap: 8px; }
+.score span { min-height: 28px; padding: 4px 12px; border-radius: 999px; font-size: 14px; font-weight: 800; }
+.score .goed { background: var(--mint-zacht); color: var(--goed); }
+.score .fout { background: var(--roze-zacht); color: var(--fout); }
+
+/* Feedback en meldingen */
+.feedback { border-radius: 14px; font-size: 15px; }
+.feedback.ok { background: var(--mint-zacht); border-left: 6px solid var(--mint); }
+.feedback.nee { background: var(--roze-zacht); border-left: 6px solid var(--roze); }
+.melding { border-radius: 14px; border: 0; background: var(--roze-zacht); color: var(--fout); }
+
+/* Voortgangsbalken */
+.balkje, .laad-balk { background: var(--roze-zacht); }
+.balkje > i, .laad-balk > i { background: var(--roze); }
+.laad.klaar .laad-balk > i { background: var(--mint); }
+
+/* Lijsten in dagen en overzicht */
+.days a { border: 0; border-radius: 16px; box-shadow: var(--schaduw-kaart); background: var(--vlak); }
+.days a:hover { box-shadow: 0 6px 0 var(--roze); }
+
+/* Bronnen: rustige rijen */
+.bronnen li { background: var(--bg); border-radius: 12px; }
+
+/* Links: geen streepjes onder bronnen en onderaan; wel herkenbaar als knop */
+.bronnen a { color: var(--inkt); font-weight: 600; text-decoration: none; }
+.bronnen a:hover { text-decoration: underline; }
+.voet { margin: 22px 0 28px; text-align: center; }
+.voet a { display: inline-flex; align-items: center; min-height: 40px; padding: 8px 16px; border-radius: 999px; background: var(--vlak); box-shadow: 0 2px 0 var(--lijn); color: var(--inkt); font-weight: 700; font-size: 14px; text-decoration: none; }
+.kaart .chip { background: var(--bg); box-shadow: none; }
+
+/* Terugknoppen: dezelfde chip overal */
+.back { display: inline-flex; align-items: center; align-self: flex-start; min-height: 36px; padding: 6px 14px; border-radius: 999px; background: var(--vlak); box-shadow: 0 2px 0 var(--lijn); color: var(--inkt); font-size: 14px; font-weight: 700; text-decoration: none; }
+
+/* Punten: themaquiz-samenvatting en tijdstempels */
+.tq-kop { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.tq-scores { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.tq-scores span { min-height: 28px; display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 800; }
+.tq-scores .persoon { background: var(--p-zacht, var(--mint-zacht)); color: var(--p-tekst, var(--goed)); }
+.naam[data-persoon] { color: var(--p-tekst, inherit); }
+.status { display: inline-flex; min-height: 24px; align-items: center; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; }
+.status.bezig { background: #fff1c2; color: #7a5a00; }
+.status.klaar { background: var(--mint-zacht); color: var(--goed); }
+.tijd { color: var(--zacht); font-size: 13px; font-weight: 500; }
+.hist .who .tijd { display: block; margin-top: 2px; }
+
+/* Thema-labels zijn informatie, geen knoppen: vlak, zonder schaduw */
+.themas li, .tq-themas li { box-shadow: none; background: rgba(255, 255, 255, 0.7); color: var(--inkt); min-height: 36px; font-size: 13px; }
+
+/* Vaste kleur per thema: overal dezelfde, op elke pagina */
+[data-thema="Geschiedenis"] { --tc: #f9c98a; }
+[data-thema="Aardrijkskunde"] { --tc: #a8e6cf; }
+[data-thema="Wetenschap"] { --tc: #b8c9ff; }
+[data-thema="Natuur"] { --tc: #d4eeaa; }
+[data-thema="Cultuur"] { --tc: #ffc2dc; }
+[data-thema="Sport"] { --tc: #ffb8a8; }
+[data-thema="Filosofie"] { --tc: #dcc8ff; }
+[data-thema="Algemene kennis"] { --tc: #fff0a6; }
+.chip[data-thema], .tq-themas li[data-thema], .themas li[data-thema], .thema-chip[data-thema] {
+  background: var(--tc);
+  box-shadow: none;
+  color: var(--inkt);
+}
+.thema-chip { display: inline-flex; align-items: center; min-height: 26px; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 800; }
+input[name="thema"][value="Geschiedenis"] { accent-color: #f9c98a; }
+input[name="thema"][value="Aardrijkskunde"] { accent-color: #a8e6cf; }
+input[name="thema"][value="Wetenschap"] { accent-color: #b8c9ff; }
+input[name="thema"][value="Natuur"] { accent-color: #d4eeaa; }
+input[name="thema"][value="Cultuur"] { accent-color: #ffc2dc; }
+input[name="thema"][value="Sport"] { accent-color: #ffb8a8; }
+input[name="thema"][value="Filosofie"] { accent-color: #dcc8ff; }
+input[name="thema"][value="Algemene kennis"] { accent-color: #fff0a6; }
+
+/* Uitslag per vraag: kleine badge en één knop. Het antwoord is verborgen tot je het opent. */
+.uitslag-rij { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.badge { display: inline-flex; align-items: center; min-height: 28px; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; }
+.badge.goed { background: var(--mint-zacht); color: var(--goed); }
+.badge.fout { background: var(--roze-zacht); color: var(--fout); }
+.toon { min-height: 40px; padding: 8px 14px; border: 2px solid var(--inkt); border-radius: 999px; background: var(--vlak); color: var(--inkt); font-size: 14px; font-weight: 700; box-shadow: none; }
+.antwoord-tekst { margin: 0; padding: 12px 14px; border-radius: 14px; background: var(--bg); font-size: 15px; line-height: 1.5; }
+/* Vragen met een uitslag: de oude roze balk is niet meer nodig */
+.feedback { display: none; }
+
+/* Instellingen: sluitknop rechtsboven, naam en wisselen op één regel, meldingen eronder */
+.instel { gap: 14px; }
+.instel-kop { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.sluit { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 50%; background: var(--bg); color: var(--inkt); font-size: 22px; font-weight: 700; line-height: 1; box-shadow: 0 2px 0 var(--lijn); }
+.instel-rij { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.wie-chip { display: inline-flex; align-items: center; min-height: 40px; padding: 6px 16px; border-radius: 999px; background: var(--mint-zacht); color: var(--goed); font-size: 16px; font-weight: 800; }
+.instel .wissel { min-height: 44px; padding: 8px 18px; }
+.instel .tq-knop { min-height: 52px; }
+
+/* Onderbalk: vaste navigatie onderaan (Vandaag, Punten, Chat, Terugblik, Winkel).
+   Opbouw: body is een kolom van precies de schermhoogte. .app-inhoud scrolt binnen die kolom,
+   de balk is het laatste kind van de kolom en dus altijd onderaan. Geen position: fixed en geen sticky
+   (sticky zette de balk halverwege als de pagina korter was dan het scherm). */
+html { background: var(--bg); }
+body.heeft-tabs { margin: 0; height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; padding: 0; }
+body.heeft-tabs > .app-inhoud { flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); box-sizing: border-box; }
+/* De zijkant-ruimte stond eerst op body (padding-left/right); de body-reset hierboven haalde die weg. Nu zit ze op .app-inhoud. */
+body.heeft-tabs > .tabs {
+  flex: 0 0 auto;
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+  background: var(--vlak);
+  box-shadow: 0 -2px 0 var(--lijn);
+}
+.tab {
+  flex: 1;
+  max-width: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  border-radius: 16px;
+  color: var(--zacht);
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.tab[aria-current="page"] { background: var(--roze); color: var(--vlak); }
+.tab:active { transform: scale(0.97); }
+
+/* Archief (maanden en weken): zelfde kaart als de dagen, met een pijl die draait */
+.archief { display: flex; flex-direction: column; gap: 12px; }
+.archief details { display: block; }
+.archief summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 56px;
+  padding: 16px 18px;
+  background: var(--vlak);
+  border: 0;
+  border-radius: 16px;
+  box-shadow: var(--schaduw-kaart);
+  color: var(--inkt);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.archief summary::-webkit-details-marker { display: none; }
+.archief summary::after {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid var(--inkt);
+  border-bottom: 2px solid var(--inkt);
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+  flex: none;
+  margin-right: 4px;
+}
+.archief details[open] > summary::after { transform: rotate(225deg); }
+.archief details[open] > summary { box-shadow: 0 6px 0 var(--roze); }
+.archief .maand > summary { font-family: var(--lettertype); font-size: 17px; font-weight: 800; }
+.archief .week { margin: 10px 0 0 0; }
+.archief .week > summary { font-size: 15px; font-weight: 700; min-height: 48px; box-shadow: 0 4px 0 var(--lijn); }
+.archief .week .days { margin-top: 10px; }
+
+/* De nieuwste dagquiz: wisselende zachte kleur, elke dag een andere */
+.days a.openstaand, .days a.nietklaar, .days a.voltooid { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; box-sizing: border-box; }
+.days a .status { font-size: 13px; font-weight: 800; color: var(--zacht); text-align: right; white-space: nowrap; }
+.days a.openstaand { background: #d4eeaa; box-shadow: 0 6px 0 #a8cf78; }
+.days a.openstaand .status { color: #3d5a1a; }
+.days a.nietklaar { background: #d6e8ff; box-shadow: 0 6px 0 #9dbef0; }
+.days a.nietklaar .status { color: #2b4c8a; }
+.days a.voltooid { background: var(--vlak); }
+.days a.nieuw { background: var(--dag, var(--vlak)); border-color: transparent; box-shadow: 0 6px 0 rgba(42, 31, 74, 0.14); }
+.days a.nieuw .meta { color: var(--inkt); }
+
+/* Vandaag: de nieuwste dagquiz bovenaan, in zijn eigen kleur */
+.vandaag { display: flex; flex-direction: column; gap: 4px; padding: 18px 20px; border-radius: 20px; background: var(--dag, var(--vlak)); color: var(--inkt); box-shadow: 0 6px 0 rgba(42, 31, 74, 0.14); text-decoration: none; }
+.vandaag .eyebrow { color: var(--inkt); opacity: 0.75; }
+.vandaag-titel { font-size: 20px; font-weight: 800; letter-spacing: -0.01em; }
+#vandaag-kaart:empty { display: none; }
+.bronnen li:empty { display: none; }
+
+/* Extra informatie: pas zichtbaar na een tik op de kop */
+details.tap > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+details.tap > summary::-webkit-details-marker { display: none; }
+.tq-vervalt { margin-left: auto; display: inline-flex; align-items: center; min-height: 26px; padding: 2px 10px; border-radius: 999px; background: var(--paars-lijn); color: var(--inkt); font-size: 12px; font-weight: 800; letter-spacing: .02em; white-space: nowrap; font-variant-numeric: tabular-nums; }
+details.tap > summary::after { content: ""; width: 9px; height: 9px; flex: none; border-right: 2px solid var(--inkt); border-bottom: 2px solid var(--inkt); transform: rotate(45deg); transition: transform 0.2s ease; margin-right: 4px; }
+details.tap[open] > summary::after { transform: rotate(225deg); }
+details.tap > summary > .scoreregel { flex: 1; }
+details.tap > summary > h2 { margin: 0; }
+details.tap > summary > .label { margin: 0; }
+details.tap[open] > summary { margin-bottom: 12px; }
+details.tap > summary.week-kop { flex-direction: column; align-items: stretch; gap: 8px; }
+details.tap > summary.week-kop::after { align-self: center; margin: 4px 0 0; }
+
+/* Themaquizzen op de puntenpagina: één rustige rij per quiz, thema's pas na een tik */
+.tqlijst { gap: 8px; margin-top: 12px; }
+.tqlijst details { background: var(--bg); border-radius: 16px; padding: 0; overflow: hidden; }
+.tqlijst details > summary { display: flex; flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 14px 16px; min-height: 56px; font-weight: 700; cursor: pointer; list-style: none; }
+.tqlijst details > summary::-webkit-details-marker { display: none; }
+.tqlijst details > summary .tq-kop { display: flex; align-items: center; gap: 10px; }
+.tqlijst details > summary .tijd { font-size: 13px; color: var(--zacht); }
+.tqlijst details > summary .tq-scores { display: flex; gap: 6px; }
+.tqlijst details > summary .tq-scores span { min-height: 26px; padding: 3px 10px; border-radius: 999px; font-size: 13px; font-weight: 800; }
+.tqlijst details > summary::after { content: ""; width: 8px; height: 8px; border-right: 2px solid var(--inkt); border-bottom: 2px solid var(--inkt); transform: rotate(45deg); margin: 0 4px; flex: none; }
+.tqlijst details[open] > summary::after { transform: rotate(225deg); }
+.tq-themas-tekst { margin: 0; padding: 0 16px 14px; color: var(--zacht); font-size: 14px; line-height: 1.5; }
+.tqlijst details > .tqvraag { margin: 0 16px; padding-top: 12px; border-top: 1px solid var(--lijn); }
+.tqlijst details > .tqvraag:last-child { margin-bottom: 14px; }
+
+/* Profielfoto's */
+.avatar { display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 50%; background: var(--p-kern, var(--mint)); color: var(--vlak); font-size: 20px; font-weight: 800; overflow: hidden; flex: none; }
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.profiel-rij { display: flex; align-items: center; gap: 14px; }
+.profiel-rij .avatar { width: 64px; height: 64px; font-size: 24px; }
+.knop-klein { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 16px; border: 2px solid var(--inkt); border-radius: 16px; background: var(--vlak); color: var(--inkt); font-size: 15px; font-weight: 700; cursor: pointer; }
+.speler { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.speler .naam { font-weight: 800; font-size: 15px; }
+
+/* Reeks, resultaat, badges en animaties */
+.reeks { align-self: flex-start; display: inline-flex; align-items: center; min-height: 36px; padding: 6px 14px; margin: 0; border-radius: 999px; background: var(--mint-zacht); color: var(--goed); font-size: 14px; font-weight: 800; }
+.quiz-klaar { margin: 0; font-size: 15px; font-weight: 800; color: var(--goed); }
+.badge-blok { display: flex; flex-direction: column; gap: 10px; padding: 12px 0; border-top: 1px solid var(--lijn); }
+.badge-blok:first-child { border-top: 0; }
+.badge-naam { margin: 0; font-size: 15px; font-weight: 800; }
+.badge-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.badge-item { display: inline-flex; align-items: center; min-height: 32px; padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 800; }
+.badge-item.on { background: var(--mint-zacht); color: var(--goed); }
+.badge-item.off { background: var(--bg); color: var(--zacht); opacity: 0.6; }
+.uitslag-rij .badge { animation: pop 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.3) both; }
+.antwoord-tekst { animation: vervaag 0.35s ease both; }
+@keyframes pop { 0% { transform: scale(0.6); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+/* Bronnen: alleen zichtbaar binnen het opengeklapte antwoord */
+details.bronnen { display: none; }
+.bron-regel { margin: 0; font-size: 14px; color: var(--zacht); line-height: 1.5; }
+.bron-regel a { color: var(--inkt); font-weight: 700; text-decoration: none; }
+.bron-regel a:hover { text-decoration: underline; }
+
+/* Medailles: echte iconen, onder elkaar */
+.medaille-naam { margin: 16px 0 4px; font-size: 12px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--roze-diep); }
+.medaille-naam:first-child { margin-top: 4px; }
+.medaille { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-top: 1px solid var(--lijn); }
+.medaille-ring { width: 52px; height: 52px; border-radius: 50%; background: var(--m, var(--bg)); display: inline-flex; align-items: center; justify-content: center; flex: none; box-shadow: 0 3px 0 rgba(42, 31, 74, 0.12); }
+.medaille-ring svg { width: 26px; height: 26px; fill: none; stroke: var(--inkt); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.medaille.off .medaille-ring { background: var(--beige-lijn); box-shadow: none; }
+.medaille.off .medaille-ring svg { stroke: var(--beige-diep); }
+.medaille.off .medaille-titel { color: var(--zacht); }
+.medaille-tekst { display: flex; flex-direction: column; gap: 2px; }
+.medaille-titel { font-size: 15px; font-weight: 800; }
+.medaille-sub { font-size: 13px; color: var(--zacht); }
+
+/* Eén keer vragen om meldingen */
+.vraag-melding { display: flex; flex-direction: column; gap: 12px; padding: 18px; background: var(--vlak); border-radius: 20px; box-shadow: var(--schaduw-kaart); }
+.vraag-melding p { margin: 0; font-size: 17px; font-weight: 800; }
+.vraag-knoppen { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.vraag-knoppen .tq-knop, .vraag-knoppen .wissel { width: 100%; }
+
+/* Chat-knop bij uitdagen */
+.uitdaag-rij { display: flex; }
+.uitdaag-rij .tq-knop { width: 100%; }
+
+/* Profielfoto's bij chat en profielknop */
+.kop-foto { width: 64px; height: 64px; font-size: 24px; margin-bottom: 6px; }
+#wissel img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+
+/* Teller op het Chat-tabblad */
+.tab { position: relative; }
+.tab-teller { position: absolute; top: 4px; right: 8px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: var(--roze); color: var(--vlak); font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 2px 0 var(--roze-diep); }
+.tab-teller[hidden] { display: none; }
+
+/* Themaknop in de chat: past binnen de kaart (box-sizing) */
+.thema-kaart { align-items: stretch; }
+.thema-kaart a.tq-knop { box-sizing: border-box; width: 100%; margin: 0; }
+
+/* Instellingen: één rij met foto, naam, foto-knop en wisselen */
+.profiel-kaart { display: flex; align-items: center; gap: 14px; }
+.profiel-groot { width: 72px; height: 72px; font-size: 26px; }
+.profiel-tekst { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.wie-naam { font-size: 20px; font-weight: 800; }
+.foto-knop { display: inline-flex; align-items: center; min-height: 32px; padding: 4px 12px; border-radius: 999px; background: var(--bg); color: var(--inkt); font-size: 13px; font-weight: 700; cursor: pointer; }
+
+/* Themaquizzen: vaste kolommen, zodat alles onder elkaar uitlijnt */
+.tqlijst details > summary { display: grid; grid-template-columns: 1fr 96px 96px 18px; align-items: center; gap: 10px; }
+.tqlijst details > summary .tq-kop { flex-direction: column; align-items: flex-start; gap: 6px; min-width: 0; }
+.tqlijst details > summary .tq-scores { display: contents; }
+.tqlijst details > summary .tq-scores span { display: inline-flex; justify-content: center; width: 96px; box-sizing: border-box; }
+.tqlijst .status.bezig { background: #fff1c2; color: #7a5a00; }
+.tqlijst .status.klaar { background: var(--beige-lijn); color: var(--zacht); }
+
+/* Thema's: alleen de cirkel; tik erop voor de percentages */
+.th-detail > summary { list-style: none; cursor: pointer; display: block; }
+.th-detail > summary::-webkit-details-marker { display: none; }
+.th-detail .th-lijst { margin-top: 12px; }
+
+/* Thema's staat altijd open, zonder pijl: de cirkels zijn de knop */
+#th-kaart > summary::after { display: none; }
+
+/* Tikbare thema-cirkel op de puntenpagina */
+a.th-detail { display: block; text-decoration: none; cursor: pointer; }
+
+/* Naam van een random quiz */
+.naam-rij { display: flex; }
+.naam-knop { min-height: 36px; padding: 6px 14px; border: 2px solid var(--inkt); border-radius: 999px; background: var(--vlak); color: var(--inkt); font-size: 14px; font-weight: 700; }
+.naam-bewerk { display: flex; gap: 8px; }
+.naam-bewerk input { flex: 1; min-width: 0; min-height: 44px; padding: 8px 14px; border: 2px solid var(--lijn); border-radius: 999px; background: var(--vlak); color: var(--inkt); font-size: 16px; }
+.naam-bewerk input:focus { outline: none; border-color: var(--roze); }
+.naam-opslaan { min-height: 44px; padding: 0 18px; border: 0; border-radius: 999px; background: var(--roze); color: var(--vlak); font-size: 15px; font-weight: 800; box-shadow: 0 3px 0 var(--roze-diep); }
+
+/* Animaties op alle pagina's: onderdelen schuiven in, cijfers springen, open-klappen schuift mee */
+@keyframes stijgIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes popIn { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
+@keyframes openSchuif { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+html:not([data-geladen]) main > * { animation: stijgIn 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+main > *:nth-child(2) { animation-delay: 0.05s; }
+main > *:nth-child(3) { animation-delay: 0.1s; }
+main > *:nth-child(4) { animation-delay: 0.15s; }
+main > *:nth-child(5) { animation-delay: 0.2s; }
+main > *:nth-child(6) { animation-delay: 0.25s; }
+main > *:nth-child(n+7) { animation-delay: 0.3s; }
+html:not([data-geladen]) .person, html:not([data-geladen]) .score-link, html:not([data-geladen]) .cijfers span, html:not([data-geladen]) .score span { animation: popIn 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
+html:not([data-geladen]) details[open] > :not(summary) { animation: openSchuif 0.35s ease both; }
+html:not([data-geladen]) .thema-rij, html:not([data-geladen]) .medaille, html:not([data-geladen]) .quizlijst li, html:not([data-geladen]) .days a, html:not([data-geladen]) .archief summary, html:not([data-geladen]) .tqlijst details { animation: stijgIn 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.thema-rij:nth-child(2), .medaille:nth-child(2), .days li:nth-child(2) a { animation-delay: 0.05s; }
+.thema-rij:nth-child(3), .medaille:nth-child(3), .days li:nth-child(3) a { animation-delay: 0.1s; }
+.thema-rij:nth-child(4), .medaille:nth-child(4), .days li:nth-child(4) a { animation-delay: 0.15s; }
+.thema-rij:nth-child(5), .medaille:nth-child(5), .days li:nth-child(5) a { animation-delay: 0.2s; }
+html:not([data-geladen]) .bel-rij { animation: stijgIn 0.35s ease both; }
+.opt { transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* Naam- en verwijderknoppen: ruimte tussen de knoppen en het invoerveld */
+.naam-rij { gap: 10px; flex-wrap: wrap; margin: 10px 0 4px; }
+.naam-bewerk { margin: 12px 0 8px; }
+.naam-rij + .naam-bewerk { margin-top: 4px; }
+
+/* Level onder de profielfoto in de instellingen */
+.level-mini { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 220px; margin-top: 4px; }
+.level-mini-tekst { font-size: 13px; font-weight: 800; color: var(--zacht); font-variant-numeric: tabular-nums; }
+.level-balk { height: 10px; border-radius: 999px; background: var(--roze-zacht); overflow: hidden; }
+.level-balk > i { display: block; height: 100%; width: 0; border-radius: 999px; background: var(--roze); transition: width 1.2s cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+/* Profielknop rechtsboven: groter, en de foto vult de cirkel netjes */
+.wissel-icoon { width: 52px; height: 52px; top: 0; padding: 0; overflow: hidden; }
+.wissel-icoon img { display: block; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+
+/* Thema's: altijd naast elkaar, ook op de telefoon */
+.th-rij { grid-template-columns: 1fr 1fr; gap: 10px; }
+.th-speler { padding: 10px; min-width: 0; }
+.th-ring { max-width: 150px; }
+.th-speler h3 { font-size: 15px; }
+
+/* Uitslag-scherm: volledig scherm bij het einde van een quiz */
+.uitslag-overlay { position: fixed; inset: 0; z-index: 300; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(42, 31, 74, 0.55); animation: vervaag 0.3s ease both; }
+.uitslag-kaart { width: 100%; max-width: 360px; padding: 28px 22px 22px; background: var(--vlak); border-radius: 24px; box-shadow: 0 8px 0 var(--lijn); text-align: center; display: flex; flex-direction: column; gap: 12px; animation: popIn 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
+.uitslag-kop { margin: 0; font-size: 12px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--roze-diep); }
+.uitslag-titel { margin: 0; font-size: 30px; font-weight: 800; letter-spacing: -0.02em; }
+.uitslag-tekst { margin: 0; font-size: 16px; color: var(--zacht); }
+.uitslag-xp { margin: 4px 0 0; font-size: 26px; font-weight: 800; color: var(--goed); font-variant-numeric: tabular-nums; }
+.uitslag-scores { display: flex; gap: 12px; margin: 14px 0 0; }
+.uitslag-score { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 12px 8px; border-radius: 16px; background: var(--bg); color: var(--zacht); }
+.uitslag-score.hoogste { background: var(--mint-zacht); color: var(--goed); }
+.uitslag-score-naam { font-size: 14px; font-weight: 800; }
+.uitslag-score-getal { font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.uitslag-knop { margin-top: 8px; width: 100%; }
+
+/* Eén stijl voor kaarten, labels en koppen op alle pagina's (zelfde waarden als punten). */
+h1 { margin: 0; font-size: clamp(26px, 7vw, 34px); line-height: 1.1; font-weight: 800; text-wrap: balance; }
+.eyebrow { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--roze); }
+.card { background: var(--vlak); border-radius: 18px; box-shadow: 0 6px 0 var(--lijn); padding: 18px; min-width: 0; }
+.label { margin: 0 0 8px; font-size: 13px; font-weight: 700; color: var(--zacht); }
+
+/* Speels: knoppen en kaarten reageren met een veer. Uit voor wie minder beweging wil. */
+@media (prefers-reduced-motion: no-preference) {
+  .tq-knop, .wissel, .pick-btn, .score-link, .kies-chip, .quiz-rij > summary {
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+  }
+  .tq-knop:active, .wissel:active, .pick-btn:active, .kies-chip:active { transform: translateY(3px) scale(0.97); }
+  html:not([data-geladen]) .quiz-rij { animation: stijgIn 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+  .quiz-rij:nth-child(2) { animation-delay: 0.05s; }
+  .quiz-rij:nth-child(3) { animation-delay: 0.1s; }
+  .quiz-rij:nth-child(4) { animation-delay: 0.15s; }
+  .quiz-rij:nth-child(5) { animation-delay: 0.2s; }
+  .quiz-rij:nth-child(6) { animation-delay: 0.25s; }
+}
+/* Hover blijft hangen na een tik op de telefoon: alleen op apparaten met een muis. */
+@media (hover: hover) {
+  .quiz-rij > summary:hover { transform: translateY(-2px); }
+}
+
+/* Vaste tussenruimte tussen vraagkaarten: werkt ook waar flexbox gap niet werkt (oudere iOS). */
+.quiz { gap: 0; }
+.quiz > .kaart { margin-bottom: 14px; position: relative; }
+.quiz > .kaart:last-child { margin-bottom: 0; }
+
+/* Tussenruimte tussen de blokken van elke pagina: met margin, dus ook waar flexbox gap niet werkt. */
+main { gap: 0; }
+main > * + * { margin-top: 18px; }
+
+/* Nieuwste quiz: een eigen gele rij met een kenlabel, zodat je hem meteen ziet. */
+.quiz-rij.nieuw > summary { background: var(--paars-lijn); box-shadow: 0 3px 0 var(--paars); }
+.nieuw-label { align-self: flex-start; display: inline-flex; margin-bottom: 4px; padding: 2px 10px; border-radius: 999px; background: var(--paars); color: var(--inkt); font-size: 11px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
+
+
+/* Nieuwste quiz op de startpagina: lila kaart, zodat hij opvalt tussen de andere dagen. */
+.vandaag.nieuwste { background: var(--paars-lijn); box-shadow: 0 6px 0 var(--paars); }
+
+/* Kroontje bij de koploper (dag- en weekstand). */
+.person, .speler { position: relative; }
+.kroon { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); width: 28px; height: 28px; fill: var(--geel); stroke: var(--oranje); stroke-width: 1.5; stroke-linejoin: round; pointer-events: none; }
+
+/* Alleen spelen en Samen met: mintgroen, zodat ze anders zijn dan de Random quiz-knop. */
+.tq-random-keuze .tq-knop { background: #ffe066; color: var(--ink); }
+
+/* Nieuwsquiz lichtgroen, Random quiz geel. Geen roze: die hoort bij de dagquiz en de themaquiz. */
+.tq-knop.tq-nieuws { background: #d4eeaa; color: var(--ink); }
+#tq-random-knop, .tq-knop.tq-random { background: #ffe066; color: var(--ink); }
+
+/* Kroon op een avatar van de weekkoploper: rechtsboven, buiten de afgeronde foto. */
+.koploper-wrap { position: relative; display: inline-flex; flex: none; }
+.koploper-wrap .kroon { position: absolute; top: -12px; left: 50%; right: auto; transform: translateX(-50%); width: 24px; height: 24px; }
+
+/* Terugknop: vaste hoogte, tekst gecentreerd, geen extra ruimte onder de tekst. */
+.terug-knop { display: flex; align-items: center; justify-content: center; min-height: 0; height: auto; padding: 14px 18px; font-size: 16px; line-height: 1.2; text-decoration: none; }
+
+/* Aantal vragen kiezen: een schuif van 1 tot 20. */
+.tq-aantal { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; font-weight: 700; }
+.tq-aantal input[type="range"] { width: 100%; accent-color: var(--roze); }
+
+/* Keuze bij Random quiz: een vraag boven de twee knoppen. */
+.tq-random-vraag { margin: 0 0 4px; font-size: 16px; font-weight: 800; text-align: center; }
+
+/* Knipperen zolang de quiz van vandaag nog niet is beantwoord (zie index.html knipperVandaag). */
+@media (prefers-reduced-motion: no-preference) {
+  .nieuw-label.knippert { animation: nieuwKnip 1.2s ease-in-out infinite; }
+  @keyframes nieuwKnip { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+}
+
+/* Knop "Alle quizzen van altijd" onderaan de weekkaart: ruim en groot, binnen de kaart. */
+.alle-knop { display: flex; align-items: center; justify-content: center; min-height: 56px; margin-top: 14px; text-decoration: none; font-size: 17px; }
+
+/* Puntenpagina: blokken staan meteen op hun plek, zonder instapvertraging. */
+main.snel > * { animation: none; }
+
+/* Alle quiz uitslagen: knop opent de lijst in de weekkaart. */
+.alle-uitslagen > summary { list-style: none; display: block; }
+.alle-uitslagen > summary::-webkit-details-marker { display: none; }
+.alle-uitslagen[open] > summary { margin-bottom: 8px; }
+.alle-lijst { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.alle-rij { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 14px; background: var(--bg); }
+.alle-naam { font-weight: 800; font-size: 15px; }
+.alle-score { font-size: 13px; color: var(--zacht); font-weight: 700; }
+.alle-winnaar { align-self: flex-start; font-size: 12px; font-weight: 800; color: var(--inkt); }
+
+/* Eigen chatbericht: lange druk opent de vraag om te verwijderen, geen tekst selecteren of menu van het toestel. */
+.bel-rij.eigen-bericht { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+
+/* Icons8-iconen (iOS Filled, PNG in Website/icons/winkel). Het icoon is een masker, zodat de kleur uit de variabelen komt. */
+.ico { display: block; width: 100%; height: 100%; background-color: var(--kleur, var(--inkt)); -webkit-mask: var(--icoon) center / contain no-repeat; mask: var(--icoon) center / contain no-repeat; }
+.ico-hoed-quiz { --icoon: url("icons/winkel/hoed-quiz.png"); --kleur: var(--inkt); }
+.ico-bril-slim { --icoon: url("icons/winkel/bril-slim.png"); --kleur: var(--paars-diep); }
+.ico-kroon { --icoon: url("icons/winkel/kroon.png"); --kleur: var(--oranje); }
+.ico-boek { --icoon: url("icons/winkel/boek.png"); --kleur: var(--roze); }
+.ico-plant { --icoon: url("icons/winkel/plant.png"); --kleur: var(--mint); }
+.ico-wereldbol { --icoon: url("icons/winkel/wereldbol.png"); --kleur: var(--blauw); }
+.ico-telescoop { --icoon: url("icons/winkel/telescoop.png"); --kleur: var(--paars-diep); }
+.ico-uil { --icoon: url("icons/winkel/uil.png"); --kleur: var(--paars); }
+.ico-kat { --icoon: url("icons/winkel/kat.png"); --kleur: var(--roze); }
+.ico-poloshirt { --icoon: url("icons/winkel/poloshirt.png"); --kleur: var(--oranje); }
+.ico-colbert { --icoon: url("icons/winkel/colbert.png"); --kleur: var(--inkt); }
+.ico-tuinbroek { --icoon: url("icons/winkel/tuinbroek.png"); --kleur: var(--mint); }
+.ico-zonnebril { --icoon: url("icons/winkel/zonnebril.png"); --kleur: var(--inkt); }
+.ico-koffie { --icoon: url("icons/winkel/koffie.png"); --kleur: var(--oranje); }
+.ico-sjaal { --icoon: url("icons/winkel/sjaal.png"); --kleur: var(--roze); }
+.ico-muts { --icoon: url("icons/winkel/muts.png"); --kleur: var(--blauw); }
+.ico-vlinder { --icoon: url("icons/winkel/vlinder.png"); --kleur: var(--mint); }
+.ico-strikje { --icoon: url("icons/winkel/strikje.png"); --kleur: var(--geel); }
+
+/* Vogeltje in de Winkel: eigen tekening in de app-stijl. Tikken laat het springen en de vleugels klapperen. Kleding en accessoires zijn Icons8-iconen die over het vogeltje heen liggen. */
+.poppen { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.poppen .card { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.vogel { position: relative; width: 124px; height: 136px; margin: 0 auto; padding: 0; border: 0; background: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.vogel:active:not(:disabled) { box-shadow: none; transform: none; } /* geen knop-schaduw (rood balkje) onder de voeten bij een tik */
+.vogel:focus-visible { outline: 3px solid var(--inkt); outline-offset: 4px; border-radius: 16px; }
+/* In de interactieve kamer geen zwarte focusrand over het poppetje leggen na een tik. */
+.kamer .vogel.kam-vogel:focus-visible { outline: none; }
+.vogel svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.vogel .adem { animation: vogel-adem 3.2s ease-in-out infinite; transform-origin: 50% 90%; }
+.vogel .knipper { animation: vogel-knipper 4.5s infinite; transform-origin: 50% 46%; }
+.vogel .vleugel { transform-origin: 50% 0%; }
+.vogel.hup { animation: vogel-hup 0.7s ease-out; }
+.vogel.hup .vleugel.links { animation: vogel-vleugel-l 0.7s ease-out; }
+.vogel.hup .vleugel.rechts { animation: vogel-vleugel-r 0.7s ease-out; }
+/* Poppetje met items: basistekening plus één SVG-laag per item, allemaal in dezelfde 200x220-ruimte, dus ze liggen 1 op 1 over elkaar. */
+.pop { position: relative; display: block; width: 100%; height: 100%; }
+.pop svg, .pop .laag { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; -webkit-user-drag: none; user-select: none; }
+.vogel .pop { position: absolute; inset: 0; }
+.vogel .slot { position: absolute; pointer-events: none; }
+.vogel .slot .ico { display: block; width: 100%; height: 100%; }
+.vogel .slot-hoofd { left: 24%; top: -2%; width: 52%; height: 30%; }
+.vogel .slot-gezicht { left: 18%; top: 28%; width: 64%; height: 22%; }
+.vogel .slot-lijf { left: 24%; top: 56%; width: 52%; height: 28%; }
+.vogel .slot-broek { left: 24%; top: 78%; width: 52%; height: 22%; }
+.vogel .slot-hand { left: 76%; top: 52%; width: 28%; height: 24%; }
+.vogel .slot-schouder { left: -8%; top: 36%; width: 30%; height: 26%; }
+@keyframes vogel-adem { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.025); } }
+@keyframes vogel-knipper { 0%, 94%, 100% { transform: scaleY(1); } 97% { transform: scaleY(0.1); } }
+@keyframes vogel-hup { 0%, 100% { transform: translateY(0); } 30% { transform: translateY(-18px) rotate(-4deg); } 55% { transform: translateY(0) rotate(3deg); } 75% { transform: translateY(-6px) rotate(-1deg); } }
+@keyframes vogel-vleugel-l { 0%, 100% { transform: rotate(0); } 40% { transform: rotate(-35deg); } }
+@keyframes vogel-vleugel-r { 0%, 100% { transform: rotate(0); } 40% { transform: rotate(35deg); } }
+@media (prefers-reduced-motion: reduce) { .vogel .adem, .vogel .knipper, .vogel.hup, .vogel.hup .vleugel { animation: none; } }
+
+/* (ongebruikt) glinstering */
+.gem .fonkel { transform-box: fill-box; transform-origin: center; animation: gem-fonkel 2.6s ease-in-out infinite; }
+@keyframes gem-fonkel { 0%, 100% { opacity: .15; transform: scale(.4) rotate(0deg); } 50% { opacity: 1; transform: scale(1.1) rotate(45deg); } }
+@media (prefers-reduced-motion: reduce) { .gem .fonkel { animation: none; opacity: 1; } }
+
+/* Levend poppetje (poppetje.js): lopen, hoofd draaien, knipperen. Lichaam en kop zijn aparte lagen; kleren schuiven mee met hun laag. */
+.vogel.pg { --kijk: 0; position: absolute; margin: 0; }
+.pg .pg-schaduw, .pg .pg-zwaai { position: absolute; inset: 0; display: block; pointer-events: none; }
+.pg .pg-zwaai { transform-origin: 50% 96%; }
+.pg .pg-lichaam, .pg .pg-kop { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.pg .pg-laag { position: absolute; inset: 0; display: block; pointer-events: none; }
+.pg .pg-laag img { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; -webkit-user-drag: none; user-select: none; }
+.pg .oog { translate: calc(var(--kijk) * 14px) calc(var(--kijky, 0) * 6px); transform-origin: 100px 106px; transition: scale .08s; }
+.pg .wang { translate: calc(var(--kijk) * 10px) calc(var(--kijky, 0) * 3px); }
+.pg .snavel { translate: calc(var(--kijk) * 22px) calc(var(--kijky, 0) * 4px); }
+.pg .kuif { translate: calc(var(--kijk) * 5px) calc(var(--kijky, 0) * 2px); }
+.pg.heeft-strik .kuif { translate: none; } /* een strik-item dekt de kuif af en beweegt alleen opzij: de kuif beweegt dan hetzelfde, zodat hij er niet onderuit steekt */
+.pg image.laag-gezicht { transform: translate(calc(var(--kijk) * 14px), calc(var(--kijky, 0) * 6px)); }
+/* Wat op het hoofd zit (hoed, muts, strik) beweegt nooit los van het hoofd: het hoofd zelf blijft staan, dus een verschuiving geeft altijd een kloof of een scheve hoed. Geldt ook voor elk toekomstig hoofd- of strik-item. */
+.pg .laag-strik, .pg .laag-hoofd { translate: none; }
+
+.pg.knip .oog, .pg.slaapt .oog { scale: 1 0.1; }
+/* Dingen die een poppetje doet als het stilstaat (poppetje.js, ACT). Alles beweegt het hele poppetje of de tekentjes erbij; nooit een losse arm. */
+.pg .pg-fx { position: absolute; left: 58%; top: -2%; font-size: 20px; font-weight: 800; line-height: 1; letter-spacing: .08em; color: var(--paars-diep); opacity: 0; pointer-events: none; white-space: nowrap; }
+.pg.slaapt .pg-fx, .pg.danst .pg-fx, .pg.rekt .pg-fx, .pg.rondkijkt .pg-fx, .pg.blij .pg-fx, .pg.rilt .pg-fx, .pg.verbaasd .pg-fx, .pg.peinst .pg-fx, .pg.lacht .pg-fx, .pg.zingt .pg-fx, .pg.puft .pg-fx { animation: pg-fx 2.4s ease-in-out infinite; }
+.pg.zwaait .pg-fx { animation: pg-fx 1.2s ease-out infinite; }
+.pg.niest .pg-fx { animation: pg-fx 1s ease-out .75s 1 both; }
+@keyframes pg-fx { 0% { transform: translate(0, 12px) scale(.7); opacity: 0; } 30% { opacity: 1; } 100% { transform: translate(14px, -26px) scale(1.15); opacity: 0; } }
+.pg.knip .oog, .pg.slaapt .oog, .pg.rekt .oog { scale: 1 0.1; }
+.pg.verbaasd .oog { scale: 1.25 1.25; }
+.pg.slaapt .pg-zwaai { animation: pg-adem 3.2s ease-in-out infinite; }
+.pg.danst .pg-zwaai { animation: pg-dans .5s ease-in-out infinite alternate; }
+.pg.zwaait .pg-zwaai { animation: pg-zwaai .3s ease-in-out infinite alternate; }
+.pg.zwaait-arm .pg-zwaai { animation: pg-zwaai-zacht 1.1s ease-in-out infinite alternate; }
+.pg.zwaait-arm .vin-r { opacity: 0; }
+.pg .pg-vin { position: absolute; inset: 0; display: none; pointer-events: none; }
+.pg .pg-vin svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.pg.zwaait-arm .pg-vin { display: block; }
+.pg.zwaait-arm .pg-vin path { transform-box: fill-box; transform-origin: 15% 0%; animation: pg-vinzwaai .4s ease-in-out infinite alternate; }
+@keyframes pg-zwaai-zacht { from { transform: rotate(-2deg); } to { transform: rotate(2.5deg); } }
+@keyframes pg-vinzwaai { from { transform: rotate(-80deg); } to { transform: rotate(-130deg); } }
+.pg.lacht .pg-zwaai { animation: pg-lach .22s ease-in-out infinite alternate; }
+.pg.buigt .pg-zwaai { animation: pg-buig 1.8s ease-in-out 1; }
+.pg.zingt .pg-zwaai { animation: pg-zing 1.5s ease-in-out infinite alternate; }
+.pg.puft .pg-zwaai { animation: pg-puf .7s ease-in-out infinite alternate; }
+.pg.lacht .oog, .pg.zingt .oog { scale: 1 0.1; }
+/* Verliefd en knuffelen (alleen een mannetje met een vrouwtje): rozige wangetjes, hartjes, zacht wiegen naar elkaar toe */
+.pg.vlinder .pg-fx, .pg.snuffelt .pg-fx, .pg.stuitert .pg-fx, .pg.tevreden .pg-fx { animation: pg-fx 2.2s ease-in-out infinite; }
+.pg.oeps .pg-fx { animation: pg-fx 1.2s ease-out 1; }
+.pg.vlinder .pg-zwaai { animation: pg-vlinder 1.1s ease-in-out infinite alternate; }
+.pg.oeps .pg-zwaai { animation: pg-oeps 1.5s ease-out 1; }
+.pg.snuffelt .pg-zwaai { animation: pg-snuffel .55s ease-in-out infinite alternate; }
+.pg.stuitert .pg-zwaai { animation: pg-stuiter .45s ease-out infinite; }
+.pg.tevreden .pg-zwaai { animation: pg-zon 2.4s ease-in-out infinite alternate; }
+.pg.tevreden .oog { scale: 1 0.1; }
+@keyframes pg-vlinder { from { transform: rotate(-2deg) translateY(0); } to { transform: rotate(3deg) translateY(-2px); } }
+@keyframes pg-oeps { 0%, 100% { transform: rotate(0) translateX(0); } 20% { transform: rotate(14deg) translateX(6px) translateY(2px); } 45% { transform: rotate(-8deg) translateX(-2px); } 70% { transform: rotate(3deg); } }
+@keyframes pg-snuffel { from { transform: rotate(5deg) translateY(1px); } to { transform: rotate(10deg) translateY(2px); } }
+@keyframes pg-stuiter { 0%, 100% { transform: translateY(0) scale(1.03, .96); } 50% { transform: translateY(-12px) scale(.98, 1.04); } }
+.pg.verliefd .pg-fx, .pg.knuffelt .pg-fx { color: var(--roze); animation: pg-fx 1.8s ease-in-out infinite; }
+.pg.verliefd .pg-zwaai { animation: pg-verliefd 1.4s ease-in-out infinite alternate; }
+.pg.knuffelt .pg-zwaai { animation: pg-knuffel 1.1s ease-in-out infinite alternate; }
+.pg.verliefd .wang ellipse, .pg.knuffelt .wang ellipse { transform-box: fill-box; transform-origin: center; animation: pg-blos 1s ease-in-out infinite alternate; } /* elk wangetje apart groter, niet de hele groep (dan schuiven ze uit het hoofd) */
+.pg.knuffelt .oog { scale: 1 0.1; }
+/* Verliefd: leunen naar elkaar toe (--naar is 1 naar rechts, -1 naar links), verlegen: wangetjes rood, wegkijken */
+.pg.verliefd, .pg.knuffelt { translate: calc(var(--naar, 0) * 5px) 0; transition: translate .6s ease; }
+.pg.verlegen .wang ellipse { transform-box: fill-box; transform-origin: center; animation: pg-blos .7s ease-in-out infinite alternate; }
+.pg.verlegen .pg-fx { color: var(--roze); animation: pg-fx 1.8s ease-in-out infinite; }
+.pg.verlegen .pg-zwaai { animation: pg-verlegen 1.2s ease-in-out infinite alternate; }
+/* Nieuwsgierig: kopje scheef, snuffelend rondkijken, naar het raam of de lamp kijken */
+.pg.kantelt .pg-zwaai { animation: pg-kantel 1.6s ease-in-out infinite alternate; }
+.pg.kijktuit .pg-zwaai, .pg.lampkijk .pg-zwaai { animation: pg-kantel 2.4s ease-in-out infinite alternate; }
+.pg.rondkijkt .pg-zwaai { animation: pg-kantel 1.2s ease-in-out infinite alternate; }
+.pg.kantelt .pg-fx, .pg.kijktuit .pg-fx, .pg.lampkijk .pg-fx { animation: pg-fx 2.2s ease-in-out infinite; }
+@keyframes pg-kantel { from { transform: rotate(-2deg) translateY(0); } to { transform: rotate(6deg) translateY(-1px); } }
+@keyframes pg-verlegen { from { transform: rotate(-2deg) scale(1, 1); } to { transform: rotate(4deg) scale(.97, 1.02); } }
+@keyframes pg-verliefd { from { transform: rotate(-3deg) translateY(0); } to { transform: rotate(3deg) translateY(-3px); } }
+@keyframes pg-knuffel { from { transform: scale(1, 1) rotate(0); } to { transform: scale(1.04, .97) rotate(4deg); } }
+@keyframes pg-blos { from { scale: 1; } to { scale: 1.3; } }
+.pg.drinkt .pg-zwaai { animation: pg-drink 1.3s ease-in-out infinite alternate; }
+.pg.eet .pg-zwaai { animation: pg-nom .26s ease-in-out infinite alternate; }
+.pg.sterrt .pg-zwaai { animation: pg-sterren 3s ease-in-out infinite alternate; }
+.pg.mediteert .pg-zwaai { animation: pg-adem 4.5s ease-in-out infinite; }
+.pg.hikt .pg-zwaai { animation: pg-hik 1.4s ease-in-out infinite; }
+.pg.zont .pg-zwaai { animation: pg-zon 3.6s ease-in-out infinite alternate; }
+/* Tippelen: het lijf wiegt van links naar rechts zonder op te tillen (anders zweeft het poppetje); steeds tilt één voetje op terwijl het andere op de grond blijft.
+   (Deze regels waren per ongeluk verdwenen bij een eerdere aanpassing, daardoor liepen de poppetjes zonder te stappen.) */
+.pg.loopt .pg-zwaai { animation: pg-waggel .34s ease-in-out infinite alternate; }
+.pg.loopt .voet-l { animation: pg-voet .34s ease-in-out infinite alternate; }
+.pg.loopt .voet-r { animation: pg-voet .34s ease-in-out infinite alternate-reverse; }
+@keyframes pg-waggel { from { transform: rotate(-3.5deg); } to { transform: rotate(3.5deg); } }
+@keyframes pg-voet { from { transform: translateY(0); } to { transform: translateY(-7px); } }
+.pg.sprint.loopt .pg-zwaai { animation-duration: .2s; }
+.pg.sprint.loopt .voet-l, .pg.sprint.loopt .voet-r { animation-duration: .2s; }
+.pg.drinkt .oog, .pg.mediteert .oog, .pg.zont .oog { scale: 1 0.1; }
+.pg.drinkt .pg-fx, .pg.eet .pg-fx, .pg.sterrt .pg-fx, .pg.mediteert .pg-fx, .pg.zont .pg-fx { animation: pg-fx 2.4s ease-in-out infinite; }
+.pg.hikt .pg-fx { animation: pg-fx 1.4s ease-out infinite; }
+@keyframes pg-drink { from { transform: rotate(0) translateY(0); } to { transform: rotate(-5deg) translateY(1px); } }
+@keyframes pg-nom { from { transform: translateY(0) scale(1, 1); } to { transform: translateY(2px) scale(1.02, .97); } }
+@keyframes pg-sterren { from { transform: rotate(-3deg) scale(1, 1.01); } to { transform: rotate(-8deg) scale(1, 1.03); } }
+@keyframes pg-hik { 0%, 22%, 100% { transform: translateY(0) scale(1, 1); } 8% { transform: translateY(-7px) scale(1.03, .97); } 15% { transform: translateY(0); } }
+@keyframes pg-zon { from { transform: rotate(-2deg) scale(1, 1); } to { transform: rotate(3deg) scale(1.01, .99); } }
+/* Samen praten: de snavel beweegt om beurt, een wolkje met puntjes, de ander luistert en knikt. Geen woorden. */
+.pg .pg-bel { position: absolute; left: 62%; top: -8%; display: none; align-items: center; gap: 3px; padding: 5px 8px; border-radius: 999px; background: var(--vlak); box-shadow: 0 2px 0 var(--lijn); pointer-events: none; }
+.pg .pg-bel i { width: 5px; height: 5px; border-radius: 50%; background: var(--paars-diep); animation: pg-puntje .6s ease-in-out infinite alternate; }
+.pg .pg-bel i:nth-child(2) { animation-delay: .15s; } .pg .pg-bel i:nth-child(3) { animation-delay: .3s; }
+.pg.praat .pg-bel { display: inline-flex; }
+.pg.praat .snavel { transform-box: fill-box; transform-origin: 50% 0%; animation: pg-snavel .7s ease-in-out infinite; }
+.pg.praat .pg-zwaai { animation: pg-praatkop .45s ease-in-out infinite alternate; }
+.pg.luistert .pg-zwaai { animation: pg-luister 2.4s ease-in-out infinite alternate; }
+@keyframes pg-snavel { 0%, 100% { scale: 1 1; } 15% { scale: 1.15 1.9; } 35% { scale: 1 1.1; } 55% { scale: 1.2 2.2; } 75% { scale: 1 1.2; } }
+@keyframes pg-puntje { from { transform: translateY(0); opacity: .5; } to { transform: translateY(-2px); opacity: 1; } }
+@keyframes pg-praatkop { from { transform: rotate(-1.5deg) translateY(0); } to { transform: rotate(1.5deg) translateY(-1.5px); } }
+@keyframes pg-luister { from { transform: rotate(0) translateY(0); } to { transform: rotate(3deg) translateY(1.5px); } }
+@keyframes pg-lach { from { transform: translateY(0); } to { transform: translateY(-5px) rotate(2deg); } }
+@keyframes pg-buig { 0%, 100% { transform: rotate(0) translateY(0); } 35%, 65% { transform: rotate(var(--hoek, 14deg)) translateY(4px) scale(1, .97); } }
+@keyframes pg-zing { from { transform: rotate(-4deg); } to { transform: rotate(4deg); } }
+@keyframes pg-puf { from { transform: scale(1, 1); } to { transform: scale(1.04, .96); } }
+.pg.rekt .pg-zwaai { animation: pg-rek 3.2s ease-in-out 1; }
+.pg.blij .pg-zwaai { animation: pg-blij .6s ease-in-out infinite; }
+.pg.niest .pg-zwaai { animation: pg-nies 1.6s ease-in-out 1; }
+.pg.rilt .pg-zwaai { animation: pg-rilt .08s linear infinite alternate; }
+.pg.draait .pg-zwaai { animation: pg-draai 1s ease-in-out 1; }
+.pg.verbaasd .pg-zwaai { animation: pg-schrik .4s ease-out 1 both; }
+.pg.peinst .pg-zwaai { animation: pg-peins 2s ease-in-out infinite alternate; }
+@keyframes pg-adem { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.02, .965); } }
+@keyframes pg-dans { from { transform: rotate(-7deg) translateY(0); } to { transform: rotate(7deg) translateY(-6px); } }
+@keyframes pg-zwaai { from { transform: rotate(-9deg) translateY(0); } to { transform: rotate(9deg) translateY(-5px); } }
+@keyframes pg-rek { 0%, 100% { transform: scale(1, 1); } 35%, 65% { transform: scale(.95, 1.1); } }
+@keyframes pg-blij { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-9px) rotate(-3deg); } }
+@keyframes pg-nies { 0%, 100% { transform: rotate(0) scale(1, 1); } 40% { transform: rotate(-9deg) scale(1.04, 1.03); } 55% { transform: rotate(10deg) translateY(3px) scale(.96, .98); } 75% { transform: rotate(-2deg); } }
+@keyframes pg-rilt { from { transform: translateX(-1.6px); } to { transform: translateX(1.6px); } }
+@keyframes pg-draai { 0%, 100% { transform: scaleX(1); } 25%, 75% { transform: scaleX(0.05); } 50% { transform: scaleX(-1); } }
+@keyframes pg-schrik { 0% { transform: translateY(0) scale(1); } 30% { transform: translateY(-10px) scale(1.05, 1.05); } 100% { transform: translateY(0) scale(1.02, 1.02); } }
+@keyframes pg-peins { from { transform: rotate(3deg); } to { transform: rotate(9deg); } }
+@media (prefers-reduced-motion: reduce) { .pg.loopt .pg-zwaai, .pg.loopt .voet-l, .pg.loopt .voet-r, .pg .pg-zwaai, .pg .pg-fx, .pg .pg-vin path, .pg .snavel, .pg .pg-bel i, .pg .wang ellipse { animation: none !important; } .pg { transition: none !important; } }
+
+.pg svg.pg-klem { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; display: block; pointer-events: none; }
+
+/* Gekozen poppetje in de winkel (tik op een poppetje om te wisselen). */
+.pg.gekozen .pg-schaduw ellipse { fill: #ff4f9a; opacity: .4; }
+
+/* Kostuum (beer, konijn, hert, vos, eekhoorn, kikker): vervangt het hele poppetje. Echte vector in losse onderdelen (zie kostuums.js).
+   In rust is er alleen de complete basis (geen naden mogelijk). Bij lopen en zwaaien wordt de basis bijgeknipt (--k-klip) en nemen losse armen en voetjes het over. */
+.pg .pg-l-kostuum { position: absolute; inset: 0; display: none; }
+.pg .pg-l-kostuum .pg-kostuumsvg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.pg.kostuum .pg-l-kostuum { display: block; }
+.pg.kostuum .pg-lichaam, .pg.kostuum .pg-kop, .pg.kostuum .pg-vin, .pg.kostuum .pg-l-lichaam, .pg.kostuum .pg-l-kop { display: none !important; }
+.pop .pg-kostuumsvg { display: block; width: 100%; height: 100%; }
+.pop .pg-kostuumsvg, .pg-kostuumsvg { overflow: visible; }
+
+.pg.kostuum .k-schaduw { display: none; } /* in de kamer en winkel staat al een schaduw onder het poppetje */
+.pg.kostuum .k-voetdeel, .pg.kostuum .k-armdeel { display: none; }
+.pg.kostuum.loopt .k-voetdeel, .pg.kostuum.zwaait-arm .k-armdeel, .pg.kostuum.zwaait .k-armdeel { display: inline; }
+.pg.kostuum.loopt .k-basis { clip-path: var(--k-klip-voet); }
+.pg.kostuum.zwaait-arm .k-basis, .pg.kostuum.zwaait .k-basis { clip-path: var(--k-klip-arm); }
+
+/* Hele figuur: zachte ademhaling, een lichte wip bij lopen en zwaaien, een klein beetje mee met het kijken. */
+.pg.kostuum .k-fig { transform-origin: 100px 202px; animation: k-adem 3.8s ease-in-out infinite; translate: calc(var(--kijk, 0) * 1.5px) 0; }
+.pg.kostuum.loopt .k-fig { animation: k-loop .34s ease-in-out infinite alternate; }
+.pg.kostuum.zwaait-arm .k-fig, .pg.kostuum.zwaait .k-fig { animation: k-zwaai-lijf .42s ease-in-out infinite alternate; }
+.pg.kostuum.slaapt .k-fig { animation: none; }
+@keyframes k-adem { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.01, 1.015); } }
+@keyframes k-loop { from { transform: rotate(-1deg) translateY(0); } to { transform: rotate(1deg) translateY(-1.5px); } }
+@keyframes k-zwaai-lijf { from { transform: rotate(-1.5deg); } to { transform: rotate(1.5deg); } }
+
+/* Voetjes en armen (alleen zichtbaar tijdens lopen en zwaaien). */
+.pg.kostuum.loopt .voet-l { animation: k-been-l .34s ease-in-out infinite alternate; }
+.pg.kostuum.loopt .voet-r { animation: k-been-r .34s ease-in-out infinite alternate; }
+@keyframes k-been-l { from { transform: translateY(0); } to { transform: translateY(-3px); } }
+@keyframes k-been-r { from { transform: translateY(-3px); } to { transform: translateY(0); } }
+/* Zwaaien: de rechterarm gaat opzij omhoog en heen en weer. Heeft het dier maar één (linker) arm, dan zwaait die, gespiegeld. */
+.pg.kostuum.zwaait-arm .k-arm-r, .pg.kostuum.zwaait .k-arm-r { animation: k-zwaai .4s ease-in-out infinite alternate; }
+.pg.kostuum.zwaait-arm .k-arm-solo, .pg.kostuum.zwaait .k-arm-solo { animation: k-zwaai-solo .4s ease-in-out infinite alternate; }
+@keyframes k-zwaai { from { transform: rotate(-45deg); } to { transform: rotate(-90deg); } }
+@keyframes k-zwaai-solo { from { transform: rotate(45deg); } to { transform: rotate(90deg); } }
+
+/* Gezicht: kijken, knipperen, blozen, praten (de maat is die van de 200x220-ruimte, iets kleiner dan bij het pinguïn-poppetje). */
+.pg.kostuum .oog { translate: calc(var(--kijk, 0) * var(--ko, 9) * 1px) calc(var(--kijky, 0) * var(--koy, 5) * 1px); }
+.pg.kostuum .wang { translate: calc(var(--kijk, 0) * var(--kw, 7) * 1px) calc(var(--kijky, 0) * var(--kwy, 3) * 1px); }
+.pg.kostuum .snavel { translate: calc(var(--kijk, 0) * var(--ks, 13) * 1px) calc(var(--kijky, 0) * var(--ksy, 4) * 1px); }
+/* Kijkuitslag per dier (het gezicht moet binnen het gezicht blijven): kikker heeft ogen in bulten, hert en vos een smal gezichtsvlak. */
+.dier-beer { --ko: 9; --koy: 5; --kw: 6; --kwy: 3; --ks: 8; --ksy: 3; }
+.dier-kikker { --ko: 5; --koy: 3; --kw: 5; --kwy: 2; --ks: 8; --ksy: 3; }
+.dier-hert { --ko: 7; --koy: 4; --kw: 5; --kwy: 2.5; --ks: 10; --ksy: 3.5; }
+.dier-vos { --ko: 8; --koy: 4; --kw: 6; --kwy: 2.5; --ks: 11; --ksy: 3.5; }
+.pg.kostuum.verliefd .wang path, .pg.kostuum.knuffelt .wang path, .pg.kostuum.verlegen .wang path { transform-box: fill-box; transform-origin: center; animation: pg-blos .8s ease-in-out infinite alternate; }
+.pg.kostuum.praat .snavel { transform-origin: center; transform-box: fill-box; animation: k-praat .7s ease-in-out infinite alternate; }
+@keyframes k-praat { from { scale: 1 1; } to { scale: 1.05 1.1; } }
+.pg.kostuum .oog { scale: 1 1 !important; }
+.pg.kostuum.verbaasd .oog { scale: 1.2 1.2 !important; }
+.pg.kostuum .dicht { opacity: 0; }
+.pg.kostuum.knip .dicht, .pg.kostuum.slaapt .dicht, .pg.kostuum.rekt .dicht, .pg.kostuum.lacht .dicht, .pg.kostuum.zingt .dicht, .pg.kostuum.tevreden .dicht, .pg.kostuum.knuffelt .dicht, .pg.kostuum.drinkt .dicht, .pg.kostuum.mediteert .dicht, .pg.kostuum.zont .dicht { opacity: 1; }
+.pg.kostuum.knip .open, .pg.kostuum.slaapt .open, .pg.kostuum.rekt .open, .pg.kostuum.lacht .open, .pg.kostuum.zingt .open, .pg.kostuum.tevreden .open, .pg.kostuum.knuffelt .open, .pg.kostuum.drinkt .open, .pg.kostuum.mediteert .open, .pg.kostuum.zont .open { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .pg.kostuum .k-fig, .pg.kostuum .k-voetdeel, .pg.kostuum .k-armdeel, .pg.kostuum .snavel, .pg.kostuum .wang path { animation: none !important; } }
+
+/* Muts met oorflappen: de ogen, wangen en snavel kijken kleiner opzij, zodat ze nooit onder een flap schuiven (alle richtingen). */
+.pg.flappen .oog { translate: calc(var(--kijk) * 4px) calc(var(--kijky, 0) * 6px); }
+.pg.flappen .wang { translate: calc(var(--kijk) * 2px) calc(var(--kijky, 0) * 3px); }
+.pg.flappen .snavel { translate: calc(var(--kijk) * 8px) calc(var(--kijky, 0) * 4px); }
+
+/* Wenkbrauwen en gezichtsuitdrukkingen voor het hoofdje bij de score (kopjes.js). Het poppetje in de kamer gebruikt dezelfde klassen. */
+.brauw { opacity: 0; } /* overal standaard uit (ook in de winkelkaartjes), alleen aan bij jaloers en vastbesloten */
+.pg .brauw { opacity: 0; transition: opacity .2s ease; translate: calc(var(--kijk, 0) * 14px) calc(var(--kijky, 0) * 6px); }
+.pg.kostuum .brauw { translate: calc(var(--kijk, 0) * var(--ko, 9) * 1px) calc(var(--kijky, 0) * var(--koy, 5) * 1px); }
+.pg.jaloers .brauw, .pg.vastbesloten .brauw { opacity: 1; }
+.pg.jaloers .wang ellipse, .pg.jaloers .wang path { transform-box: fill-box; transform-origin: center; animation: pg-blos 1.1s ease-in-out infinite alternate; }
+.pg.vastbesloten .pg-zwaai { animation: pg-knik .5s ease-in-out infinite alternate; }
+@keyframes pg-knik { from { transform: translateY(0) rotate(-1.5deg); } to { transform: translateY(2px) rotate(1.5deg); } }
+.pg.trots .pg-zwaai { animation: pg-trots 1.1s ease-in-out infinite alternate; }
+@keyframes pg-trots { from { transform: translateY(0) rotate(-2deg); } to { transform: translateY(-3px) rotate(2deg); } }
+
+/* Hoofdje bij de score: alleen het hoofd (en een stukje schouders) van het poppetje, met kostuum en items. Het kan niet lopen, wel kijken, knipperen en emoties tonen. */
+.person { position: relative; text-align: center; }
+.kopje { position: relative; width: 96px; height: 88px; margin: 34px auto 4px; pointer-events: none; }
+.kop-in { position: absolute; inset: -30px -40px 0 -40px; overflow: visible; -webkit-mask-image: linear-gradient(#000 0, #000 74%, transparent 100%); mask-image: linear-gradient(#000 0, #000 74%, transparent 100%); }
+/* Gloed bij het hoofdje. Leider: een zon van gouden stralen rondom het hoofd met glinsteringen. Achterstaander: een donker onweerswolkje met bliksem boven het hoofd. */
+.kop-glans { position: absolute; left: 50%; top: 40px; width: 160px; height: 160px; margin: -80px 0 0 -80px; opacity: 0; transition: opacity .5s ease; pointer-events: none; }
+.kopje[data-rol="leider"] .kop-glans { opacity: 1; background: repeating-conic-gradient(from 0deg, rgba(255, 208, 70, .85) 0 7deg, rgba(255, 208, 70, 0) 7deg 20deg); -webkit-mask-image: radial-gradient(circle, transparent 0 30%, #000 44%, transparent 72%), linear-gradient(#000 0, #000 62%, transparent 86%); -webkit-mask-composite: source-in; mask-image: radial-gradient(circle, transparent 0 30%, #000 44%, transparent 72%), linear-gradient(#000 0, #000 62%, transparent 86%); mask-composite: intersect; animation: kop-draai 30s linear infinite; }
+.kopje[data-rol="leider"]::before, .kopje[data-rol="leider"]::after { content: ""; position: absolute; width: 14px; height: 14px; background: #fff3b0; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); pointer-events: none; animation: kop-glinster 1.8s ease-in-out infinite; }
+.kopje[data-rol="leider"]::before { left: 2px; top: 6px; }
+.kopje[data-rol="leider"]::after { right: 0; top: 24px; width: 10px; height: 10px; animation-delay: .9s; }
+.kopje[data-rol="achter"] .kop-glans { opacity: 1; left: 50%; top: -34px; width: 72px; height: 44px; margin: 0 0 0 -36px;  animation: kop-wolk 2.6s ease-in-out infinite alternate; }
+.kopje[data-rol="achter"] .kop-glans::before { content: ""; position: absolute; inset: 0; z-index: 1; background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2072%2044%22%3E%3Cg%20fill%3D%22%236f7599%22%3E%3Ccircle%20cx%3D%2220%22%20cy%3D%2226%22%20r%3D%2213%22%2F%3E%3Ccircle%20cx%3D%2236%22%20cy%3D%2219%22%20r%3D%2216%22%2F%3E%3Ccircle%20cx%3D%2253%22%20cy%3D%2226%22%20r%3D%2213%22%2F%3E%3Crect%20x%3D%2220%22%20y%3D%2226%22%20width%3D%2233%22%20height%3D%2213%22%20rx%3D%226.5%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22%238a90b5%22%3E%3Ccircle%20cx%3D%2234%22%20cy%3D%2214%22%20r%3D%229%22%2F%3E%3Ccircle%20cx%3D%2222%22%20cy%3D%2222%22%20r%3D%227%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") center / contain no-repeat; }
+@keyframes kop-draai { to { transform: rotate(360deg); } }
+@keyframes kop-glinster { 0%, 100% { transform: scale(.4) rotate(0); opacity: 0; } 50% { transform: scale(1) rotate(40deg); opacity: 1; } }
+/* Bliksemflitsen onder het wolkje: kopjes.js maakt per flits een willekeurige vorm op een willekeurige plek (dunne lijnen met zachte gloed, geen vaste sticker). */
+.kop-bliksem { position: absolute; z-index: 0; top: 26px; width: 40px; height: 52px; pointer-events: none; overflow: visible; filter: drop-shadow(0 0 3px rgba(255, 214, 64, .95)); animation: kop-flits .5s steps(1) forwards; }
+.kop-bliksem path { fill: none; stroke: #fff3a0; stroke-width: 3; stroke-linecap: square; stroke-linejoin: miter; }
+@keyframes kop-flits { 0% { opacity: 0; } 8%, 30% { opacity: 1; } 38%, 52% { opacity: 0; } 58%, 82% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes kop-wolk { from { transform: translateY(0); } to { transform: translateY(-3px); } }
+@media (prefers-reduced-motion: reduce) { .kop-glans, .kop-glans::after, .kopje::before, .kopje::after { animation: none !important; } }
+.kop-in .pg { position: absolute !important; bottom: auto !important; margin: 0; pointer-events: none; }
+
+/* Bij een frons (wenkbrauwen) verdwijnen de wimpers, anders overlappen ze de wenkbrauwen. */
+.pg .wimpers, .pg .wimper { transition: opacity .2s ease; }
+.pg.jaloers .wimpers, .pg.vastbesloten .wimpers, .pg.jaloers .wimper, .pg.vastbesloten .wimper { opacity: 0; }
+/* Kroontje bij de score: boven het hoofdje van de koploper, niet bij het label "Score van vandaag". */
+.person .kroon { top: 6px; left: 50%; right: auto; transform: translateX(-50%); width: 28px; height: 28px; z-index: 2; }
+.score-link .eyebrow { margin-bottom: 16px; }
+
+.person .name, .person .score, .person .sub { text-align: center; }
+.person .score { justify-content: center; }

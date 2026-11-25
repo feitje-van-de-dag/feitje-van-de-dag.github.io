@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Terugblik · Feitje van de dag</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png?v=4">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Feitje van de dag">
+<meta name="theme-color" content="#fff6d6">
+<style>
+main { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; padding: 24px 16px 0; min-width: 0; }
+.top { display: flex; flex-direction: column; gap: 8px; }
+.top h1 { margin: 0; font-size: clamp(34px, 9vw, 46px); }
+.intro { margin: 0; }
+.days { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.days a { display: flex; align-items: center; min-height: 52px; padding: 12px 18px; background: var(--vlak); border-radius: 16px; box-shadow: var(--schaduw-kaart); color: var(--inkt); text-decoration: none; font-weight: 700; }
+.archief summary { min-height: 56px; }
+</style>
+<link rel="stylesheet" href="app.css">
+</head>
+<body class="heeft-tabs"><div class="app-inhoud">
+<main>
+  <header class="top">
+    <p class="eyebrow">Terugblik</p>
+    <h1>Terugblik</h1>
+    <p class="intro">Alle eerdere dagquizzen, per maand en per week.</p>
+  </header>
+  <div id="archief" class="archief"></div>
+</main>
+
+</div>
+<nav class="tabs" aria-label="Hoofdmenu">
+  <a href="index.html" class="tab" data-tab="vandaag">Vandaag</a>
+  <a href="punten.html" class="tab" data-tab="punten">Punten</a>
+  <a href="chat.html" class="tab" data-tab="chat">Chat</a>
+  <a href="logboek.html" class="tab" data-tab="logboek" aria-current="page">Terugblik</a>
+  <a href="catalogus.html" class="tab" data-tab="winkel">Winkel</a></nav>
+
+<script src="supabase-shim.js"></script>
+<script src="chatteller.js"></script>
+<script src="kleuren.js"></script>
+<script src="klaar.js"></script>
+<script>
+const LAATSTE_VASTE_DAG = "2000-01-01";
+const MAANDEN = ["januari", "februari", "maart", "april", "mei", "juni", "juli", "augustus", "september", "oktober", "november", "december"];
+const KORT = ["jan", "feb", "mrt", "apr", "mei", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
+const WEEKDAGEN = ["Zondag", "Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag"];
+
+function datumVan(dag) { return new Date(dag + "T12:00:00"); }
+function dagTekst(dag) {
+  const d = datumVan(dag);
+  return WEEKDAGEN[d.getDay()] + " " + d.getDate() + " " + MAANDEN[d.getMonth()] + " " + d.getFullYear();
+}
+function weekVan(dag) {
+  const d = datumVan(dag);
+  const maandag = new Date(d);
+  maandag.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  const donderdag = new Date(maandag);
+  donderdag.setDate(maandag.getDate() + 3);
+  const jan1 = new Date(donderdag.getFullYear(), 0, 1, 12);
+  const nr = 1 + Math.round(((donderdag - jan1) / 86400000 - 3 + ((jan1.getDay() + 6) % 7)) / 7);
+  const zondag = new Date(maandag);
+  zondag.setDate(maandag.getDate() + 6);
+  return { sleutel: donderdag.getFullYear() + "-W" + String(nr).padStart(2, "0"), nr: nr, maandag: maandag, zondag: zondag };
+}
+function groepeer(dagen) {
+  const maanden = [];
+  dagen.forEach(function (dag) {
+    const d = datumVan(dag);
+    const mk = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
+    let m = maanden.find(function (x) { return x.sleutel === mk; });
+    if (!m) { m = { sleutel: mk, titel: MAANDEN[d.getMonth()] + " " + d.getFullYear(), weken: [] }; maanden.push(m); }
+    const w = weekVan(dag);
+    let wk = m.weken.find(function (x) { return x.sleutel === w.sleutel; });
+    if (!wk) {
+      const a = w.maandag, b = w.zondag;
+      const bereik = a.getMonth() === b.getMonth()
+        ? a.getDate() + " t/m " + b.getDate() + " " + KORT[b.getMonth()]
+        : a.getDate() + " " + KORT[a.getMonth()] + " t/m " + b.getDate() + " " + KORT[b.getMonth()];
+      wk = { sleutel: w.sleutel, titel: "Week " + w.nr, dagen: [] };
+      m.weken.push(wk);
+    }
+    wk.dagen.push(dag);
+  });
+  return maanden;
+}
+// Dagen waarop beide spelers alle vragen hebben beantwoord (gezet door laadLogboek).
+let klaarDagenLogboek = new Set();
+// Aantal beantwoorde vragen per dag (beide spelers samen): 0 = openstaand, meer = nog niet klaar.
+let gedaanDagenLogboek = {};
+function dagLijst(dagen) {
+  const ul = document.createElement("ul");
+  ul.className = "days";
+  dagen.forEach(function (dag) {
+    const li = document.createElement("li");
+    const a = document.createElement("a");
+    a.href = "dagquiz.html?d=" + dag;
+    const klaar = klaarDagenLogboek.has(dag);
+    const begonnen = (gedaanDagenLogboek[dag] || 0) > 0;
+    const toestand = klaar ? "voltooid" : (begonnen ? "nietklaar" : "openstaand");
+    a.classList.add(toestand);
+    a.textContent = dagTekst(dag);
+    const status = document.createElement("span");
+    status.className = "status";
+    status.textContent = klaar ? "Gehaald!" : (begonnen ? "Bijna klaar" : "Te doen");
+    a.appendChild(status);
+    li.appendChild(a);
+    ul.appendChild(li);
+  });
+  return ul;
+}
+
+// Alle dagen van de database, behalve de nieuwste (die staat op Vandaag).
+// Een week die over twee maanden loopt komt maar één keer voor: de dagen worden samengevoegd onder de eerste maand, nieuwste eerst.
+function samenWeken(maanden) {
+  const gezien = {};
+  maanden.forEach(function (m) {
+    m.weken = m.weken.filter(function (w) {
+      if (gezien[w.sleutel]) {
+        gezien[w.sleutel].dagen = gezien[w.sleutel].dagen.concat(w.dagen).sort().reverse();
+        return false;
+      }
+      gezien[w.sleutel] = w;
+      return true;
+    });
+  });
+  return maanden.filter(function (m) { return m.weken.length > 0; });
+}
+function bouwLogboek(dagen, nieuwsteDag) {
+  const huidigeMaand = nieuwsteDag ? groepeer([nieuwsteDag])[0].sleutel : "";
+  const huidigeWeek = nieuwsteDag ? weekVan(nieuwsteDag).sleutel : "";
+  const archief = document.getElementById("archief");
+  archief.textContent = "";
+  const vast = dagen.filter(function (d) { return d <= LAATSTE_VASTE_DAG; });
+  const ouder = dagen.filter(function (d) { return d > LAATSTE_VASTE_DAG; });
+  samenWeken(groepeer(ouder)).forEach(function (m) {
+    const dm = document.createElement("details");
+    dm.className = "maand";
+    dm.open = false;
+    const sm = document.createElement("summary");
+    sm.textContent = m.titel.charAt(0).toUpperCase() + m.titel.slice(1);
+    dm.appendChild(sm);
+    m.weken.forEach(function (w) {
+      const dw = document.createElement("details");
+      dw.className = "week";
+      dw.open = false;
+      const sw = document.createElement("summary");
+      sw.textContent = w.titel;
+      dw.appendChild(sw);
+      dw.appendChild(dagLijst(w.dagen));
+      dm.appendChild(dw);
+    });
+    archief.appendChild(dm);
+  });
+  if (vast.length) archief.appendChild(dagLijst(vast));
+  if (!dagen.length) {
+    const p = document.createElement("p");
+    p.className = "muted";
+    p.textContent = "Nog niets om terug te kijken.";
+    archief.appendChild(p);
+  }
+}
+
+async function laadLogboek() {
+  try {
+    const db = await window.claude.use("db");
+    const ids = await db.collection("questions").ids();
+    const set = new Set();
+    ids.forEach(function (id) {
+      const m = /^(\d{4}-\d{2}-\d{2})-\d+$/.exec(id);
+      if (m) set.add(m[1]);
+    });
+    const open = Array.from(set).filter(function (d) { return window.dagIsOpen && window.dagIsOpen(d); }).sort().reverse();
+    // De nieuwste dag staat op Vandaag, tot beide spelers klaar zijn. Daarna staat hij hier ook.
+    const at = await db.collection("attempts").get();
+    const klaar = klaarDagen(ids, at.docs.map(function (d) { return d.data(); }));
+    klaarDagenLogboek = klaar;
+    gedaanDagenLogboek = {};
+    at.docs.forEach(function (d) {
+      const p = d.data();
+      const m = /^(\d{4}-\d{2}-\d{2})-/.exec((p && p.vraag_id) || "");
+      if (m) gedaanDagenLogboek[m[1]] = (gedaanDagenLogboek[m[1]] || 0) + 1;
+    });
+    const nieuwsteKlaar = !!open[0] && klaar.has(open[0]);
+    bouwLogboek(nieuwsteKlaar ? open : open.slice(1), open[0] || "");
+  } catch (e) { /* de vorige lijst blijft staan */ }
+}
+laadLogboek();
+setInterval(laadLogboek, 5 * 60 * 1000);
+
+// Teller op het Chat-tabblad: zie chatteller.js
+</script>
+</body>
+</html>

@@ -1,0 +1,1423 @@
+<!doctype html>
+<html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png?v=4">
+<link rel="icon" href="icon-180.png?v=4">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Feitje van de dag">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#fff6d6">
+</head><body class="heeft-tabs"><div class="app-inhoud">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Feitje van de dag</title>
+<style>
+:root {
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  --surface: var(--vlak);
+  --ink: var(--inkt);
+  --muted: var(--zacht);
+  --line: var(--roze-licht);
+  --accent: var(--roze);
+  --display: var(--body);
+  --body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  --zij: max(16px, env(safe-area-inset-left, 0px));
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 24px 40px;
+}
+main { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+header { display: flex; flex-direction: column; gap: 8px; padding-block: 8px 4px; }
+.intro { margin: 0; color: var(--muted); font-size: 15px; max-width: 46ch; }
+.year { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.year h2 {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 8px;
+}
+.days { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.days a {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 600;
+}
+.days a:hover { border-color: var(--accent); }
+.days a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.days .meta { color: var(--muted); font-size: 14px; font-weight: 400; white-space: nowrap; }
+.gate { display: flex; flex-direction: column; gap: 14px; }
+.gate[hidden], #inhoud[hidden] { display: none !important; }
+.pick { display: grid; grid-template-columns: 1fr; gap: 12px; }
+.pick-btn { min-height: 92px; border-radius: 18px; border: 0; font: inherit; font-size: 22px; font-weight: 800; color: var(--vlak); cursor: pointer; box-shadow: 0 6px 0 rgba(42, 31, 74, 0.15); }
+.pick-btn { background: var(--p-kern, var(--mint)); }
+.pick-btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+.who-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-width: 0; }
+.who-text { margin: 0; font-weight: 700; }
+.wissel { min-height: 40px; padding: 6px 14px; border-radius: 10px; border: 1px solid var(--ink); background: transparent; color: var(--ink); font: inherit; font-weight: 700; cursor: pointer; }
+@media (min-width: 520px) { .pick { grid-template-columns: 1fr 1fr; } }
+
+.score-link { display: block; color: inherit; text-decoration: none; background: var(--surface); border-radius: 18px; box-shadow: 0 6px 0 var(--lijn); padding: 18px; min-width: 0; }
+.score-link:hover { box-shadow: 0 6px 0 var(--accent); }
+.score-link:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.totals { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.person { border-radius: 14px; padding: 14px; min-width: 0; }
+.person { background: var(--p-zacht, var(--vlak)); }
+.person .name { margin: 0; font-weight: 800; }
+.person .score { margin: 4px 0 0; font-size: clamp(34px, 10vw, 46px); font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.person .sub { margin: 6px 0 0; font-size: 13px; color: var(--muted); }
+.lead { margin: 12px 0 0; text-align: center; font-weight: 700; }
+
+.archief { display: flex; flex-direction: column; gap: 10px; }
+.archief details { min-width: 0; }
+.archief summary { cursor: pointer; font-weight: 700; padding: 12px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; min-height: 48px; display: flex; align-items: center; }
+.archief summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.archief details[open] > summary { border-color: var(--accent); }
+.archief .maand > summary { font-family: var(--display); font-size: 18px; }
+.archief .week { margin: 10px 0 0 12px; }
+.archief .week > summary { font-weight: 600; font-size: 15px; }
+.archief .week .days { margin-top: 10px; }
+
+.themaquiz { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.themaquiz form { display: flex; flex-direction: column; gap: 12px; }
+.tq-thema { border: 0; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; min-width: 0; }
+.tq-thema label { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 8px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; font-weight: 600; cursor: pointer; min-width: 0; }
+.tq-thema input { width: 20px; height: 20px; accent-color: var(--accent); flex: none; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.tq-open, .tq-knop, .tq-spelen { min-height: 64px; border: 0; border-radius: 18px; background: var(--accent); color: var(--vlak); font: inherit; font-weight: 800; font-size: 20px; cursor: pointer; padding: 10px 18px; text-align: center; text-decoration: none; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 0 rgba(42, 31, 74, 0.15); width: 100%; }
+.tq-open[aria-expanded="true"] { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink); min-height: 48px; font-size: 16px; }
+.tq-knop:disabled { opacity: 0.5; cursor: default; }
+.tq-thema-deel { display: flex; flex-direction: column; gap: 12px; }
+.tq-thema-deel[hidden] { display: none; }
+.tq-nieuws { background: var(--goed-diep); }
+.tq-random { background: var(--paars); color: var(--ink); }
+.tq-random-keuze { display: flex; flex-direction: column; gap: 12px; }
+.tq-random-keuze[hidden] { display: none; }
+.oef-kop { margin: 0 0 8px; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--roze-diep); }
+.oef-lijst { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.oef-rij { background: var(--surface); border-radius: 14px; padding: 12px 14px; box-shadow: 0 4px 0 var(--paars-lijn); display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.oef-rij a { background: var(--paars); color: var(--ink); font-weight: 800; text-decoration: none; padding: 8px 14px; border-radius: 12px; white-space: nowrap; }
+.oef-rij a.andere { background: var(--oranje); }
+.laad { display: flex; flex-direction: column; gap: 6px; margin: 0; }
+.laad-kop { display: flex; justify-content: space-between; gap: 12px; font-weight: 700; }
+.laad-pct { font-variant-numeric: tabular-nums; }
+.laad-balk { height: 14px; border-radius: 999px; background: var(--roze-zacht); overflow: hidden; }
+.laad-balk > i { display: block; height: 100%; width: 0%; border-radius: 999px; background: var(--roze); transition: width 0.4s ease; }
+.laad.klaar .laad-balk > i { background: var(--mint); }
+.tq-uitleg { margin: 4px 0 0; font-size: 15px; font-weight: 600; }
+.tq-open:focus-visible, .tq-knop:focus-visible, .tq-spelen:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+.tq-melding { margin: 0; font-weight: 700; color: var(--fout-diep); }
+.open-knop { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 56px; border: 0; border-radius: 18px; background: var(--surface); color: var(--ink); box-shadow: 0 4px 0 var(--paars-lijn); font: inherit; font-weight: 800; font-size: 18px; padding: 10px 18px; cursor: pointer; text-align: left; }
+.open-knop > span:first-child { flex: 1; }
+.open-tel { background: var(--accent); color: var(--vlak); border-radius: 999px; min-width: 28px; padding: 2px 9px; font-size: 15px; text-align: center; }
+.open-pijl { width: 10px; height: 10px; border-right: 3px solid var(--ink); border-bottom: 3px solid var(--ink); transform: rotate(45deg) translate(-2px, -2px); transition: transform 0.2s; }
+.open-knop[aria-expanded="true"] .open-pijl { transform: rotate(-135deg) translate(-2px, -2px); }
+.open-knop:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+.open-lijst { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.open-datum { margin: 0; font-size: 13px; font-weight: 600; color: var(--ink); opacity: 0.6; }
+.oef-naam { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.open-inhoud { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.open-inhoud[hidden] { display: none; }
+.tq-actief { background: var(--surface); border-radius: 18px; box-shadow: 0 6px 0 var(--lijn); padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
+.tq-actief p { margin: 0; }
+.tq-lijst { display: flex; flex-direction: column; gap: 18px; }
+.tq-themas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; list-style: none; margin: 0; padding: 0; }
+.tq-themas li { background: var(--bg); border-radius: 14px; min-height: 40px; padding: 8px 10px; font-size: 14px; font-weight: 700; line-height: 1.2; display: flex; align-items: center; justify-content: center; text-align: center; }
+@media (max-width: 380px) { .tq-thema { grid-template-columns: 1fr; } }
+ .wissel-vraag { background: var(--surface); border-radius: 14px; padding: 12px 14px; box-shadow: 0 4px 0 var(--lijn); display: flex; flex-direction: column; gap: 10px; }
+.wissel-vraag p { margin: 0; font-weight: 700; }
+.wissel-knoppen { display: flex; gap: 10px; flex-wrap: wrap; }
+.wissel.ja { background: var(--ink); color: var(--vlak); }
+.kop { position: relative; }
+.wissel-icoon { position: absolute; top: 2px; right: 0; width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--p-kern, var(--mint)); background: var(--p-zacht, var(--mint-zacht)); color: var(--p-tekst, var(--goed)); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+.wissel-icoon svg { width: 20px; height: 20px; }
+.wissel-icoon:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+.kop .eyebrow { padding-right: 48px; }
+/* Beweging: kort en zacht. Wie verminderde beweging aanzet, ziet niets bewegen (zie onderaan). */
+button, a { transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease, opacity 0.2s ease; }
+button:active:not(:disabled), a.score-link:active, .days a:active { transform: scale(0.97); }
+html:not([data-geladen]) .score-link, html:not([data-geladen]) .themaquiz, html:not([data-geladen]) .year, html:not([data-geladen]) .wissel-vraag { animation: omhoog 0.35s ease both; }
+.score-link:hover { transform: translateY(-2px); }
+.person .score { transition: transform 0.3s ease; }
+@keyframes omhoog { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+.instel { display: flex; flex-direction: column; gap: 12px; background: var(--surface); border-radius: 18px; box-shadow: 0 6px 0 var(--lijn); padding: 18px; min-width: 0; }
+.instel .eyebrow { color: var(--roze-diep); }
+.instel .wissel { align-self: flex-start; }
+.melding-keuzes { display: flex; flex-direction: column; gap: 8px; }
+.tq-voort { display: flex; flex-direction: column; gap: 8px; }
+.tq-rij { display: grid; grid-template-columns: 74px 1fr 44px; align-items: center; gap: 10px; font-weight: 700; font-size: 14px; }
+.tq-rij span:last-child { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+.balkje { height: 10px; border-radius: 999px; background: var(--roze-zacht); overflow: hidden; }
+.balkje > i { display: block; height: 100%; border-radius: 999px; background: var(--roze); transition: width 0.4s ease; }
+.melding-keuzes label { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 8px 12px; background: var(--bg); border-radius: 12px; font-weight: 600; cursor: pointer; }
+.melding-keuzes input { width: 20px; height: 20px; accent-color: var(--accent); flex: none; }
+.bestand-waarschuwing { margin: 0; padding: 14px 16px; background: var(--roze-zacht); color: var(--inkt); font-weight: 800; text-align: center; }
+</style>
+<link rel="stylesheet" href="app.css">
+<main>
+  <header class="kop">
+    <button type="button" class="wissel-icoon" id="wissel" aria-label="Wissel van account" title="Wissel van account" hidden>
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"></path></svg>
+    </button>
+    <p class="eyebrow">Dagelijkse quiz</p>
+    <h1>Feitje van de dag</h1>
+  </header>
+  <div class="wissel-vraag" id="wissel-vraag" hidden>
+    <p id="wissel-tekst"></p>
+    <div class="wissel-knoppen">
+      <button type="button" class="wissel ja" id="wissel-ja"></button>
+      <button type="button" class="wissel" id="wissel-nee"></button>
+    </div>
+  </div>
+
+
+  <section class="instel" id="instel" aria-label="Instellingen" hidden>
+    <div class="instel-kop">
+      <p class="eyebrow">Instellingen</p>
+      <button type="button" class="sluit" id="instel-sluit" aria-label="Sluiten">&times;</button>
+    </div>
+    <div class="profiel-kaart">
+      <span class="avatar profiel-groot" id="profiel-foto" aria-hidden="true"></span>
+      <div class="profiel-tekst">
+        <span class="wie-naam" id="instel-wie"></span>
+        <label class="foto-knop" for="profiel-kies">Foto kiezen</label>
+        <div class="level-mini"><span class="level-mini-tekst" id="lvl-tekst">Level 0</span><div class="level-balk"><i id="lvl-vul"></i></div></div>
+        <input type="file" id="profiel-kies" accept="image/*" hidden>
+      </div>
+      <button type="button" class="wissel" id="instel-wissel">Wissel</button>
+    </div>
+    <p class="eyebrow">Meldingen</p>
+    <p class="intro" id="melding-uitleg"></p>
+    <button type="button" class="tq-knop" id="melding-knop">Meldingen aanzetten</button>
+    <div class="melding-keuzes" id="melding-keuzes" hidden>
+      <label><input type="checkbox" data-pref="dag"> Nieuwe dagquiz</label>
+      <label><input type="checkbox" data-pref="aanvraag"> Nieuwe quiz van de ander</label>
+      <label><input type="checkbox" data-pref="uitnodiging"> Uitnodiging voor een quiz</label>
+      <label><input type="checkbox" data-pref="beurt"> Jouw beurt in een quiz</label>
+    </div>
+  </section>
+
+  <div class="vraag-melding" id="melding-vraag" hidden>
+    <p>Meldingen aanzetten?</p>
+    <div class="vraag-knoppen">
+      <button type="button" class="tq-knop" id="vraag-ja">Ja</button>
+      <button type="button" class="wissel" id="vraag-nee">Nee</button>
+    </div>
+  </div>
+  <div id="vandaag-kaart"></div>
+
+  <a class="score-link" href="punten.html" aria-label="Punten bekijken">
+    <p class="eyebrow" id="stand-dag">Score van vandaag</p>
+    <div class="totals">
+      <div class="person" data-persoon="Ritchie">
+        <p class="name">Ritchie</p>
+        <p class="score" id="score-Ritchie">0</p>
+        <p class="sub" id="sub-Ritchie">0 vragen beantwoord</p>
+      </div>
+      <div class="person" data-persoon="Rachel">
+        <p class="name">Rachel</p>
+        <p class="score" id="score-Rachel">0</p>
+        <p class="sub" id="sub-Rachel">0 vragen beantwoord</p>
+      </div>
+    </div>
+    <p class="lead" id="lead">Gelijk</p>
+  </a>
+
+  <section class="themaquiz" id="themaquiz" hidden>
+    <button type="button" class="tq-open" id="tq-open" aria-expanded="false" aria-controls="tq-form">Quiz maken</button>
+    <form id="tq-form" hidden>
+      <div id="tq-thema-deel" class="tq-thema-deel">
+      <fieldset class="tq-thema">
+        <legend class="sr">Thema's</legend>
+        <label><input type="checkbox" name="thema" value="Geschiedenis" checked> Geschiedenis</label>
+        <label><input type="checkbox" name="thema" value="Aardrijkskunde" checked> Aardrijkskunde</label>
+        <label><input type="checkbox" name="thema" value="Wetenschap" checked> Wetenschap</label>
+        <label><input type="checkbox" name="thema" value="Natuur" checked> Natuur</label>
+        <label><input type="checkbox" name="thema" value="Cultuur" checked> Cultuur</label>
+        <label><input type="checkbox" name="thema" value="Sport" checked> Sport</label>
+        <label><input type="checkbox" name="thema" value="Filosofie" checked> Filosofie</label>
+        <label><input type="checkbox" name="thema" value="Algemene kennis" checked> Algemene kennis</label>
+      </fieldset>
+      <label class="tq-aantal">
+        <span>Aantal vragen: <strong id="tq-aantal-getal">10</strong></span>
+        <input type="range" id="tq-aantal" min="1" max="20" step="1" value="10">
+      </label>
+      <p class="tq-melding" id="tq-melding" role="status" hidden></p>
+      <button type="submit" class="tq-knop" id="tq-knop">Quiz genereren</button>
+      </div>
+      <button type="button" class="tq-knop tq-nieuws" id="tq-nieuws-knop">Nieuwsquiz van vandaag</button>
+      <button type="button" class="tq-knop tq-random" id="tq-random-knop" aria-expanded="false">Random quiz</button>
+      <div class="tq-random-keuze" id="tq-random-keuze" hidden>
+        <p class="tq-random-vraag">Eigen quiz of quiz met <span id="tq-random-andere">Rachel</span>?</p>
+        <button type="button" class="tq-knop tq-random" data-modus="alleen">Eigen quiz</button>
+        <button type="button" class="tq-knop tq-random" data-modus="samen" id="tq-random-samen">Quiz met Rachel</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="themaquiz open-groep" id="open-groep" hidden>
+    <button type="button" class="open-knop" id="open-knop" aria-expanded="false" aria-controls="open-inhoud">
+      <span>Openstaande quizzen</span><span class="open-tel" id="open-tel" hidden></span><span class="open-pijl" aria-hidden="true"></span>
+    </button>
+    <div class="open-inhoud" id="open-inhoud" hidden>
+      <div class="open-lijst" id="open-lijst"></div>
+    </div>
+  </section>
+
+
+  <section class="gate" id="gate" aria-label="Kies je account" hidden>
+    <p class="intro">Wie ben jij?</p>
+    <div class="pick">
+      <button type="button" class="pick-btn" data-persoon="Ritchie" data-wie="Ritchie">Ritchie</button>
+      <button type="button" class="pick-btn" data-persoon="Rachel" data-wie="Rachel">Rachel</button>
+    </div>
+  </section>
+
+  <div id="inhoud">
+
+  </div>
+</main>
+</div>
+<nav class="tabs" aria-label="Hoofdmenu">
+  <a href="index.html" class="tab" data-tab="vandaag" aria-current="page">Vandaag</a>
+  <a href="punten.html" class="tab" data-tab="punten">Punten</a>
+  <a href="chat.html" class="tab" data-tab="chat">Chat</a>
+  <a href="logboek.html" class="tab" data-tab="logboek">Terugblik</a>
+  <a href="catalogus.html" class="tab" data-tab="winkel">Winkel</a></nav>
+<script src="supabase-shim.js"></script>
+<script src="gezien.js?v=1"></script>
+<script src="chatteller.js"></script>
+<script src="naam.js"></script>
+<script src="kleuren.js"></script>
+<script src="klaar.js"></script>
+<script src="uitslag.js"></script>
+<script src="weekrad.js"></script>
+<script src="kopjes.js?v=14"></script>
+<script>
+// Quiz genereren op thema. Meerdere actieve quizzen tegelijk; elke actieve quiz staat als eigen kaart.
+var tqActieven = [];
+var tqWacht = false;
+var tqVerzoek = null;
+var tqStart = 0;
+var tqOpen = false;
+
+// Geopend als bestand op de Mac (file://): de database en de app werken dan niet, dus waarschuwen.
+if (location.protocol === "file:") {
+  document.addEventListener("DOMContentLoaded", function () {
+    const w = document.createElement("p");
+    w.className = "bestand-waarschuwing";
+    w.textContent = "Dit is het bestand op je Mac. Open de app via de online link, dan werken scores en quizzen.";
+    document.body.prepend(w);
+  });
+}
+let wie = null;
+try {
+  const v = localStorage.getItem("wie");
+  if (v === "Ritchie" || v === "Rachel") wie = v;
+} catch (e) { /* geen opslag: je kiest opnieuw */ }
+
+function toon() {
+  document.getElementById("gate").hidden = wie !== null;
+  document.getElementById("inhoud").hidden = wie === null;
+  // Profielicoon rechtsboven: groen voor Ritchie, zacht roze voor Rachel (dezelfde kleuren als de scorekaarten); de naam staat in de label (voor hulpprogramma's en de tooltip).
+  const ic = document.getElementById("wissel");
+  ic.hidden = wie === null;
+  if (wie) zetPersoonKleur(ic, wie);
+  if (wie) { ic.setAttribute("aria-label", "Je bent " + wie + ". Wissel van account."); ic.title = "Je bent " + wie + ". Wissel van account."; }
+  if (typeof themaQuizTonen === "function") themaQuizTonen();
+}
+
+document.querySelectorAll("[data-wie]").forEach((b) => {
+  b.addEventListener("click", () => {
+    wie = b.dataset.wie;
+    if (window.bewaarWie) window.bewaarWie(wie);
+    else { try { localStorage.setItem("wie", wie); } catch (e) { /* geen opslag */ } }
+    toon();
+  });
+});
+
+// Wisselen kan pas na een bevestiging, zodat je niet per ongeluk als de ander verdergaat.
+function andere() { return wie === "Ritchie" ? "Rachel" : "Ritchie"; }
+// De profielfoto opent de instellingen: meldingen en wisselen van account.
+function toonWisselVraag() {
+  const vraag = document.getElementById("wissel-vraag");
+  document.getElementById("wissel-tekst").textContent = "Je bent " + wie + ". Wisselen naar " + andere() + "?";
+  document.getElementById("wissel-ja").textContent = "Ja, ik ben " + andere();
+  document.getElementById("wissel-nee").textContent = "Nee, ik blijf " + wie;
+  vraag.hidden = false;
+}
+document.getElementById("wissel").addEventListener("click", () => {
+  const s = document.getElementById("instel");
+  s.hidden = !s.hidden;
+  if (!s.hidden) {
+    document.getElementById("instel-wie").textContent = wie;
+    meldingenInit();
+  }
+});
+document.getElementById("instel-sluit").addEventListener("click", () => { document.getElementById("instel").hidden = true; });
+document.getElementById("instel-wissel").addEventListener("click", () => {
+  document.getElementById("instel").hidden = true;
+  toonWisselVraag();
+  document.getElementById("wissel-vraag").scrollIntoView({ behavior: "smooth", block: "center" });
+});
+document.getElementById("wissel-nee").addEventListener("click", () => { document.getElementById("wissel-vraag").hidden = true; });
+document.getElementById("wissel-ja").addEventListener("click", () => {
+  wie = andere();
+  if (window.bewaarWie) window.bewaarWie(wie);
+  else { try { localStorage.setItem("wie", wie); } catch (e) { /* geen opslag */ } }
+  document.getElementById("wissel-vraag").hidden = true;
+  toon();
+  if (typeof themaQuizLaden === "function") themaQuizLaden();
+  if (typeof meldingenInit === "function") meldingenInit();
+  verversProfiel();
+});
+
+toon();
+setTimeout(nieuweQuizPopup, 1500);
+
+
+// Het label "Nieuwste" knippert zolang jij de quiz van die dag nog niet hebt beantwoord.
+async function knipperVandaag(kaart) {
+  if (!wie) return;
+  try {
+    const dag = new URL(kaart.href, location.href).searchParams.get("d");
+    const label = kaart.querySelector(".nieuw-label");
+    if (!dag || !label) return;
+    const db = await window.claude.use("db");
+    const vragen = await db.collection("questions").where("day", "==", dag).get();
+    const hoofd = vragen.docs.filter(function (d) { return d.exists && /^\d{4}-\d{2}-\d{2}-\d+$/.test(d.id); }).length;
+    const keuzes = await db.collection("keuzes").where("day", "==", dag).get();
+    const gedaan = new Set();
+    keuzes.docs.filter(function (d) { return d.exists; }).forEach(function (d) {
+      const x = d.data();
+      if (x && x.wie === wie && x.key === "main" && x.vraag_id) gedaan.add(x.vraag_id);
+    });
+    label.classList.toggle("knippert", hoofd > 0 && gedaan.size < hoofd);
+  } catch (e) { /* zonder knipperen */ }
+}
+
+// Pop-up bij openen: eenmaal per persoon voor de dagquiz van vandaag en voor elke nieuwe actieve themaquiz.
+let nieuwePopupGestart = false;
+async function nieuweQuizPopup() {
+  // Eén controle per paginalaad, anders zien de aanroepen elkaars vlag niet.
+  if (!wie || nieuwePopupGestart) return;
+  nieuwePopupGestart = true;
+  try {
+    const db = await window.claude.use("db");
+    await Gezien.laad(wie);
+    const vandaag = window.amsterdamNu ? window.amsterdamNu().datum : null;
+    const meldingen = [];
+    if (vandaag && dagOpen(vandaag)) {
+      const sleutel = "nieuwePopup-" + wie + "-dag-" + vandaag;
+      const q = await db.doc("questions/" + vandaag + "-1").get();
+      if (q.exists && !Gezien.is(sleutel)) meldingen.push({ sleutel: sleutel, kop: "Nieuwe dagquiz", titel: "De quiz van vandaag staat klaar" });
+    }
+    // Alleen themaquizzen die vandaag zijn aangemaakt: oude actieve quizzen zijn niet nieuw.
+    const z = await db.collection("themaquizzen").where("status", "==", "actief").get();
+    z.docs.filter(function (d) { return d.exists; }).forEach(function (d) {
+      const q = d.data();
+      const gemaakt = q.aangemaakt ? new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Amsterdam", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(q.aangemaakt)) : "";
+      if (gemaakt !== vandaag) return;
+      const sleutel = "nieuwePopup-" + wie + "-tq-" + d.id;
+      if (!Gezien.is(sleutel)) meldingen.push({ sleutel: sleutel, kop: "Nieuwe themaquiz", titel: q.naam || "Themaquiz" });
+    });
+    // Één pop-up per keer; de rest komt bij het volgende openen.
+    if (!meldingen.length) return;
+    Gezien.zet(wie, meldingen[0].sleutel);
+    toonUitslagScherm({ kop: meldingen[0].kop, titel: meldingen[0].titel });
+  } catch (e) { /* geen pop-up als de gegevens er niet zijn */ }
+}
+
+// Overzicht: de laatste 7 dagen los, oudere dagen per maand en daarbinnen per week.
+// De drie eerste dagen hebben een eigen pagina, nieuwe dagen gebruiken dagquiz.html.
+const LAATSTE_VASTE_DAG = "2000-01-01";
+const EIGEN = {};
+const MAANDEN = ["januari", "februari", "maart", "april", "mei", "juni", "juli", "augustus", "september", "oktober", "november", "december"];
+const KORT = ["jan", "feb", "mrt", "apr", "mei", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
+const WEEKDAGEN = ["Zondag", "Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag"];
+
+function dagOpen(dag) {
+  // Een nieuwe dag staat om QUIZ_UUR Nederlandse tijd online (tijd van de server; nu 00:00).
+  return window.dagIsOpen ? window.dagIsOpen(dag) : false;
+}
+
+function datumVan(dag) { return new Date(dag + "T12:00:00"); }
+
+function dagTekst(dag) {
+  const d = datumVan(dag);
+  return WEEKDAGEN[d.getDay()] + " " + d.getDate() + " " + MAANDEN[d.getMonth()] + " " + d.getFullYear();
+}
+
+// ISO-weeknummer en de maandag van die week.
+function weekVan(dag) {
+  const d = datumVan(dag);
+  const maandag = new Date(d);
+  maandag.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  const donderdag = new Date(maandag);
+  donderdag.setDate(maandag.getDate() + 3);
+  const jan1 = new Date(donderdag.getFullYear(), 0, 1, 12);
+  const nr = 1 + Math.round(((donderdag - jan1) / 86400000 - 3 + ((jan1.getDay() + 6) % 7)) / 7);
+  const zondag = new Date(maandag);
+  zondag.setDate(maandag.getDate() + 6);
+  return { sleutel: donderdag.getFullYear() + "-W" + String(nr).padStart(2, "0"), nr: nr, maandag: maandag, zondag: zondag };
+}
+
+function groepeer(dagen) {
+  // dagen: nieuwste eerst. Resultaat: [{ sleutel, titel, weken: [{ sleutel, titel, dagen: [] }] }]
+  const maanden = [];
+  dagen.forEach(function (dag) {
+    const d = datumVan(dag);
+    const mk = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
+    let m = maanden.find(function (x) { return x.sleutel === mk; });
+    if (!m) { m = { sleutel: mk, titel: MAANDEN[d.getMonth()] + " " + d.getFullYear(), weken: [] }; maanden.push(m); }
+    const w = weekVan(dag);
+    let wk = m.weken.find(function (x) { return x.sleutel === w.sleutel; });
+    if (!wk) {
+      const a = w.maandag, b = w.zondag;
+      const bereik = a.getMonth() === b.getMonth()
+        ? a.getDate() + " t/m " + b.getDate() + " " + KORT[b.getMonth()]
+        : a.getDate() + " " + KORT[a.getMonth()] + " t/m " + b.getDate() + " " + KORT[b.getMonth()];
+      wk = { sleutel: w.sleutel, titel: "Week " + w.nr, dagen: [] };
+      m.weken.push(wk);
+    }
+    wk.dagen.push(dag);
+  });
+  return maanden;
+}
+
+// De nieuwste dagquiz krijgt elke dag een andere zachte kleur (niet paars), zodat je hem meteen ziet.
+const NIEUW_KLEUREN = ["#a8e6cf", "#f9c98a", "#b8c9ff", "#d4eeaa", "#ffc2dc"];
+let nieuwsteDag = "";
+let vraagIds = [];
+let klaarSet = new Set();
+function nieuwKleur(dag) {
+  const nr = Math.floor(Date.parse(dag + "T12:00:00Z") / 86400000);
+  return NIEUW_KLEUREN[((nr % NIEUW_KLEUREN.length) + NIEUW_KLEUREN.length) % NIEUW_KLEUREN.length];
+}
+function dagLink(dag) {
+  const li = document.createElement("li");
+  const a = document.createElement("a");
+  a.href = EIGEN[dag] ? "dag/" + dag + ".html" : "dagquiz.html?d=" + dag;
+  if (dag === nieuwsteDag) {
+    a.classList.add("nieuw");
+    a.style.setProperty("--dag", nieuwKleur(dag));
+  }
+  a.appendChild(document.createTextNode(dagTekst(dag)));
+  li.appendChild(a);
+  return li;
+}
+
+function dagLijst(dagen) {
+  const ul = document.createElement("ul");
+  ul.className = "days";
+  dagen.forEach(function (dag) { ul.appendChild(dagLink(dag)); });
+  return ul;
+}
+
+// Paarse box als de quiz van vandaag klaar is: de aftelling tot de volgende quiz (uur:minuten:seconden).
+function aftelKaart() {
+  const kaart = document.createElement("div");
+  kaart.className = "vandaag nieuwste";
+  const kop = document.createElement("span");
+  kop.className = "eyebrow";
+  kop.textContent = "Volgende quiz over";
+  const tijd = document.createElement("span");
+  tijd.className = "vandaag-titel";
+  tijd.id = "aftel";
+  tijd.textContent = formatAftel(tijdTotVolgendeQuiz());
+  kaart.append(kop, tijd);
+  return kaart;
+}
+
+// Een week die over twee maanden loopt komt maar één keer voor: de dagen worden samengevoegd onder de eerste maand, nieuwste eerst.
+function samenWeken(maanden) {
+  const gezien = {};
+  maanden.forEach(function (m) {
+    m.weken = m.weken.filter(function (w) {
+      if (gezien[w.sleutel]) {
+        gezien[w.sleutel].dagen = gezien[w.sleutel].dagen.concat(w.dagen).sort().reverse();
+        return false;
+      }
+      gezien[w.sleutel] = w;
+      return true;
+    });
+  });
+  return maanden.filter(function (m) { return m.weken.length > 0; });
+}
+function bouwOverzicht(dagen) {
+  // Alle dagen per maand en per week. Alleen de maand en week van de nieuwste dag staan open; de rest is ingeklapt.
+  nieuwsteDag = dagen[0] || "";
+  const huidigeMaand = nieuwsteDag ? groepeer([nieuwsteDag])[0].sleutel : "";
+  const huidigeWeek = nieuwsteDag ? weekVan(nieuwsteDag).sleutel : "";
+  // De nieuwste dag staat bovenaan als vaste kaart. Zodra er een nieuwere dag is, schuift hij door naar het logboek.
+  const vk = document.getElementById("vandaag-kaart");
+  vk.textContent = "";
+  if (nieuwsteDag && klaarSet.has(nieuwsteDag)) {
+    // Klaar: de dag staat nu in het logboek; de box telt af tot de volgende quiz.
+    vk.appendChild(aftelKaart());
+  } else if (nieuwsteDag) {
+    const a = document.createElement("a");
+    a.className = "vandaag";
+    a.href = "dagquiz.html?d=" + nieuwsteDag;
+    a.style.setProperty("--dag", nieuwKleur(nieuwsteDag));
+    const vandaagDatum = window.amsterdamNu ? window.amsterdamNu().datum : "";
+    const kop = document.createElement("span");
+    kop.className = "eyebrow";
+    kop.textContent = nieuwsteDag === vandaagDatum ? "Vandaag" : "Nieuwste quiz";
+    // De nieuwste quiz krijgt de lila stijl, zodat hij van de andere dagen te zien is.
+    a.classList.add("nieuwste");
+    kop.classList.add("nieuw-label");
+    const titel = document.createElement("span");
+    titel.className = "vandaag-titel";
+    titel.textContent = dagTekst(nieuwsteDag);
+    a.append(kop, titel);
+    vk.appendChild(a);
+    knipperVandaag(a);
+  }
+  const archief = document.getElementById("archief");
+  if (!archief) return;
+  archief.textContent = "";
+  const vast = dagen.filter(function (d) { return d <= LAATSTE_VASTE_DAG && d !== nieuwsteDag; });
+  const ouder = dagen.filter(function (d) { return d > LAATSTE_VASTE_DAG && d !== nieuwsteDag; });
+  samenWeken(groepeer(ouder)).forEach(function (m) {
+    const dm = document.createElement("details");
+    dm.className = "maand";
+    dm.open = m.sleutel === huidigeMaand;
+    const sm = document.createElement("summary");
+    sm.textContent = m.titel.charAt(0).toUpperCase() + m.titel.slice(1);
+    dm.appendChild(sm);
+    m.weken.forEach(function (w) {
+      const dw = document.createElement("details");
+      dw.className = "week";
+      dw.open = w.sleutel === huidigeWeek;
+      const sw = document.createElement("summary");
+      sw.textContent = w.titel;
+      dw.appendChild(sw);
+      dw.appendChild(dagLijst(w.dagen));
+      dm.appendChild(dw);
+    });
+    archief.appendChild(dm);
+  });
+  if (vast.length) archief.appendChild(dagLijst(vast));
+}
+
+// De lijst met dagen: de dagen uit de database één keer per 5 minuten ophalen, en elke 5 seconden kijken
+// welke dagen open zijn, zodat een nieuwe dag precies op QUIZ_UUR verschijnt, ook als de pagina al openstaat.
+let alleDagen = [];
+let getoondeLijst = "";
+function toonDagen(vernieuw) {
+  const open = alleDagen.filter(dagOpen).sort().reverse();
+  const sig = open.join("|") + "#" + [...klaarSet].join(",");
+  if (!open.length || (sig === getoondeLijst && !vernieuw)) return;
+  getoondeLijst = sig;
+  bouwOverzicht(open);
+}
+// Klaar = beide spelers hebben alle vragen van die dag beantwoord. Dan staat de dag in het logboek en toont de box de aftelling.
+// Los van de score, zodat de box meteen wisselt (bij laden en elke 10 seconden).
+async function werkKlaar() {
+  try {
+    const db = await window.claude.use("db");
+    const snap = await db.collection("attempts").get();
+    const nieuw = klaarDagen(vraagIds, snap.docs.map(function (d) { return d.data(); }));
+    const veranderd = nieuw.size !== klaarSet.size || [...nieuw].some(function (d) { return !klaarSet.has(d); });
+    klaarSet = nieuw;
+    if (veranderd) toonDagen(true);
+  } catch (e) { /* de vorige status blijft staan */ }
+}
+setInterval(werkKlaar, 10 * 1000);
+// Elke seconde de aftelling naar de volgende quiz bijwerken.
+setInterval(function () {
+  const el = document.getElementById("aftel");
+  if (el) el.textContent = formatAftel(tijdTotVolgendeQuiz());
+}, 1000);
+async function laadDagen() {
+  try {
+    const db = await window.claude.use("db");
+    const ids = await db.collection("questions").ids();
+    const dagen = new Set();
+    ids.forEach(function (id) {
+      const m = /^(\d{4}-\d{2}-\d{2})-\d+$/.exec(id);
+      if (m) dagen.add(m[1]);
+    });
+    alleDagen = Array.from(dagen);
+    vraagIds = ids;
+    toonDagen();
+    werkKlaar();
+  } catch (e) { /* de vaste lijst blijft staan */ }
+}
+laadDagen();
+setInterval(laadDagen, 5 * 60 * 1000);
+setInterval(toonDagen, 5000);
+document.addEventListener("visibilitychange", function () { if (!document.hidden) { laadDagen(); } });
+
+
+// Puntenstand bovenaan: alleen de score van de dag (alle quizzen van die dag opgeteld), elke dag weer 0-0.
+// De totale stand over alle dagen staat op de puntenpagina.
+function standDag() {
+  const nu = window.amsterdamNu ? window.amsterdamNu() : null;
+  if (!nu) return null;
+  return nu.datum;
+}
+function amsterdamDatum(iso) {
+  try {
+    return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Amsterdam", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(iso));
+  } catch (e) { return ""; }
+}
+async function werkStand() {
+  try {
+    const dag = standDag();
+    if (!dag) return;
+    const db = await window.claude.use("db");
+    const snap = await db.collection("attempts").get();
+    const themaSnap = await db.collection("themaantwoorden").get();
+    const themaQuizSnap = await db.collection("themaquizzen").get();
+    const themaDagen = {};
+    themaQuizSnap.docs.forEach(function (d) {
+      const q = d.data();
+      if (q && q.aangemaakt) themaDagen[d.id] = amsterdamDatum(q.aangemaakt);
+    });
+    // De score van één dag: alleen antwoorden met de huidige kalenderdatum.
+    function telDag(dagX) {
+      const t = { Ritchie: { punten: 0, beantwoord: 0 }, Rachel: { punten: 0, beantwoord: 0 } };
+      function tel(p, op) {
+        if (!p || !t[p.wie] || op !== dagX) return;
+        t[p.wie].beantwoord += 1;
+        if (p.goed === true) t[p.wie].punten += 1;
+      }
+      // Themaquizantwoorden tellen alleen als ze op de dag van de themaquiz zijn gegeven.
+      themaSnap.docs.forEach(function (d) {
+        const p = d.data();
+        const quizDag = p && themaDagen[p.quiz] ? themaDagen[p.quiz] : "";
+        const antwoordDag = p && p.gezet_op ? amsterdamDatum(p.gezet_op) : quizDag;
+        if (quizDag && antwoordDag === quizDag) tel(p, quizDag);
+      });
+      // Dagquizzen (hoofdquiz, q1, q2, ...) tellen alleen antwoorden op de quizdag.
+      snap.docs.forEach(function (d) {
+        const p = d.data();
+        if (!p) return;
+        const quizDag = p.datum || ((p.vraag_id || "").match(/^(\d{4}-\d{2}-\d{2})-/) || [])[1] || "";
+        const antwoordDag = p.gezet_op ? amsterdamDatum(p.gezet_op) : quizDag;
+        if (quizDag && antwoordDag === quizDag) tel(p, quizDag);
+      });
+      return t;
+    }
+    const t = telDag(dag);
+    const lab = document.getElementById("stand-dag");
+    if (lab) lab.textContent = "Score van vandaag";
+    ["Ritchie", "Rachel"].forEach(function (n) {
+      document.getElementById("score-" + n).textContent = t[n].punten;
+      document.getElementById("sub-" + n).textContent = t[n].beantwoord + " vragen beantwoord";
+    });
+    // Koploper op de dag = hoogste verhouding goed/beantwoord (niet het aantal goede antwoorden).
+    const ratio = function (n) { return t[n].beantwoord ? t[n].punten / t[n].beantwoord : 0; };
+    const koploper = ratio("Ritchie") === ratio("Rachel") ? null : (ratio("Ritchie") > ratio("Rachel") ? "Ritchie" : "Rachel");
+    ["Ritchie", "Rachel"].forEach(function (n) { zetKroon(document.querySelector('.person[data-persoon="' + n + '"]'), koploper === n); });
+    if (window.Kopjes) window.Kopjes.zet(koploper, t.Ritchie.beantwoord + t.Rachel.beantwoord > 0); // hoofdjes bij de score: de leider is blij, de achterstaander jaloers of vastbesloten
+    // Het punt van de dag: wie het hoogste aandeel goed heeft (goed / beantwoord). Gelijk: niemand.
+    const lead = document.getElementById("lead");
+    const aandeel = function (n) { return t[n].beantwoord ? t[n].punten / t[n].beantwoord : 0; };
+    const huidig = !t.Ritchie.beantwoord && !t.Rachel.beantwoord ? ""
+      : (aandeel("Ritchie") === aandeel("Rachel") ? "gelijk" : (aandeel("Ritchie") > aandeel("Rachel") ? "Ritchie" : "Rachel"));
+    // De zin hangt af van wat er gebeurt: aan kop, de kop overnemen, of de kop vasthouden.
+    const AAN_KOP = ["staat aan kop"];
+    const OVERNAME = ["pakt de pole position", "neemt de leiding over", "gaat voorbij", "steelt de kop", "komt van achteren", "maakt de inhaalslag af"];
+    const WINDT = ["windt de dag", "houdt de kop vast", "verdedigt de koppositie", "laat zich niet verslaan"];
+    const kies = function (lijst, sleutel) { let h = 0; for (const c of sleutel) h = (h * 31 + c.charCodeAt(0)) >>> 0; return lijst[h % lijst.length]; };
+    const sleutelDag = "dagleider-" + dag;
+    let vorig = "";
+    try { vorig = localStorage.getItem(sleutelDag) || ""; } catch (e) { /* zonder opslag */ }
+    if (huidig === "") lead.textContent = "";
+    else if (huidig === "gelijk") lead.textContent = "Gelijk spel, het blijft spannend";
+    else if (vorig === huidig) lead.textContent = huidig + " " + kies(WINDT, dag + huidig + "w");
+    else if (vorig && vorig !== "gelijk") lead.textContent = huidig + " " + kies(OVERNAME, dag + huidig + "o");
+    else lead.textContent = huidig + " " + kies(AAN_KOP, dag + huidig + "a");
+    if (huidig) { try { localStorage.setItem(sleutelDag, huidig); } catch (e) { /* zonder opslag */ } }
+  } catch (e) { /* de vorige stand blijft staan */ }
+}
+werkStand();
+setInterval(werkStand, 30000);
+
+
+// Openstaande quizzen staan in één lijst (#open-lijst), nieuwste activiteit bovenaan.
+function wegOpen(soort) { document.querySelectorAll('#open-lijst > [data-soort="' + soort + '"]').forEach(function (e) { e.remove(); }); }
+function sorteerOpen() {
+  const lijst = document.getElementById("open-lijst");
+  const items = Array.from(lijst.children);
+  const gesorteerd = items.slice().sort(function (a, b) { return Number(b.dataset.laatst) - Number(a.dataset.laatst); });
+  if (gesorteerd.some(function (e, i) { return e !== items[i]; })) gesorteerd.forEach(function (e) { lijst.appendChild(e); });
+}
+function tijdLabel(ms) {
+  const d = new Date(ms), nu = new Date();
+  const dag = function (x) { return new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime(); };
+  const verschil = Math.round((dag(nu) - dag(d)) / 86400000);
+  const uur = d.toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" });
+  if (verschil === 0) return "vandaag " + uur;
+  if (verschil === 1) return "gisteren " + uur;
+  return d.toLocaleDateString("nl-NL", { weekday: "short", day: "numeric", month: "short" }) + " " + uur;
+}
+function datumRegel(ms, geantwoord) {
+  const p = document.createElement("p");
+  p.className = "open-datum";
+  p.textContent = ms ? (geantwoord ? "Laatst geantwoord: " : "Gemaakt: ") + tijdLabel(ms) : "";
+  return p;
+}
+var laatsteTqSig = "";
+function themaQuizTonen() {
+  const sec = document.getElementById("themaquiz");
+  sec.hidden = wie === null;
+  const form = document.getElementById("tq-form");
+  const open = document.getElementById("tq-open");
+  // Het menu blijft beschikbaar voor de nieuwsquiz; het themadeel verdwijnt zolang er een themaquiz loopt of wordt gemaakt.
+  open.hidden = false;
+  form.hidden = !tqOpen;
+  // De keuze blijft altijd zichtbaar; de knop is alleen uit zolang een nieuw verzoek nog wordt gemaakt.
+  document.getElementById("tq-thema-deel").hidden = false;
+  open.setAttribute("aria-expanded", String(!!tqOpen));
+  open.textContent = tqOpen ? "Sluiten" : "Quiz maken";
+  document.getElementById("tq-knop").disabled = !!tqWacht;
+  // Alleen opnieuw opbouwen als de themaquiz echt is veranderd (de pagina vernieuwt elke 6 seconden).
+  const sigTq = JSON.stringify([tqWacht, tqActieven.map(function (q) { return [q.id, q.tel, q.data.naam, q.data.aantal, q.data.status, q.laatst]; })]);
+  if (sigTq === laatsteTqSig) return;
+  laatsteTqSig = sigTq;
+  wegOpen("thema");
+  const lijst = document.getElementById("open-lijst");
+  if (tqWacht && !tqActieven.length) {
+    const w = document.createElement("div");
+    w.className = "tq-actief";
+    w.dataset.soort = "thema";
+    w.dataset.laatst = String(Date.now());
+    w.appendChild(laadBalk("Je quiz wordt gemaakt", tqStart || Date.now()));
+    lijst.appendChild(w);
+    sorteerOpen();
+    return;
+  }
+  tqActieven.forEach(function (q) {
+    const kaart = document.createElement("div");
+    kaart.className = "tq-actief";
+    kaart.dataset.soort = "thema";
+    kaart.dataset.laatst = String(q.laatst || 0);
+    tqKaart(kaart, q);
+    kaart.insertBefore(datumRegel(q.laatst, q.geantwoord), kaart.children[1] || null);
+    lijst.appendChild(kaart);
+  });
+  sorteerOpen();
+}
+// Eén themaquiz-kaart: naam, themas, voortgang en de knop.
+function tekstVervalt(einde) {
+  const t = Math.max(0, Math.ceil((einde - Date.now()) / 1000));
+  const pad = function (n) { return String(n).padStart(2, "0"); };
+  return "Vervalt over " + Math.floor(t / 3600) + ":" + pad(Math.floor((t % 3600) / 60)) + ":" + pad(t % 60);
+}
+setInterval(function () {
+  document.querySelectorAll(".tq-vervalt").forEach(function (c) { c.textContent = tekstVervalt(Number(c.dataset.einde)); });
+}, 1000);
+function tqKaart(act, q) {
+  const aantal = q.data.aantal;
+  const kop = document.createElement("p");
+  kop.style.fontWeight = "800";
+  kop.textContent = q.data.naam || "Themaquiz";
+  // De themalijst staat achter een tik op de kop.
+  const det = document.createElement("details");
+  det.className = "tap";
+  const sm = document.createElement("summary");
+  sm.appendChild(kop);
+  // Vervalt-teller rechtsboven: alleen als nog niemand een vraag heeft beantwoord (0-0) en het nog maar 4 uur of minder duurt.
+  // De server laat zo'n quiz na 24 uur vervallen (supabase-33-themaquiz-vervalt.sql).
+  const gemaaktOp = Date.parse(q.data.aangemaakt || "");
+  if (!(q.tel.Ritchie || 0) && !(q.tel.Rachel || 0) && Number.isFinite(gemaaktOp)) {
+    const einde = gemaaktOp + 24 * 3600 * 1000;
+    if (einde - Date.now() <= 4 * 3600 * 1000) {
+      const chip = document.createElement("span");
+      chip.className = "tq-vervalt";
+      chip.dataset.einde = String(einde);
+      chip.textContent = tekstVervalt(einde);
+      sm.appendChild(chip);
+    }
+  }
+  const ul = document.createElement("ul");
+  ul.className = "tq-themas";
+  (q.data.themas || []).forEach(function (t) { const li = document.createElement("li"); li.textContent = t; li.dataset.thema = t; ul.appendChild(li); });
+  det.append(sm, ul);
+  act.appendChild(det);
+  const st = document.createElement("div");
+  st.className = "tq-voort";
+  [["Ritchie", q.tel.Ritchie || 0], ["Rachel", q.tel.Rachel || 0]].forEach(function (p) {
+    const rij = document.createElement("div");
+    rij.className = "tq-rij";
+    const lab = document.createElement("span");
+    lab.textContent = p[0];
+    const bal = document.createElement("div");
+    bal.className = "balkje";
+    const bar = document.createElement("i");
+    bar.style.background = persoonKleur(p[0]).kern;
+    bar.style.width = Math.round(100 * p[1] / aantal) + "%";
+    bal.appendChild(bar);
+    const n = document.createElement("span");
+    n.textContent = p[1] + "/" + aantal;
+    rij.append(lab, bal, n);
+    st.appendChild(rij);
+  });
+  act.appendChild(st);
+  const quizDag = amsterdamDatum(q.data.aangemaakt || "");
+  const vandaag = window.amsterdamNu ? window.amsterdamNu().datum : "";
+  if (quizDag && vandaag && quizDag < vandaag) {
+    const waarschuwing = document.createElement("p");
+    waarschuwing.className = "open-datum";
+    waarschuwing.textContent = "Geen punten meer voor deze dag; je kunt nog wel spelen.";
+    act.appendChild(waarschuwing);
+  }
+  const mijn = q.tel[wie] || 0;
+  const a = document.createElement("a");
+  a.className = "tq-spelen";
+  a.href = "themaquiz.html?id=" + encodeURIComponent(q.id);
+  a.textContent = mijn >= aantal ? "Bekijk je antwoorden" : (mijn > 0 ? "Verder spelen" : "Quiz spelen");
+  act.appendChild(a);
+}
+
+async function themaQuizLaden() {
+  try {
+    const db = await window.claude.use("db");
+    const z = await db.collection("themaquizzen").where("status", "==", "actief").get();
+    const docs = z.docs.filter(function (d) { return d.exists; });
+    tqActieven = [];
+    for (const doc of docs) {
+      const an = await db.collection("themaantwoorden").where("quiz", "==", doc.id).get();
+      const tel = { Ritchie: 0, Rachel: 0 };
+      let laatst = 0, geantwoord = false;
+      an.docs.forEach(function (d) {
+        const x = d.data();
+        if (x && tel.hasOwnProperty(x.wie)) tel[x.wie] += 1;
+        const t = x ? Date.parse(x.gezet_op || "") : NaN;
+        if (Number.isFinite(t)) { geantwoord = true; if (t > laatst) laatst = t; }
+      });
+      if (!laatst) laatst = Date.parse(doc.data().aangemaakt || "") || 0;
+      tqActieven.push({ id: doc.id, data: doc.data(), tel: tel, laatst: laatst, geantwoord: geantwoord });
+    }
+    if (tqWacht) {
+      const v = await db.collection("themaverzoeken").where("status", "==", "open").get();
+      if (!v.docs.length) {
+        // Geen open verzoek meer: kijk hoe het is afgelopen, en zeg dat als het niet is gelukt.
+        const mijn = tqVerzoek ? await db.doc("themaverzoeken/" + tqVerzoek).get() : null;
+        const status = mijn && mijn.exists ? mijn.data().status : "";
+        tqWacht = false;
+        if (status === "mislukt" || status === "afgewezen") {
+          const m = document.getElementById("tq-melding");
+          m.textContent = status === "mislukt"
+            ? "Voor deze thema's zijn er nu te weinig vragen die de afgelopen maand niet in een quiz stonden. Kies andere thema's."
+            : "Er kon geen quiz worden gemaakt. Probeer het opnieuw.";
+          m.hidden = false;
+          tqOpen = true;
+        }
+      }
+    }
+    themaQuizTonen();
+  } catch (e) { /* bij de volgende ronde opnieuw */ }
+}
+
+document.getElementById("tq-open").addEventListener("click", function () {
+  tqOpen = !tqOpen;
+  themaQuizTonen();
+  if (tqOpen) { const f = document.querySelector('#tq-form input[type="checkbox"]'); if (f) f.focus(); }
+});
+
+document.getElementById("tq-aantal").addEventListener("input", function (e) {
+  document.getElementById("tq-aantal-getal").textContent = e.target.value;
+});
+document.getElementById("tq-form").addEventListener("submit", async function (e) {
+  e.preventDefault();
+  const gekozen = Array.from(document.querySelectorAll('input[name="thema"]:checked')).map(function (x) { return x.value; });
+  const aantal = Number(document.getElementById("tq-aantal").value) || 10;
+  const m = document.getElementById("tq-melding");
+  if (!gekozen.length) { m.textContent = "Kies minstens één thema."; m.hidden = false; return; }
+  m.hidden = true;
+  document.getElementById("tq-knop").disabled = true;
+  try {
+    const db = await window.claude.use("db");
+    const id = "tq-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    await db.doc("themaverzoeken/" + id).set({ themas: gekozen, aantal: aantal, status: "open", aangevraagd: new Date().toISOString(), door: wie });
+    tqVerzoek = id;
+    postBericht(wie + " vraagt een themaquiz aan.", "quiz", "index.html");
+    tqWacht = true;
+    tqStart = Date.now();
+    tqOpen = false;
+    themaQuizTonen();
+  } catch (err) {
+    m.textContent = "Aanvragen lukte niet. Probeer het zo nog eens.";
+    m.hidden = false;
+    document.getElementById("tq-knop").disabled = false;
+  }
+});
+
+// Laadbalk met percentage. De database meldt geen echte voortgang (de quiz wordt elke minuut gemaakt), dus het percentage is een schatting
+// die rustig naar ongeveer 90% loopt. Zodra de quiz er is, springt hij naar 100% en wordt hij groen.
+function laadBalk(tekst, startMs) {
+  const w = document.createElement("div");
+  w.className = "laad";
+  w.dataset.start = String(startMs || Date.now());
+  const kop = document.createElement("div");
+  kop.className = "laad-kop";
+  const t = document.createElement("span");
+  t.className = "laad-tekst";
+  t.textContent = tekst;
+  const pc = document.createElement("span");
+  pc.className = "laad-pct";
+  pc.textContent = "0%";
+  kop.append(t, pc);
+  const balk = document.createElement("div");
+  balk.className = "laad-balk";
+  balk.setAttribute("role", "progressbar");
+  balk.setAttribute("aria-valuemin", "0");
+  balk.setAttribute("aria-valuemax", "100");
+  balk.appendChild(document.createElement("i"));
+  w.append(kop, balk);
+  laadBalkZet(w, schatting(w));
+  return w;
+}
+function schatting(w) { return Math.round(90 * (1 - Math.exp(-(Date.now() - Number(w.dataset.start)) / 22000))); }
+function laadBalkZet(w, p) {
+  w.querySelector(".laad-pct").textContent = p + "%";
+  w.querySelector(".laad-balk > i").style.width = p + "%";
+  w.querySelector(".laad-balk").setAttribute("aria-valuenow", String(p));
+}
+setInterval(function () {
+  document.querySelectorAll(".laad:not(.klaar)").forEach(function (w) { laadBalkZet(w, schatting(w)); });
+}, 400);
+
+// Nieuwsquiz van vandaag: werkt zoals "+ Nieuwe quiz" op de dagpagina (een aanvraag die binnen een minuut wordt gemaakt),
+// maar nu vanuit dit menu. Hij verschijnt als extra quiz op de dag van vandaag.
+document.getElementById("tq-nieuws-knop").addEventListener("click", async function () {
+  const m = document.getElementById("tq-melding");
+  const knop = document.getElementById("tq-nieuws-knop");
+  m.hidden = true;
+  const dag = window.amsterdamNu ? window.amsterdamNu().datum : "";
+  if (!dag || !(window.dagIsOpen && window.dagIsOpen(dag))) {
+    m.textContent = "De nieuwsquiz van vandaag is er vanaf " + window.quizUurTekst() + ". Maak hem daarna.";
+    m.hidden = false;
+    return;
+  }
+  knop.disabled = true;
+  try {
+    const db = await window.claude.use("db");
+    const ax = await db.collection("aanvragen").where("day", "==", dag).get();
+    const aanv = ax.docs.filter(function (d) { return d.exists; }).map(function (d) { return Object.assign({ id: d.id }, d.data()); })
+      .filter(function (a) { return a.soort === "nieuws" && a.status !== "verwijderd"; });
+    // Wordt er al een nieuwsquiz gemaakt, ga dan daarheen in plaats van er nog een aan te vragen.
+    const open = aanv.filter(function (a) { return a.status === "open"; });
+    if (open.length) {
+      location.href = "nieuwsquiz.html?d=" + encodeURIComponent(dag) + "&n=" + open[open.length - 1].quiz;
+      return;
+    }
+    let n = 0;
+    aanv.forEach(function (a) { n = Math.max(n, Number(a.quiz) || 0); });
+    n += 1;
+    for (;;) {
+      const s = await db.doc("aanvragen/nieuws-" + dag + "-" + n).get();
+      if (!s.exists) break;
+      n += 1;
+    }
+    await db.doc("aanvragen/nieuws-" + dag + "-" + n).set({ day: dag, quiz: n, status: "open", soort: "nieuws", door: wie, aangevraagd: new Date().toISOString() });
+    postBericht(wie + " heeft een nieuwsquiz gemaakt.", "quiz", "nieuwsquiz.html?d=" + encodeURIComponent(dag) + "&n=" + n);
+    // De nieuwsquiz heeft een eigen pagina; daar zie je de laadbalk en daarna de vragen.
+    location.href = "nieuwsquiz.html?d=" + encodeURIComponent(dag) + "&n=" + n;
+  } catch (err) {
+    m.textContent = "Aanvragen lukte niet. Probeer het zo nog eens.";
+    m.hidden = false;
+    knop.disabled = false;
+  }
+});
+
+// Random quiz: willekeurige vragen die deze maand niet bij Feitje van de dag staan. Alleen of samen, telt niet mee voor de dagscore.
+document.getElementById("tq-random-knop").addEventListener("click", function () {
+  const keuze = document.getElementById("tq-random-keuze");
+  const open = keuze.hidden;
+  keuze.hidden = !open;
+  this.setAttribute("aria-expanded", String(open));
+  document.getElementById("tq-random-samen").textContent = "Quiz met " + andere();
+  document.getElementById("tq-random-andere").textContent = andere();
+});
+document.getElementById("tq-random-keuze").addEventListener("click", async function (e) {
+  const knop = e.target.closest("button[data-modus]");
+  if (!knop || !wie) return;
+  const m = document.getElementById("tq-melding");
+  m.hidden = true;
+  knop.disabled = true;
+  try {
+    const id = await window.dbRpc("maak_oefquiz", { p_wie: wie, p_modus: knop.dataset.modus });
+    await geefNaam(id);
+    // Eerst het bericht opslaan, anders gaat de pagina weg voordat het er is.
+    if (knop.dataset.modus === "samen") await postBericht(wie + " nodigt je uit: doe mee aan de quiz!", "uitdaging", "oefenquiz.html?id=" + encodeURIComponent(id));
+    location.href = "oefenquiz.html?id=" + encodeURIComponent(id);
+  } catch (err) {
+    m.textContent = "Een random quiz maken lukte niet. Probeer het zo nog eens.";
+    m.hidden = false;
+    knop.disabled = false;
+  }
+});
+
+// Lopende random quizzen van jou en uitnodigingen van de ander (niet ouder dan 3 dagen).
+const naamGezet = {};
+let laatsteOefSig = "";
+async function oefLijst() {
+  const lijst = document.getElementById("open-lijst");
+  if (!wie) { wegOpen("oef"); return; }
+  try {
+    const db = await window.claude.use("db");
+    const qs = await db.collection("oefquizzen").get();
+    const grens = Date.now() - 3 * 24 * 3600 * 1000;
+    const quizzen = qs.docs.filter(function (d) { return d.exists; }).map(function (d) { return d.data(); })
+      .filter(function (q) { return !q.verwijderd && Date.parse(q.aangemaakt) > grens && (q.modus === "samen" || q.door === wie); });
+    if (!quizzen.length) { wegOpen("oef"); return; }
+    const ka = await db.collection("keuzes").where("kind", "==", "oef").get();
+    const kb = await db.collection("keuzes").where("kind", "==", "oefstop").where("wie", "==", wie).get();
+    const gedaan = {}, gestopt = {}, laatst = {};
+    ka.docs.forEach(function (d) {
+      if (!d.exists) return;
+      const k = d.data();
+      if (k.wie === wie) gedaan[k.oefquiz] = (gedaan[k.oefquiz] || 0) + 1;
+      const t = Date.parse(k.gezet_op || "");
+      if (Number.isFinite(t) && t > (laatst[k.oefquiz] || 0)) laatst[k.oefquiz] = t;
+    });
+    kb.docs.forEach(function (d) { if (d.exists) gestopt[d.data().oefquiz] = true; });
+    // Quizzen zonder naam krijgen er nu een (eenmalig), zodat de lijst dezelfde naam toont als de quizpagina.
+    quizzen.filter(function (q) { return !q.naam && !naamGezet[q.id]; }).forEach(function (q) {
+      naamGezet[q.id] = true;
+      geefNaam(q.id).then(function () { oefLijst(); });
+    });
+    const open = quizzen.filter(function (q) { return !gestopt[q.id] && (gedaan[q.id] || 0) < q.aantal; })
+      .sort(function (a, b) { return Date.parse(b.aangemaakt) - Date.parse(a.aangemaakt); }).slice(0, 6);
+    // Alleen opnieuw opbouwen als de lijst echt is veranderd; anders blijft de lijst rustig staan.
+    const sigOef = open.map(function (q) { return q.id + ":" + (gedaan[q.id] || 0) + ":" + (q.naam || "") + ":" + q.door + ":" + q.modus + ":" + (laatst[q.id] || 0); }).join("|") + "#" + wie;
+    if (sigOef === laatsteOefSig) return;
+    laatsteOefSig = sigOef;
+    wegOpen("oef");
+    open.forEach(function (q) {
+      const rij = document.createElement("div");
+      rij.className = "oef-rij";
+      rij.dataset.soort = "oef";
+      const ms = laatst[q.id] || Date.parse(q.aangemaakt) || 0;
+      rij.dataset.laatst = String(ms);
+      const t = document.createElement("span");
+      t.className = "oef-naam";
+      const naam = document.createElement("span");
+      naam.textContent = q.naam || "Random quiz";
+      t.append(naam, datumRegel(ms, !!laatst[q.id]));
+      const n = gedaan[q.id] || 0;
+      const uitnodiging = q.modus === "samen" && q.door !== wie && n === 0;
+      const a = document.createElement("a");
+      a.href = "oefenquiz.html?id=" + encodeURIComponent(q.id);
+      a.textContent = uitnodiging ? "Meedoen" : (n ? "Verder" : "Spelen");
+      if (q.door !== wie) a.classList.add("andere");
+      rij.append(t, a);
+      lijst.appendChild(rij);
+    });
+    sorteerOpen();
+  } catch (e) { /* bij de volgende ronde opnieuw */ }
+}
+oefLijst();
+setInterval(oefLijst, 8000);
+
+// Meldingen per apparaat. Het abonnement hoort bij de persoon die op dit apparaat speelt (zie pushabonnementen).
+// Stuurt een kort bericht naar de chat (ook de koppeling voor nieuwe quizzen). Faalt stil: de quiz zelf gaat altijd door.
+async function postBericht(tekst, soort, link) {
+  try {
+    const db = await window.claude.use("db");
+    const id = "b-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    await db.doc("berichten/" + id).set({ van: wie, aan: (wie === "Ritchie" ? "Rachel" : "Ritchie"), tekst: tekst, soort: soort || "tekst", link: link || null, tijd: new Date().toISOString() });
+  } catch (e) { /* geen chatbericht, de quiz is er wel */ }
+}
+
+async function geefNaam(id) {
+  try {
+    const db = await window.claude.use("db");
+    const q = await db.collection("questions").where("oefquiz", "==", id).get();
+    const vragen = q.docs.filter(function (d) { return d.exists; }).map(function (d) { return d.data(); });
+    const m = await db.doc("oefquizzen/" + id).get();
+    if (!m.exists || m.data().naam || !vragen.length) return;
+    const data = m.data();
+    data.naam = await kiesNaamVoor(vragen, "oefquizzen");
+    await db.doc("oefquizzen/" + id).set(data);
+  } catch (e) { /* de quizpagina kiest later een naam */ }
+}
+const MELDING_PREFS = { dag: true, aanvraag: true, uitnodiging: true, beurt: true };
+let meldingAbonnement = null;
+
+function meldingenKunnen() { return "serviceWorker" in navigator && "PushManager" in window && "Notification" in window; }
+function meldingUitleg(t) { document.getElementById("melding-uitleg").textContent = t; }
+function b64uNaarBytes(s) {
+  const p = s.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(s.length / 4) * 4, "=");
+  return Uint8Array.from(atob(p), (c) => c.charCodeAt(0));
+}
+async function sha(tekst) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(tekst));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+async function vapidSleutel() {
+  const r = await fetch("https://jsbgpvvpckydxaoomcps.supabase.co/functions/v1/meldingen-versturen?sleutel=1");
+  if (!r.ok) throw new Error("sleutel niet beschikbaar");
+  return (await r.json()).publiek;
+}
+function toonMeldingKnop(aan, prefs) {
+  document.getElementById("melding-knop").textContent = aan ? "Meldingen uitzetten" : "Meldingen aanzetten";
+  const keuzes = document.getElementById("melding-keuzes");
+  keuzes.hidden = !aan;
+  keuzes.querySelectorAll("input[data-pref]").forEach((i) => {
+    i.checked = Object.assign({}, MELDING_PREFS, prefs || {})[i.dataset.pref] !== false;
+  });
+}
+async function laadPrefs(id) {
+  const db = await window.claude.use("db");
+  const d = await db.doc("pushabonnementen/" + id).get();
+  return d.exists ? (d.data().prefs || null) : null;
+}
+// Schrijft dit abonnement met de huidige persoon en voorkeuren (ook na wisselen van account).
+async function bewaarAbonnement(sub) {
+  const json = sub.toJSON();
+  const id = "sub-" + (await sha(json.endpoint));
+  const prefs = await laadPrefs(id);
+  const db = await window.claude.use("db");
+  await db.doc("pushabonnementen/" + id).set({
+    wie: wie, endpoint: json.endpoint, p256dh: json.keys.p256dh, auth: json.keys.auth,
+    prefs: Object.assign({}, MELDING_PREFS, prefs || {}), gezet_op: new Date().toISOString(),
+  });
+  meldingAbonnement = id;
+  return prefs;
+}
+async function meldingenInit() {
+  if (!wie) return;
+  // Op de iPhone ziet een tab in Safari de meldingen van de app aan het beginscherm niet. Dan geen 'uit'-melding tonen.
+  const alsApp = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+  if (!alsApp && /iPhone|iPad|iPod/.test(navigator.userAgent)) {
+    document.getElementById("melding-knop").hidden = true;
+    meldingUitleg("Open Feitje van de dag vanaf je beginscherm om meldingen te beheren.");
+    return;
+  }
+  document.getElementById("melding-knop").hidden = false;
+  if (!meldingenKunnen()) {
+    document.getElementById("melding-knop").hidden = true;
+    meldingUitleg("Op dit apparaat kan het niet. Zet Feitje van de dag op je beginscherm, dan werken meldingen.");
+    return;
+  }
+  try {
+    const reg = await navigator.serviceWorker.getRegistration();
+    const sub = reg ? await reg.pushManager.getSubscription() : null;
+    if (sub && Notification.permission === "granted") {
+      const prefs = await bewaarAbonnement(sub);
+      toonMeldingKnop(true, prefs);
+      meldingUitleg("Meldingen staan aan op dit apparaat.");
+    } else {
+      toonMeldingKnop(false);
+      meldingUitleg("Meldingen staan uit op dit apparaat.");
+    }
+  } catch (e) {
+    meldingUitleg("Meldingen konden niet worden gecontroleerd. Probeer het later opnieuw.");
+  }
+}
+document.getElementById("melding-knop").addEventListener("click", async () => {
+  const knop = document.getElementById("melding-knop");
+  knop.disabled = true;
+  try {
+    const reg = await navigator.serviceWorker.getRegistration();
+    const sub = reg ? await reg.pushManager.getSubscription() : null;
+    if (sub) {
+      // Uitzetten: het abonnement verdwijnt in de browser; de server ruimt de oude regel vanzelf op.
+      await sub.unsubscribe();
+      toonMeldingKnop(false);
+      meldingUitleg("Meldingen staan uit op dit apparaat.");
+      return;
+    }
+    const toestemming = await Notification.requestPermission();
+    if (toestemming !== "granted") {
+      meldingUitleg("Meldingen staan uit. Zet ze aan bij Instellingen > Meldingen > Feitje van de dag.");
+      return;
+    }
+    const nieuweReg = await navigator.serviceWorker.register("sw.js");
+    await navigator.serviceWorker.ready;
+    const nieuw = await nieuweReg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64uNaarBytes(await vapidSleutel()) });
+    const prefs = await bewaarAbonnement(nieuw);
+    toonMeldingKnop(true, prefs);
+    meldingUitleg("Meldingen staan aan op dit apparaat.");
+  } catch (e) {
+    meldingUitleg("Meldingen aanzetten lukte niet: " + ((e && (e.name || e.message)) || "onbekende fout") + ".");
+  } finally {
+    knop.disabled = false;
+  }
+});
+document.querySelectorAll("#melding-keuzes input[data-pref]").forEach((i) => {
+  i.addEventListener("change", async () => {
+    if (!meldingAbonnement) return;
+    try {
+      const db = await window.claude.use("db");
+      const d = await db.doc("pushabonnementen/" + meldingAbonnement).get();
+      if (!d.exists) return;
+      const prefs = Object.assign({}, MELDING_PREFS, d.data().prefs || {});
+      prefs[i.dataset.pref] = i.checked;
+      await db.doc("pushabonnementen/" + meldingAbonnement).set(Object.assign({}, d.data(), { prefs: prefs }));
+    } catch (e) {
+      meldingUitleg("Voorkeur opslaan lukte niet. Probeer het zo nog eens.");
+    }
+  });
+});
+// Profielfoto's: een klein vierkant beeld per persoon, opgeslagen in de database.
+function verkleinen(bestand, maat) {
+  return new Promise(function (ok, fout) {
+    const beeld = new Image();
+    beeld.onload = function () {
+      const c = document.createElement("canvas");
+      c.width = c.height = maat;
+      const s = Math.min(beeld.width, beeld.height);
+      c.getContext("2d").drawImage(beeld, (beeld.width - s) / 2, (beeld.height - s) / 2, s, s, 0, 0, maat, maat);
+      URL.revokeObjectURL(beeld.src);
+      ok(c.toDataURL("image/jpeg", 0.85));
+    };
+    beeld.onerror = fout;
+    beeld.src = URL.createObjectURL(bestand);
+  });
+}
+function toonAvatar(el, naam, foto) {
+  zetPersoonKleur(el, naam);
+  el.textContent = "";
+  if (foto) {
+    const img = document.createElement("img");
+    img.src = foto;
+    img.alt = naam;
+    el.appendChild(img);
+  } else {
+    el.textContent = naam.charAt(0);
+  }
+}
+async function verversProfiel() {
+  try {
+    const db = await window.claude.use("db");
+    const r = await db.collection("profielen").get();
+    const fotos = {};
+    const xpPer = {};
+    r.docs.forEach(function (d) { if (d.exists) { fotos[d.id] = d.data().foto; if (d.data().xp != null) xpPer[d.id] = d.data().xp; } });
+    // Level: level L is bereikt bij 132 × L² XP.
+    if (wie && xpPer[wie] != null) {
+      const xp = xpPer[wie];
+      const l = Math.floor(Math.sqrt(xp / 132));
+      const van = 132 * l * l;
+      const tot = 132 * (l + 1) * (l + 1);
+      document.getElementById("lvl-tekst").textContent = "Level " + l + " · " + xp.toLocaleString("nl-NL") + " XP";
+      document.getElementById("lvl-vul").style.width = Math.round(100 * (xp - van) / (tot - van)) + "%";
+    }
+    if (wie) {
+      const el = document.getElementById("profiel-foto");
+      zetPersoonKleur(el, wie);
+      toonAvatar(el, wie, fotos[wie]);
+    }
+    // Ook de profielknop rechtsboven toont de foto van wie je nu bent (of het standaardicoon als er geen foto is).
+    const knop = document.getElementById("wissel");
+    if (!knop.dataset.orig) knop.dataset.orig = knop.innerHTML;
+    knop.textContent = "";
+    if (wie && fotos[wie]) {
+      const img = document.createElement("img");
+      img.src = fotos[wie];
+      img.alt = wie;
+      knop.appendChild(img);
+    } else {
+      knop.innerHTML = knop.dataset.orig;
+    }
+  } catch (e) { /* de vorige foto blijft staan */ }
+}
+document.getElementById("profiel-kies").addEventListener("change", async function (e) {
+  const bestand = e.target.files[0];
+  if (!bestand || !wie) return;
+  try {
+    const foto = await verkleinen(bestand, 160);
+    const db = await window.claude.use("db");
+    await db.doc("profielen/" + wie).set({ foto: foto, gezet_op: new Date().toISOString() });
+    verversProfiel();
+  } catch (err) {
+    meldingUitleg("Foto opslaan lukte niet. Probeer een andere foto.");
+  }
+  e.target.value = "";
+});
+verversProfiel();
+setInterval(verversProfiel, 60000);
+
+if (wie) meldingenInit();
+// Eén keer vragen per persoon en per toestel. Het antwoord blijft bewaard; daarna nooit meer vragen.
+function meldingVraagSleutel() { return "meldingKeuze-" + wie; }
+function toonMeldingVraag() {
+  if (!wie || !meldingenKunnen()) return;
+  try {
+    if (localStorage.getItem(meldingVraagSleutel())) return;
+  } catch (e) { /* zonder opslag: de vraag blijft staan */ }
+  if (Notification.permission === "granted") { localStorage.setItem(meldingVraagSleutel(), "ja"); return; }
+  if (Notification.permission === "denied") { localStorage.setItem(meldingVraagSleutel(), "nee"); return; }
+  document.getElementById("melding-vraag").hidden = false;
+}
+function bewaarMeldingKeuze(keuze) {
+  try { localStorage.setItem(meldingVraagSleutel(), keuze); } catch (e) { /* geen opslag */ }
+  document.getElementById("melding-vraag").hidden = true;
+}
+document.getElementById("vraag-ja").addEventListener("click", function () {
+  bewaarMeldingKeuze("ja");
+  const knop = document.getElementById("melding-knop");
+  if (knop && knop.textContent.indexOf("aanzetten") >= 0) knop.click();
+});
+document.getElementById("vraag-nee").addEventListener("click", function () { bewaarMeldingKeuze("nee"); });
+setTimeout(toonMeldingVraag, 1500);
+
+themaQuizLaden();
+setInterval(themaQuizLaden, 6000);
+
+// Teller op het Chat-tabblad: zie chatteller.js
+
+// Openstaande quizzen: themaquizzen en random quizzen in één uitklapbaar blok onder "Quiz maken".
+(function () {
+  const groep = document.getElementById("open-groep");
+  const knop = document.getElementById("open-knop");
+  const inhoud = document.getElementById("open-inhoud");
+  const lijst = document.getElementById("open-lijst");
+  const tel = document.getElementById("open-tel");
+  let uit = false;
+  function bijwerken() {
+    groep.hidden = wie === null || !lijst.children.length;
+    let n = 0;
+    Array.from(lijst.children).forEach(function (e) {
+      if (e.dataset.soort === "oef") { n++; return; }
+      const a = e.querySelector("a.tq-spelen");
+      if (a && a.textContent !== "Bekijk je antwoorden") n++;
+    });
+    tel.hidden = n === 0;
+    tel.textContent = String(n);
+  }
+  knop.addEventListener("click", function () {
+    uit = !uit;
+    inhoud.hidden = !uit;
+    knop.setAttribute("aria-expanded", String(uit));
+  });
+  new MutationObserver(bijwerken).observe(lijst, { childList: true, subtree: true });
+  bijwerken();
+})();
+</script>
+
+</body>
+</html>

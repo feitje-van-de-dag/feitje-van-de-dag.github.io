@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Nieuwsquiz</title>
+<style>
+.kaart + .kaart { margin-top: 14px; }
+
+:root {
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  --card: var(--vlak);
+  --ink: var(--inkt);
+  --muted: var(--zacht);
+  --line: var(--beige-lijn);
+  --a: var(--geel);
+  --b: var(--roze-licht);
+  --c: var(--goed-licht);
+  --d: var(--paars);
+  --ok: var(--goed);
+  --bad: var(--fout);
+  --display: var(--body);
+  --body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 24px 40px;
+}
+main { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+.top { display: flex; flex-direction: column; gap: 8px; }
+.terug { color: var(--ink); font-weight: 600; text-decoration: none; justify-self: start; }
+.terug:hover { text-decoration: underline; }
+.datum { margin: 0; color: var(--muted); }
+.wie { margin: 0; font-weight: 700; }
+.melding { margin: 0; padding: 12px 14px; border-radius: 12px; background: var(--vlak); border: 2px solid var(--bad); color: var(--bad); font-weight: 600; }
+.quiz { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.quizkop { display: flex; flex-direction: column; gap: 4px; }
+.quizkop h2 { margin: 0; font-family: var(--display); font-size: 26px; font-weight: 600; }
+.score { margin: 0; color: var(--muted); font-weight: 600; }
+.kaart { background: var(--card); border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 12px; min-width: 0; box-shadow: 0 2px 0 var(--line); }
+.chip { margin: 0; justify-self: start; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+.kaart h3 { margin: 0; font-size: 19px; font-weight: 700; line-height: 1.3; text-wrap: balance; }
+.opties { display: grid; grid-template-columns: 1fr; gap: 10px; }
+@media (min-width: 420px) { .opties { grid-template-columns: 1fr 1fr; } }
+.opt {
+  min-height: 56px;
+  border: 0;
+  border-radius: 16px;
+  padding: 10px 14px;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: left;
+  color: var(--ink);
+  cursor: pointer;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.opt b { margin-right: 4px; }
+.opt.a { background: var(--a); }
+.opt.b { background: var(--b); }
+.opt.c { background: var(--c); }
+.opt.d { background: var(--d); }
+.opt:disabled { cursor: default; opacity: 0.55; }
+.opt.gekozen { opacity: 1; outline: 3px solid var(--ink); outline-offset: 2px; }
+.opt:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.feedback { margin: 0; padding: 12px 14px; border-radius: 12px; background: var(--paars-zacht); font-size: 15px; }
+.feedback.ok { border-left: 6px solid var(--ok); }
+.feedback.nee { border-left: 6px solid var(--bad); }
+.extra, .opnieuw, .plusknop, .verwijder {
+  min-height: 52px;
+  border-radius: 16px;
+  border: 2px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  padding: 10px 16px;
+  cursor: pointer;
+}
+.plusknop { background: var(--ink); color: var(--vlak); font-size: 18px; }
+.plusknop:disabled { opacity: 0.5; cursor: default; }
+.verwijder { border-color: var(--bad); color: var(--bad); }
+.verwijder.ja { background: var(--bad); color: var(--vlak); }
+.extra:focus-visible, .opnieuw:focus-visible, .plusknop:focus-visible, .verwijder:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+.plus, .bronnen { display: flex; flex-direction: column; gap: 12px; min-width: 0; background: var(--card); border-radius: 18px; box-shadow: 0 6px 0 var(--lijn); padding: 18px; }
+.plus h2, .bronnen h2 { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--roze-diep); }
+.uitleg { margin: 0; color: var(--muted); font-size: 15px; }
+.wachtrij { margin: 0; padding-left: 0; list-style: none; color: var(--ink); display: flex; flex-direction: column; gap: 10px; }
+.laad { display: flex; flex-direction: column; gap: 6px; margin: 0; }
+.laad-kop { display: flex; justify-content: space-between; gap: 12px; font-weight: 700; }
+.laad-pct { font-variant-numeric: tabular-nums; }
+.laad-balk { height: 14px; border-radius: 999px; background: var(--roze-zacht); overflow: hidden; }
+.laad-balk > i { display: block; height: 100%; width: 0%; border-radius: 999px; background: var(--roze); transition: width 0.4s ease; }
+.laad.klaar .laad-balk > i { background: var(--mint); }
+
+.bronnen ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; overflow-wrap: anywhere; }
+.bronnen li { background: var(--bg); border-radius: 12px; padding: 8px 12px; font-size: 15px; }
+.bronnen a { color: var(--ink); font-weight: 700; }
+.bronnen .bronwacht { background: none; padding: 0; color: var(--muted); font-size: 14px; }
+.leeg { margin: 0; color: var(--muted); }
+.voet { margin: 0; text-align: center; }
+.voet a { color: var(--ink); font-weight: 700; }
+
+.lijstje { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+.lijstje a { display: inline-block; padding: 6px 14px; border-radius: 999px; border: 2px solid var(--ink); color: var(--ink); font-weight: 700; text-decoration: none; }
+.lijstje a[aria-current="page"] { background: var(--ink); color: var(--vlak); }
+.nieuwsbron { margin: 0; font-size: 14px; }
+.nieuwsbron a { color: var(--ink); font-weight: 600; }
+/* Beweging: kort en zacht. Wie verminderde beweging aanzet, ziet niets bewegen (zie onderaan). */
+button, a { transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease, opacity 0.2s ease; }
+button:active:not(:disabled) { transform: scale(0.97); }
+.kaart { animation: omhoog 0.35s ease both; }
+/* Na het eerste laden geen instapanimatie meer: anders springen de kaarten elke keer dat de quiz opnieuw wordt getekend. */
+html[data-geladen] .kaart { animation: none; }
+.opt:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 4px 0 rgba(42, 31, 74, 0.12); }
+.opt.gekozen { animation: puls 0.4s ease; }
+.feedback { animation: vervaag 0.4s ease both; }
+.laad-balk > i { transition: width 0.6s ease; }
+@keyframes omhoog { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes vervaag { from { opacity: 0; } to { opacity: 1; } }
+@keyframes puls { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+/* Koppen: terugknop en naam als nette chips, score als twee kleurchips */
+.top { gap: 12px; }
+.terug { align-self: flex-start; display: inline-flex; align-items: center; min-height: 36px; padding: 6px 14px; border-radius: 999px; background: var(--card); box-shadow: 0 2px 0 var(--line); font-size: 14px; }
+.datum { font-size: 15px; color: var(--muted); }
+.wie { align-self: flex-start; display: inline-flex; align-items: center; min-height: 36px; padding: 6px 14px; border-radius: 999px; background: var(--card); box-shadow: 0 2px 0 var(--line); font-size: 15px; }
+.quizkop { gap: 8px; }
+.score { display: flex; flex-wrap: wrap; gap: 8px; }
+.score span { display: inline-flex; align-items: center; min-height: 28px; padding: 4px 12px; border-radius: 999px; font-size: 14px; font-weight: 800; }
+.score .goed { background: var(--mint-zacht); color: var(--ok); }
+.score .fout { background: var(--roze-zacht); color: var(--bad); }
+</style>
+<link rel="stylesheet" href="app.css">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png?v=4">
+<link rel="icon" href="icon-180.png?v=4">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Feitje van de dag">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#fff6d6">
+</head>
+<body>
+<main>
+  <header class="top">
+    <a class="terug" href="index.html">&larr; Overzicht</a>
+    <p class="eyebrow">Nieuws van NOS</p>
+    <h1>Nieuwsquiz</h1>
+    <p class="datum" id="datum"></p>
+    <p class="wie" id="wie">Laden</p>
+  </header>
+
+  <p id="melding" class="melding" hidden></p>
+  <ul id="andere" class="lijstje" hidden></ul>
+  <div id="quiz"></div>
+  <section class="plus" aria-labelledby="plus-kop" id="nieuw" hidden>
+    <h2 id="plus-kop">Nog een nieuwsquiz</h2>
+    <button id="nieuwKnop" class="plusknop" type="button">+ Nieuwe nieuwsquiz maken</button>
+  </section>
+  <details class="bronnen tap">
+    <summary><h2 id="bron-kop">Bronnen</h2></summary>
+    <ul id="bronnen"></ul>
+  </details>
+  <p class="voet"><a href="index.html">Terug naar het overzicht</a></p>
+</main>
+<script src="supabase-shim.js"></script>
+<script src="kleuren.js"></script>
+<script>
+// Laadbalk met percentage. De database meldt geen echte voortgang (de quiz wordt elke minuut gemaakt), dus het percentage is een schatting
+// die rustig naar ongeveer 90% loopt. Zodra de quiz er is, springt hij naar 100% en wordt hij groen.
+function laadBalk(tekst, startMs) {
+  const w = document.createElement("div");
+  w.className = "laad";
+  w.dataset.start = String(startMs || Date.now());
+  const kop = document.createElement("div");
+  kop.className = "laad-kop";
+  const t = document.createElement("span");
+  t.className = "laad-tekst";
+  t.textContent = tekst;
+  const pc = document.createElement("span");
+  pc.className = "laad-pct";
+  pc.textContent = "0%";
+  kop.append(t, pc);
+  const balk = document.createElement("div");
+  balk.className = "laad-balk";
+  balk.setAttribute("role", "progressbar");
+  balk.setAttribute("aria-valuemin", "0");
+  balk.setAttribute("aria-valuemax", "100");
+  balk.appendChild(document.createElement("i"));
+  w.append(kop, balk);
+  laadBalkZet(w, schatting(w));
+  return w;
+}
+function schatting(w) { return Math.round(90 * (1 - Math.exp(-(Date.now() - Number(w.dataset.start)) / 22000))); }
+function laadBalkZet(w, p) {
+  w.querySelector(".laad-pct").textContent = p + "%";
+  w.querySelector(".laad-balk > i").style.width = p + "%";
+  w.querySelector(".laad-balk").setAttribute("aria-valuenow", String(p));
+}
+setInterval(function () {
+  document.querySelectorAll(".laad:not(.klaar)").forEach(function (w) { laadBalkZet(w, schatting(w)); });
+}, 400);
+
+const LETTERS = ["a", "b", "c", "d"];
+const el = (id) => document.getElementById(id);
+function maak(tag, cls, tekst) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (tekst !== undefined) e.textContent = tekst;
+  return e;
+}
+
+// Uitslag per vraag: een badge (Goed/Fout) en een knop. Het antwoord staat verborgen tot je op de knop tikt.
+const uitgeklapt = new Set();
+function uitslagBlok(kaart, id, goed, tekst, bronnen) {
+  const rij = maak("div", "uitslag-rij");
+  rij.appendChild(maak("span", "badge " + (goed ? "goed" : "fout"), goed ? "Goed" : "Fout"));
+  const open = uitgeklapt.has(String(id));
+  const knop = maak("button", "toon", open ? "Verberg" : "Bekijk antwoord");
+  knop.type = "button";
+  knop.dataset.toon = id;
+  knop.setAttribute("aria-expanded", String(open));
+  rij.appendChild(knop);
+  kaart.appendChild(rij);
+  if (open) {
+    kaart.appendChild(maak("p", "antwoord-tekst", tekst));
+    const links = (bronnen || []).filter(function (b) { return b.url; });
+    if (links.length) {
+      const regel = maak("p", "bron-regel");
+      links.forEach(function (br, k) {
+        if (k) regel.appendChild(document.createTextNode(" · "));
+        const a = maak("a", "", br.titel);
+        a.href = br.url; a.target = "_blank"; a.rel = "noopener";
+        regel.appendChild(a);
+      });
+      kaart.appendChild(regel);
+    }
+  }
+}
+function wisselUitslag(id) { id = String(id); if (uitgeklapt.has(id)) uitgeklapt.delete(id); else uitgeklapt.add(id); }
+
+// Stuurt een kort bericht naar de chat (ook de koppeling voor nieuwe quizzen). Faalt stil: de quiz zelf gaat altijd door.
+async function postBericht(tekst, soort, link) {
+  try {
+    const db = await window.claude.use("db");
+    const id = "b-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    await db.doc("berichten/" + id).set({ van: wie, aan: (wie === "Ritchie" ? "Rachel" : "Ritchie"), tekst: tekst, soort: soort || "tekst", link: link || null, tijd: new Date().toISOString() });
+  } catch (e) { /* geen chatbericht, de quiz is er wel */ }
+}
+
+function toonFout(t) { const m = el("melding"); m.textContent = t; m.hidden = false; }
+function wisFout() { el("melding").hidden = true; }
+
+let wie = null;
+try { const w = localStorage.getItem("wie"); if (w === "Ritchie" || w === "Rachel") wie = w; } catch (e) { /* geen opslag */ }
+if (!wie) location.replace("index.html");
+
+const vandaag = window.amsterdamNu ? window.amsterdamNu().datum : "";
+const params = new URLSearchParams(location.search);
+const DAG = /^\d{4}-\d{2}-\d{2}$/.test(params.get("d") || "") ? params.get("d") : vandaag;
+let N = Number(params.get("n")) || 0;
+
+let db = null;
+let aanvragen = [];
+let quizzen = {};
+let keuzes = {};
+let poll = null;
+
+async function laad() {
+  const ax = await db.collection("aanvragen").where("day", "==", DAG).get();
+  aanvragen = ax.docs.filter((s) => s.exists).map((s) => Object.assign({ id: s.id }, s.data())).filter((a) => a.soort === "nieuws");
+  const qs = await db.collection("questions").where("nieuwsdag", "==", DAG).get();
+  quizzen = {};
+  qs.docs.forEach((s) => {
+    if (!s.exists) return;
+    const d = s.data();
+    (quizzen[d.quiz] = quizzen[d.quiz] || []).push(Object.assign({ id: s.id }, d));
+  });
+  Object.keys(quizzen).forEach((k) => quizzen[k].sort((a, b) => a.i - b.i));
+  const ks = await db.collection("keuzes").where("nieuwsdag", "==", DAG).where("wie", "==", wie).get();
+  keuzes = {};
+  ks.docs.forEach((s) => {
+    if (!s.exists) return;
+    const d = s.data();
+    keuzes[d.vraag_id] = { gekozen: d.gekozen, goed: d.goed === true };
+  });
+}
+
+function nummers() {
+  const set = new Set();
+  aanvragen.forEach((a) => { if (a.status !== "verwijderd") set.add(Number(a.quiz)); });
+  Object.keys(quizzen).forEach((k) => set.add(Number(k)));
+  return Array.from(set).filter((x) => x > 0).sort((a, b) => a - b);
+}
+
+function feedback(v, s) {
+  return (s.goed ? "Goed. " : "Fout. ") + "Het juiste antwoord is " + LETTERS[v.juist] + ": " + v.opties[v.juist] + ". " + (v.toelichting || "");
+}
+
+function kaart(v) {
+  const art = maak("article", "kaart");
+  art.id = "k-" + v.id;
+  art.appendChild(maak("p", "chip", v.onderwerp || "Nieuws"));
+  art.appendChild(maak("h3", "", v.vraag));
+  const s = keuzes[v.id];
+  const opties = maak("div", "opties");
+  v.opties.forEach((o, i) => {
+    const b = maak("button", "opt " + LETTERS[i]);
+    b.type = "button";
+    b.dataset.id = v.id;
+    b.dataset.idx = String(i);
+    b.appendChild(maak("b", "", LETTERS[i] + "."));
+    b.appendChild(document.createTextNode(" " + o));
+    if (s) {
+      b.disabled = true;
+      if (s.gekozen === i) b.classList.add("gekozen");
+    }
+    opties.appendChild(b);
+  });
+  art.appendChild(opties);
+  if (s) uitslagBlok(art, v.id, s.goed, feedback(v, s), v.bronnen);
+  return art;
+}
+
+function render() {
+  if (!document.documentElement.hasAttribute("data-geladen")) setTimeout(function () { document.documentElement.setAttribute("data-geladen", ""); }, 1200);
+  el("datum").textContent = DAG ? new Intl.DateTimeFormat("nl-NL", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(DAG + "T12:00:00Z")) : "";
+  el("wie").textContent = wie + ", telt niet mee voor de punten";
+  const nrs = nummers();
+  if (!N || !nrs.includes(N)) N = nrs.length ? nrs[nrs.length - 1] : 0;
+
+  const lijst = el("andere");
+  lijst.textContent = "";
+  lijst.hidden = nrs.length < 2;
+  nrs.forEach((n, i) => {
+    const li = maak("li");
+    const a = maak("a", "", "Nieuwsquiz " + (i + 1));
+    a.href = "nieuwsquiz.html?d=" + encodeURIComponent(DAG) + "&n=" + n;
+    if (n === N) a.setAttribute("aria-current", "page");
+    li.appendChild(a);
+    lijst.appendChild(li);
+  });
+
+  const z = el("quiz");
+  z.textContent = "";
+  const vragen = quizzen[N] || [];
+  const aanv = aanvragen.find((a) => Number(a.quiz) === N);
+  if (!N) {
+    z.appendChild(maak("p", "leeg", "Er is nog geen nieuwsquiz voor deze dag."));
+  } else if (!vragen.length) {
+    z.appendChild(laadBalk("Nieuwsquiz wordt gemaakt", aanv ? (Date.parse(aanv.aangevraagd) || Date.now()) : Date.now()));
+  } else {
+    const sec = maak("section", "quiz");
+    let goed = 0, fout = 0;
+    vragen.forEach((v) => { const s = keuzes[v.id]; if (s) { if (s.goed) goed += 1; else fout += 1; } });
+    const kop = maak("div", "quizkop");
+    kop.appendChild(maak("h2", "", "Nieuwsquiz " + (nrs.indexOf(N) + 1)));
+    const sc = maak("div", "score");
+    sc.append(maak("span", "goed", goed + " goed"), maak("span", "fout", fout + " fout"));
+    kop.appendChild(sc);
+    sec.appendChild(kop);
+    vragen.forEach((v) => sec.appendChild(kaart(v)));
+    z.appendChild(sec);
+  }
+
+  // Alleen vandaag kan een nieuwe nieuwsquiz worden gemaakt, en niet terwijl er nog een wordt gemaakt.
+  const wacht = N && !vragen.length;
+  el("nieuw").hidden = DAG !== vandaag;
+  el("nieuwKnop").disabled = !db || !!wacht;
+
+  // Bronnen: per vraag pas nadat jij die vraag hebt beantwoord.
+  const bl = el("bronnen");
+  bl.textContent = "";
+  const beantwoord = vragen.filter((v) => keuzes[v.id]);
+  if (!beantwoord.length) {
+    bl.appendChild(maak("li", "bronwacht", ""));
+  }
+  beantwoord.forEach((v) => {
+    (v.bronnen || []).forEach((br) => {
+      if (!br.url) return;
+      const li = maak("li");
+      li.appendChild(document.createTextNode("Vraag " + (vragen.indexOf(v) + 1) + ": "));
+      const a = maak("a", "", br.titel);
+      a.href = br.url;
+      a.target = "_blank";
+      a.rel = "noopener";
+      li.appendChild(a);
+      bl.appendChild(li);
+    });
+  });
+
+  // Zolang de quiz nog gemaakt wordt, elke paar seconden kijken of hij er is.
+  if (wacht && !poll) poll = setInterval(ververs, 3000);
+  if (!wacht && poll) { clearInterval(poll); poll = null; }
+}
+
+async function ververs() {
+  if (!db) return;
+  try {
+    const voor = (quizzen[N] || []).length;
+    await laad();
+    if ((quizzen[N] || []).length !== voor || (quizzen[N] || []).length === 0) render();
+  } catch (e) { /* volgende ronde opnieuw */ }
+}
+
+async function kies(vraagId, idx) {
+  if (keuzes[vraagId]) return;
+  const v = (quizzen[N] || []).find((x) => x.id === vraagId);
+  if (!v) return;
+  const goed = idx === v.juist;
+  keuzes[vraagId] = { gekozen: idx, goed: goed };
+  uitgeklapt.add(String(vraagId));
+  render();
+  try {
+    await db.doc("keuzes/nieuws-" + DAG + "-" + N + "-" + wie + "-" + v.i).set({
+      kind: "nieuws", nieuwsdag: DAG, quiz: N, wie: wie, vraag_id: vraagId, i: v.i, gekozen: idx, goed: goed, gezet_op: new Date().toISOString(),
+    });
+    wisFout();
+  } catch (e) {
+    delete keuzes[vraagId];
+    render();
+    toonFout("Opslaan lukte niet. Probeer je antwoord nog een keer.");
+  }
+}
+
+async function nieuweNieuwsquiz() {
+  const knop = el("nieuwKnop");
+  knop.disabled = true;
+  try {
+    if (!(window.dagIsOpen && window.dagIsOpen(vandaag))) { toonFout("De nieuwsquiz van vandaag is er vanaf " + window.quizUurTekst() + "."); knop.disabled = false; return; }
+    await laad();
+    let n = 0;
+    nummers().forEach((x) => { n = Math.max(n, x); });
+    aanvragen.forEach((a) => { n = Math.max(n, Number(a.quiz) || 0); });
+    n += 1;
+    for (;;) {
+      const s = await db.doc("aanvragen/nieuws-" + DAG + "-" + n).get();
+      if (!s.exists) break;
+      n += 1;
+    }
+    await db.doc("aanvragen/nieuws-" + DAG + "-" + n).set({ day: DAG, quiz: n, status: "open", soort: "nieuws", door: wie, aangevraagd: new Date().toISOString() });
+    postBericht(wie + " heeft een nieuwsquiz gemaakt.", "quiz", "nieuwsquiz.html?d=" + encodeURIComponent(DAG) + "&n=" + n);
+    location.href = "nieuwsquiz.html?d=" + encodeURIComponent(DAG) + "&n=" + n;
+  } catch (e) {
+    toonFout("Aanvragen lukte niet. Probeer het zo nog eens.");
+    knop.disabled = false;
+  }
+}
+
+el("quiz").addEventListener("click", (e) => {
+  const toon = e.target.closest("button.toon");
+  if (toon) { wisselUitslag(toon.dataset.toon); render(); return; }
+  const knop = e.target.closest("button.opt");
+  if (!knop || knop.disabled) return;
+  kies(knop.dataset.id, Number(knop.dataset.idx));
+});
+el("nieuwKnop").addEventListener("click", nieuweNieuwsquiz);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) ververs(); });
+
+(async function start() {
+  if (!wie) return;
+  db = await window.claude.use("db");
+  if (!db) { toonFout("Opslag is nu niet beschikbaar."); return; }
+  try {
+    await laad();
+    render();
+  } catch (e) {
+    toonFout("Laden lukte niet. Ververs de pagina.");
+  }
+})();
+</script>
+</body>
+</html>

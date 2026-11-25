@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Themaquiz</title>
+<style>
+.kaart + .kaart { margin-top: 14px; }
+
+:root {
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  --card: var(--vlak);
+  --ink: var(--inkt);
+  --muted: var(--zacht);
+  --line: var(--beige-lijn);
+  --a: var(--geel);
+  --b: var(--roze-licht);
+  --c: var(--goed-licht);
+  --d: var(--paars);
+  --ok: var(--goed);
+  --bad: var(--fout);
+  --display: var(--body);
+  --body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 24px 40px;
+}
+main { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+.top { display: flex; flex-direction: column; gap: 8px; }
+.terug { color: var(--ink); font-weight: 600; text-decoration: none; justify-self: start; }
+.terug:hover { text-decoration: underline; }
+.datum { margin: 0; color: var(--muted); }
+.wie { margin: 0; font-weight: 700; }
+.melding { margin: 0; padding: 12px 14px; border-radius: 12px; background: var(--vlak); border: 2px solid var(--bad); color: var(--bad); font-weight: 600; }
+.quiz { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.quizkop { display: flex; flex-direction: column; gap: 4px; }
+.quizkop h2 { margin: 0; font-family: var(--display); font-size: 26px; font-weight: 600; }
+.score { margin: 0; color: var(--muted); font-weight: 600; }
+.kaart { background: var(--card); border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 12px; min-width: 0; box-shadow: 0 2px 0 var(--line); }
+.chip { margin: 0; justify-self: start; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+.kaart h3 { margin: 0; font-size: 19px; font-weight: 700; line-height: 1.3; text-wrap: balance; }
+.opties { display: grid; grid-template-columns: 1fr; gap: 10px; }
+@media (min-width: 420px) { .opties { grid-template-columns: 1fr 1fr; } }
+.opt {
+  min-height: 56px;
+  border: 0;
+  border-radius: 16px;
+  padding: 10px 14px;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: left;
+  color: var(--ink);
+  cursor: pointer;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.opt b { margin-right: 4px; }
+.opt.a { background: var(--a); }
+.opt.b { background: var(--b); }
+.opt.c { background: var(--c); }
+.opt.d { background: var(--d); }
+.opt:disabled { cursor: default; opacity: 0.55; }
+.opt.gekozen { opacity: 1; outline: 3px solid var(--ink); outline-offset: 2px; }
+.opt:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.feedback { margin: 0; padding: 12px 14px; border-radius: 12px; background: var(--paars-zacht); font-size: 15px; }
+.feedback.ok { border-left: 6px solid var(--ok); }
+.feedback.nee { border-left: 6px solid var(--bad); }
+.extra, .opnieuw, .plusknop {
+  min-height: 52px;
+  border-radius: 16px;
+  border: 2px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  padding: 10px 16px;
+  cursor: pointer;
+}
+.plusknop { background: var(--ink); color: var(--vlak); font-size: 18px; }
+.plusknop:disabled { opacity: 0.5; cursor: default; }
+.extra:focus-visible, .opnieuw:focus-visible, .plusknop:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+.plus, .bronnen { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.plus h2, .bronnen h2 { margin: 0; font-family: var(--display); font-size: 24px; font-weight: 600; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+.uitleg { margin: 0; color: var(--muted); font-size: 15px; }
+.wachtrij { margin: 0; padding-left: 20px; color: var(--muted); }
+.bronnen { display: flex; flex-direction: column; gap: 12px; min-width: 0; background: var(--card); border-radius: 18px; box-shadow: 0 6px 0 var(--lijn); padding: 18px; }
+.bronnen h2 { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--roze-diep); }
+.bronnen ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; overflow-wrap: anywhere; }
+.bronnen li { background: var(--bg); border-radius: 12px; padding: 8px 12px; font-size: 15px; }
+.bronnen a { color: var(--ink); font-weight: 700; }
+.bronnen .bronkop { background: none; padding: 8px 0 0; font-weight: 800; font-size: 15px; }
+.leeg { margin: 0; color: var(--muted); }
+.voet { margin: 0; text-align: center; }
+.voet a { color: var(--ink); font-weight: 700; }
+.themas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
+.themas li { background: var(--card); border-radius: 14px; min-height: 40px; padding: 8px 10px; font-size: 14px; font-weight: 700; line-height: 1.2; display: flex; align-items: center; justify-content: center; text-align: center; box-shadow: 0 2px 0 var(--line); }
+.stand { background: var(--card); border-radius: 18px; padding: 16px 18px; box-shadow: 0 2px 0 var(--line); display: flex; flex-direction: column; gap: 6px; }
+.stand p { margin: 0; }
+.stand .groot { font-weight: 800; font-size: 20px; }
+.bronnen .bronwacht { background: none; padding: 0; color: var(--muted); font-size: 14px; }
+.kaart .bronregel { margin: 0; font-size: 14px; color: var(--muted); overflow-wrap: anywhere; }
+.kaart .bronregel a { color: var(--ink); font-weight: 600; }
+/* Beweging: kort en zacht. Wie verminderde beweging aanzet, ziet niets bewegen (zie onderaan). */
+button, a { transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease, opacity 0.2s ease; }
+button:active:not(:disabled) { transform: scale(0.97); }
+.kaart { animation: omhoog 0.35s ease both; }
+/* Na het eerste laden geen instapanimatie meer: anders springen de kaarten elke keer dat de quiz opnieuw wordt getekend. */
+html[data-geladen] .kaart { animation: none; }
+.opt:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 4px 0 rgba(42, 31, 74, 0.12); }
+.opt.gekozen { animation: puls 0.4s ease; }
+.feedback { animation: vervaag 0.4s ease both; }
+.stand { animation: omhoog 0.35s ease both; }
+@keyframes omhoog { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes vervaag { from { opacity: 0; } to { opacity: 1; } }
+@keyframes puls { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+/* Koppen: terugknop en naam als nette chips */
+.top { gap: 12px; }
+.terug { align-self: flex-start; display: inline-flex; align-items: center; min-height: 36px; padding: 6px 14px; border-radius: 999px; background: var(--card); box-shadow: 0 2px 0 var(--line); font-size: 14px; }
+.wie { align-self: flex-start; display: inline-flex; align-items: center; min-height: 36px; padding: 6px 14px; border-radius: 999px; background: var(--card); box-shadow: 0 2px 0 var(--line); font-size: 15px; }
+.stand-rij { display: grid; grid-template-columns: 80px 1fr 48px; align-items: center; gap: 10px; font-weight: 700; font-size: 14px; }
+.stand-rij .telling { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+.balkje { height: 10px; border-radius: 999px; background: var(--roze-zacht); overflow: hidden; }
+.balkje > i { display: block; height: 100%; border-radius: 999px; background: var(--roze); transition: width 0.4s ease; }
+</style>
+<link rel="stylesheet" href="app.css">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png?v=4">
+<link rel="icon" href="icon-180.png?v=4">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Feitje van de dag">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#fff6d6">
+</head>
+<body>
+
+<main>
+  <header class="top">
+    <a class="terug" href="index.html">&larr; Overzicht</a>
+    <h1 id="quiznaam">Themaquiz</h1>
+    <div class="naam-rij"><button type="button" class="naam-knop" id="naam-knop">Naam wijzigen</button></div>
+    <div class="naam-bewerk" id="naam-bewerk" hidden>
+      <input id="naam-veld" type="text" maxlength="40" aria-label="Naam van de quiz">
+      <button type="button" class="naam-opslaan" id="naam-opslaan">Opslaan</button>
+    </div>
+    <ul class="themas" id="themas"></ul>
+    <p class="wie" id="wie">Laden</p>
+  </header>
+
+  <p id="melding" class="melding" hidden></p>
+
+  <section class="stand" id="stand" hidden></section>
+
+  <div id="kaarten" class="quiz"></div>
+
+  <details class="bronnen tap">
+    <summary><h2 id="bron-kop">Bronnen</h2></summary>
+    <ul id="bronnen"></ul>
+  </details>
+
+  <p class="voet"><a href="punten.html">Punten bekijken</a></p>
+</main>
+
+<script src="supabase-shim.js"></script>
+<script src="gezien.js?v=1"></script>
+<script src="kleuren.js"></script>
+<script src="uitslag.js"></script>
+<script src="naam.js"></script>
+<script>
+const LETTERS = ["a", "b", "c", "d"];
+const QUIZ = new URLSearchParams(location.search).get("id") || "";
+let db = null;
+let wie = null;
+let quiz = null;
+let vragen = [];
+let mijn = {};      // i -> { gekozen, goed }
+let anderen = {};   // wie -> aantal beantwoord
+let punten = { Ritchie: 0, Rachel: 0 };
+let laatsteSig = "";
+const bezig = new Set();
+
+const el = (id) => document.getElementById(id);
+
+function maak(tag, cls, tekst) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (tekst !== undefined) e.textContent = tekst;
+  return e;
+}
+
+// Per speler één rij: naam, voortgangsbalk en aantal.
+function standRijen(doel, rijen) {
+  rijen.forEach(function (r) {
+    const rij = maak("div", "stand-rij");
+    const bal = maak("div", "balkje");
+    const bar = document.createElement("i");
+    bar.style.width = Math.round(100 * r[1] / r[2]) + "%";
+    bal.appendChild(bar);
+    rij.append(maak("span", "naam", r[0]), bal, maak("span", "telling", r[1] + "/" + r[2]));
+    doel.appendChild(rij);
+  });
+}
+
+
+// Uitslag per vraag: een badge (Goed/Fout) en een knop. Het antwoord staat verborgen tot je op de knop tikt.
+const uitgeklapt = new Set();
+function uitslagBlok(kaart, id, goed, tekst, bronnen) {
+  const rij = maak("div", "uitslag-rij");
+  rij.appendChild(maak("span", "badge " + (goed ? "goed" : "fout"), goed ? "Goed" : "Fout"));
+  const open = uitgeklapt.has(String(id));
+  const knop = maak("button", "toon", open ? "Verberg" : "Bekijk antwoord");
+  knop.type = "button";
+  knop.dataset.toon = id;
+  knop.setAttribute("aria-expanded", String(open));
+  rij.appendChild(knop);
+  kaart.appendChild(rij);
+  if (open) {
+    kaart.appendChild(maak("p", "antwoord-tekst", tekst));
+    const links = (bronnen || []).filter(function (b) { return b.url; });
+    if (links.length) {
+      const regel = maak("p", "bron-regel");
+      links.forEach(function (br, k) {
+        if (k) regel.appendChild(document.createTextNode(" · "));
+        const a = maak("a", "", br.titel);
+        a.href = br.url; a.target = "_blank"; a.rel = "noopener";
+        regel.appendChild(a);
+      });
+      kaart.appendChild(regel);
+    }
+  }
+}
+function wisselUitslag(id) { id = String(id); if (uitgeklapt.has(id)) uitgeklapt.delete(id); else uitgeklapt.add(id); }
+
+function toonFout(tekst) {
+  const m = el("melding");
+  m.textContent = tekst;
+  m.hidden = false;
+}
+
+async function diag(e) {
+  const code = e && (e.code || e.name) ? String(e.code || e.name) : "onbekend";
+  const msg = e && e.message ? String(e.message).slice(0, 100) : "";
+  let r = "rechten onbekend";
+  try {
+    const u = window.claude && window.claude.use ? await window.claude.use("user") : null;
+    if (u) {
+      const [w, ed] = await Promise.all([u.can("data.write"), u.canEdit()]);
+      r = "schrijfrechten " + (w === true ? "ja" : w === false ? "nee" : "onbekend") + ", bewerker " + (ed ? "ja" : "nee");
+    }
+  } catch (x) { /* rechten onbekend */ }
+  return "[" + code + (msg ? ": " + msg : "") + "; " + r + "]";
+}
+
+function qLees() {
+  try {
+    const a = JSON.parse(localStorage.getItem("feitje-wachtrij-" + wie) || "[]");
+    return Array.isArray(a) ? a : [];
+  } catch (e) { return []; }
+}
+
+function qSchrijf(a) {
+  try { localStorage.setItem("feitje-wachtrij-" + wie, JSON.stringify(a)); } catch (e) { /* geen opslag */ }
+}
+
+// Schrijven mag niet altijd (alleen lezen). Dan bewaren we het antwoord op dit apparaat
+// en sturen het door zodra het wel kan. De eerste poging per vraag blijft de eerste.
+function wachtZet(path, data) {
+  const a = qLees();
+  const i = a.findIndex((x) => x.p === path);
+  if (i >= 0) {
+    if (path.indexOf("attempts/") === 0) return;
+    a[i] = { p: path, d: data };
+  } else {
+    a.push({ p: path, d: data });
+  }
+  qSchrijf(a);
+}
+
+async function wachtLeeg(db) {
+  const rest = qLees();
+  try {
+    while (rest.length) {
+      const x = rest[0];
+      if (x.p.indexOf("attempts/") === 0) {
+        const s = await db.doc(x.p).get();
+        if (!s.exists) await db.doc(x.p).set(x.d);
+      } else {
+        await db.doc(x.p).set(x.d);
+      }
+      rest.shift();
+      qSchrijf(rest);
+    }
+  } catch (e) { /* nog geen schrijfrechten: blijft in de wachtrij */ }
+}
+
+async function schrijf(db, path, data) {
+  try {
+    await db.doc(path).set(data);
+  } catch (e) {
+    if (e && e.code === "invalid_argument") { wachtZet(path, data); toonFout("Let op: dit antwoord is nog niet op de server opgeslagen. Het staat alleen op dit apparaat en wordt doorgestuurd zodra het lukt. Open de pagina straks opnieuw."); return; }
+    throw e;
+  }
+}
+
+function wisFout() {
+  el("melding").hidden = true;
+}
+
+async function haalDb() {
+  try {
+    if (!window.claude || !window.claude.use) return null;
+    return await window.claude.use("db");
+  } catch (e) {
+    return null;
+  }
+}
+
+
+// Vanaf het overzicht van punten naar de vraag springen (#...): scrollen en even markeren.
+function naarVraag() {
+  const h = decodeURIComponent(location.hash.slice(1));
+  if (!h) return;
+  const e = document.getElementById(h);
+  if (!e) return;
+  e.scrollIntoView({ block: "center" });
+  e.style.outline = "3px solid #ff4f9a";
+  e.style.outlineOffset = "3px";
+  setTimeout(() => { e.style.outline = ""; }, 3000);
+}
+
+function alleBeantwoord() {
+  const aantal = quiz ? Number(quiz.aantal) || vragen.length : 0;
+  return aantal > 0 && Object.keys(mijn).length >= aantal;
+}
+
+function anderNaam() { return wie === "Ritchie" ? "Rachel" : "Ritchie"; }
+
+async function laad() {
+  const q = await db.doc("themaquizzen/" + QUIZ).get();
+  if (!q.exists) { quiz = null; return false; }
+  quiz = q.data();
+  if (!quiz.naam) {
+    quiz.naam = await kiesNaamVoor(quiz.themas || [], "themaquizzen");
+    try { await db.doc("themaquizzen/" + QUIZ).set(Object.assign({}, quiz)); } catch (e) { /* later opnieuw */ }
+  }
+  const vs = await db.collection("themavragen").where("quiz", "==", QUIZ).get();
+  vragen = vs.docs.filter((d) => d.exists).map((d) => Object.assign({ id: d.id }, d.data())).sort((a, b) => a.i - b.i);
+  const an = await db.collection("themaantwoorden").where("quiz", "==", QUIZ).get();
+  mijn = {};
+  anderen = { Ritchie: 0, Rachel: 0 };
+  punten = { Ritchie: 0, Rachel: 0 };
+  an.docs.forEach((d) => {
+    if (!d.exists) return;
+    const x = d.data();
+    if (!anderen.hasOwnProperty(x.wie)) return;
+    anderen[x.wie] += 1;
+    if (x.goed === true) punten[x.wie] += 1;
+    if (x.wie === wie) mijn[x.i] = { gekozen: Number(x.gekozen), goed: x.goed === true };
+  });
+  // Antwoorden die op dit apparaat in de wachtrij staan, tellen mee voor jezelf.
+  qLees().forEach((x) => {
+    if (x.p.indexOf("themaantwoorden/") === 0 && x.d.quiz === QUIZ && x.d.wie === wie && !mijn[x.d.i]) {
+      mijn[x.d.i] = { gekozen: Number(x.d.gekozen), goed: x.d.goed === true };
+      anderen[wie] += 1;
+      if (x.d.goed === true) punten[wie] += 1;
+    }
+  });
+  laatsteSig = sig();
+  return true;
+}
+
+function sig() {
+  return [quiz && quiz.status, anderen.Ritchie, anderen.Rachel, punten.Ritchie, punten.Rachel].join("|");
+}
+
+function kaart(v) {
+  const art = maak("article", "kaart");
+  art.id = "k-" + v.i;
+  const onderwerp = maak("p", "chip", "Vraag " + v.i + ", " + v.onderwerp);
+  onderwerp.dataset.thema = v.onderwerp;
+  art.appendChild(onderwerp);
+  art.appendChild(maak("h3", "", v.vraag));
+  const gedaan = mijn[v.i];
+  const opties = maak("div", "opties");
+  v.opties.forEach((o, i) => {
+    const b = maak("button", "opt " + LETTERS[i]);
+    b.type = "button";
+    b.dataset.i = String(v.i);
+    b.dataset.idx = String(i);
+    b.appendChild(maak("b", "", LETTERS[i] + "."));
+    b.appendChild(document.createTextNode(" " + o));
+    if (gedaan) {
+      b.disabled = true;
+      if (gedaan.gekozen === i) b.classList.add("gekozen");
+    }
+    opties.appendChild(b);
+  });
+  art.appendChild(opties);
+  if (gedaan) {
+    const goed = gedaan.goed;
+    uitslagBlok(art, v.i, goed, (goed ? "Goed. " : "Fout. ") + "Het juiste antwoord is " + LETTERS[v.juist] + ": " + v.opties[v.juist] + ". " + (v.toelichting || ""), v.bronnen);
+  }
+  return art;
+}
+
+function render() {
+  if (!document.documentElement.hasAttribute("data-geladen")) setTimeout(function () { document.documentElement.setAttribute("data-geladen", ""); }, 1200);
+  // Einde van de themaquiz: één keer het uitslag-scherm, met de winnaar en de XP die je hebt gekregen.
+  if (quiz && quiz.status === "afgerond" && !quiz.verlopen && !Gezien.is("uitslag-thema-" + QUIZ)) {
+    Gezien.zet(wie, "uitslag-thema-" + QUIZ);
+    const pt = quiz.punten || { Ritchie: 0, Rachel: 0 };
+    const mijnG = pt[wie] || 0;
+    const andG = pt[anderNaam()] || 0;
+    const xpWin = mijnG > andG ? 500 : mijnG === andG ? 250 : 0;
+    toonUitslagScherm({
+      kop: "Themaquiz klaar",
+      titel: mijnG > andG ? "Je wint!" : mijnG === andG ? "Gelijkspel" : anderNaam() + " wint",
+      scores: [{ naam: wie, aantal: mijnG }, { naam: anderNaam(), aantal: andG }],
+      xp: mijnG * 25 + 50 + xpWin,
+      confetti: mijnG > andG
+    });
+  }
+  if (quiz) document.getElementById("quiznaam").textContent = quiz.naam || "Themaquiz";
+  const aantal = quiz ? Number(quiz.aantal) || vragen.length : 0;
+  const thema = el("themas");
+  thema.textContent = "";
+  ((quiz && quiz.themas) || []).forEach((t) => { const li = maak("li", "", t); li.dataset.thema = t; thema.appendChild(li); });
+  const klaar = Object.keys(mijn).length;
+  el("wie").textContent = wie + ", " + klaar + " van " + aantal + " beantwoord";
+
+  const st = el("stand");
+  st.hidden = false;
+  st.textContent = "";
+  const af = quiz.status === "afgerond";
+  if (af) {
+    st.appendChild(maak("p", "groot", "Quiz afgesloten"));
+    standRijen(st, [["Ritchie", (quiz.punten || punten).Ritchie, aantal], ["Rachel", (quiz.punten || punten).Rachel, aantal]]);
+  } else if (klaar >= aantal) {
+    st.appendChild(maak("p", "groot", "Jij bent klaar: " + punten[wie] + " van " + aantal));
+    const a = anderNaam();
+    st.appendChild(maak("p", "", anderen[a] >= aantal ? a + " is ook klaar. De quiz wordt zo afgesloten." : a + " heeft " + anderen[a] + " van " + aantal + " beantwoord. Zodra " + a + " klaar is, sluit de quiz en tellen alle punten mee."));
+  } else {
+    standRijen(st, [["Ritchie", anderen.Ritchie, aantal], ["Rachel", anderen.Rachel, aantal]]);
+  }
+
+  const z = el("kaarten");
+  z.textContent = "";
+  vragen.forEach((v) => z.appendChild(kaart(v)));
+
+  const bl = el("bronnen");
+  bl.textContent = "";
+  if (!alleBeantwoord()) {
+    bl.appendChild(maak("li", "bronwacht", ""));
+    return;
+  }
+  const gezien = {};
+  vragen.forEach((v) => (v.bronnen || []).forEach((br) => {
+    if (!br.url || gezien[br.url]) return;
+    gezien[br.url] = true;
+    const li = maak("li");
+    li.appendChild(document.createTextNode("Vraag " + v.i + ": "));
+    const a = maak("a", "", br.titel);
+    a.href = br.url; a.target = "_blank"; a.rel = "noopener";
+    li.appendChild(a);
+    bl.appendChild(li);
+  }));
+}
+
+async function kies(i, idx) {
+  if (mijn[i] || bezig.has(i) || (quiz && quiz.status === "afgerond")) return;
+  const v = vragen.find((x) => x.i === i);
+  if (!v) return;
+  bezig.add(i);
+  wisFout();
+  const goed = idx === v.juist;
+  try {
+    await schrijf(db, "themaantwoorden/" + QUIZ + "-" + wie + "-" + i, {
+      quiz: QUIZ, wie: wie, i: i, vraag_id: v.id, gekozen: idx, goed: goed, gezet_op: new Date().toISOString(),
+    });
+    mijn[i] = { gekozen: idx, goed: goed };
+    uitgeklapt.add(String(i));
+    anderen[wie] += 1;
+    if (goed) punten[wie] += 1;
+    render();
+  } catch (e) {
+    toonFout("Opslaan lukte niet. Probeer het opnieuw. " + (await diag(e)));
+  } finally {
+    bezig.delete(i);
+  }
+}
+
+el("kaarten").addEventListener("click", (e) => {
+  const toon = e.target.closest("button.toon");
+  if (toon) { wisselUitslag(toon.dataset.toon); render(); return; }
+  const b = e.target.closest("button.opt");
+  if (b && !b.disabled) kies(Number(b.dataset.i), Number(b.dataset.idx));
+});
+
+async function ververs() {
+  if (!db || document.hidden || !quiz) return;
+  try {
+    const s0 = sig();
+    const wasKlaar = Object.keys(mijn).length;
+    await laad();
+    if (sig() !== s0 || Object.keys(mijn).length !== wasKlaar) render();
+  } catch (e) { /* volgende ronde opnieuw */ }
+}
+setInterval(ververs, 6000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) ververs(); });
+
+async function start() {
+  try {
+    const w = localStorage.getItem("wie");
+    if (w === "Ritchie" || w === "Rachel") wie = w;
+  } catch (e) { /* geen opslag */ }
+  if (!wie) { location.replace("index.html"); return; }
+  if (!QUIZ) { location.replace("index.html"); return; }
+  db = await haalDb();
+  if (!db) { toonFout("Opslag is nu niet beschikbaar."); el("wie").textContent = ""; return; }
+  await wachtLeeg(db);
+  const ok = await laad();
+  if (!ok) {
+    el("wie").textContent = "Deze quiz bestaat niet (meer).";
+    return;
+  }
+  render();
+  naarVraag();
+}
+
+start().catch(() => toonFout("Laden lukte niet. Ververs de pagina."));
+document.getElementById("naam-knop").addEventListener("click", function () {
+  const rij = document.getElementById("naam-bewerk");
+  rij.hidden = !rij.hidden;
+  document.getElementById("naam-veld").value = (quiz && quiz.naam) || "";
+  if (!rij.hidden) document.getElementById("naam-veld").focus();
+});
+document.getElementById("naam-opslaan").addEventListener("click", async function () {
+  const n = document.getElementById("naam-veld").value.trim().slice(0, 40);
+  if (!n || !quiz) return;
+  try {
+    await db.doc("themaquizzen/" + QUIZ).set(Object.assign({}, quiz, { naam: n }));
+    quiz.naam = n;
+    document.getElementById("quiznaam").textContent = n;
+    document.getElementById("naam-bewerk").hidden = true;
+  } catch (e) {
+    toonFout("Naam opslaan lukte niet. Probeer het nog eens.");
+  }
+});
+</script>
+</body>
+</html>

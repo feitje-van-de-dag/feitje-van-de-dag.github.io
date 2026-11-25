@@ -1,0 +1,1102 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kamer · Feitje van de dag</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png?v=4">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Feitje van de dag">
+<meta name="theme-color" content="#fff6d6">
+<style>
+main { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; padding: 24px 16px 0; min-width: 0; }
+/* De winkel: een paars vlak van de keuzeknoppen tot onderaan de pagina, zodat je ziet dat dit de winkel is. */
+.winkelvlak { min-height: 560px; flex: 1 0 auto; display: flex; flex-direction: column; gap: 16px; margin: 0 -16px; padding: 22px 16px 32px; border-radius: 30px 30px 0 0; background: var(--paars-diep); box-shadow: 0 -4px 0 var(--paars); }
+.winkelvlak .statusregel, .winkelvlak .muted { color: var(--vlak); }
+/* Schoon en compact: één regel met Kleding en de keuze van wie, één regel filters die zijwaarts scrolt, dan meteen de kaartjes. */
+.winkelvlak { gap: 14px; padding-top: 18px; }
+.winkel-titel { margin: 0 0 2px; color: var(--vlak); font-size: clamp(32px, 8vw, 46px); line-height: 1.05; }
+.winkelkop { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.winkelvlak .chips { margin: 0; gap: 8px; flex-wrap: nowrap; }
+.winkelvlak .chips button { min-height: 38px; padding: 6px 16px; font-size: 15px; box-shadow: 0 3px 0 rgba(43, 35, 51, .22); white-space: nowrap; flex: none; }
+.winkelvlak .chips button[aria-pressed="true"] { box-shadow: 0 3px 0 var(--roze-diep); }
+.winkelvlak #chips { flex-wrap: nowrap; gap: 2px; overflow: visible; }
+.winkelvlak #chips button { flex: 1 1 0; min-width: 0; padding-left: 2px; padding-right: 2px; font-size: clamp(10px, 2.8vw, 15px); }
+.winkelvlak #chips button { padding: 6px 14px; }
+.winkelvlak .statusregel { margin: 0; min-height: 0; }
+.winkelvlak .statusregel:empty { display: none; }
+body.heeft-tabs .tabs { margin-top: 0; }
+.top { display: flex; flex-direction: column; gap: 8px; }
+.top h1 { margin: 0; font-size: clamp(34px, 9vw, 46px); }
+.gem { width: 20px; height: 20px; flex: none; display: inline-block; vertical-align: middle; }
+.hoe { align-self: flex-start; }
+.hoe summary { cursor: pointer; font-weight: 700; font-size: 14px; color: var(--zacht); list-style: none; }
+.hoe summary::-webkit-details-marker { display: none; }
+.hoe[open] summary { margin-bottom: 8px; }
+.hoe-rij { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip-prijs { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; background: var(--vlak); box-shadow: var(--schaduw-kaart); font-weight: 800; font-size: 16px; color: var(--inkt); }
+.chip-prijs .gem { width: 22px; height: 22px; }
+.chip-prijs > span { display: inline-flex; align-items: center; gap: 4px; }
+.detail .muted:empty, .detail .statusregel:empty { display: none; }
+.kop-rij { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.saldo-balk { min-height: 0; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; color: inherit; font: inherit; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; margin-left: auto; font-weight: 800; }
+.saldo-balk:active:not(:disabled) { transform: none; box-shadow: none; }
+.saldo-balk .gem { width: 32px; height: 32px; }
+.saldo-balk .getal { font-size: 29px; line-height: 1; }
+.hero { display: flex; flex-direction: column; gap: 12px; }
+.kamer { position: relative; width: 100%; height: 280px; border-radius: 22px; overflow: hidden; box-shadow: var(--schaduw-kaart); background: #e6ecff; }
+.kamer .achter { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.kamer .vogel.kam-vogel { position: absolute; bottom: 24px; width: 128px; height: 141px; }
+.kam-naam { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; align-items: center; gap: 8px; max-width: calc(100% - 24px); padding: 6px 8px 6px 16px; border-radius: 999px; background: var(--vlak); box-shadow: 0 3px 0 var(--lijn); color: var(--inkt); font-weight: 800; font-size: 17px; }
+.kam-naam[hidden] { display: none; }
+.kam-naam.eigen { padding-right: 6px; }
+.kam-naam button { min-height: 36px; padding: 4px 14px; border: 0; border-radius: 999px; background: var(--paars-lijn); color: var(--inkt); font: inherit; font-size: 15px; font-weight: 800; box-shadow: none; display: inline-flex; align-items: center; gap: 6px; }
+.kam-naam button:active:not(:disabled) { transform: none; box-shadow: none; }
+.kam-naam button.opslaan { background: var(--roze); color: var(--vlak); }
+.kam-naam svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.kam-naam input { width: 150px; min-width: 0; min-height: 36px; padding: 4px 12px; border: 2px solid var(--lijn); border-radius: 999px; background: var(--vlak); color: var(--inkt); font: inherit; font-size: 16px; font-weight: 700; }
+.kamerbalk { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 10px; min-height: 40px; }
+.kamerbalk .kamer-knoppen { display: flex; gap: 8px; margin-left: auto; }
+.kamerbalk button:disabled { opacity: .65; box-shadow: none; }
+.kamer-uitnodiging { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 10px 12px 10px 16px; border-radius: 18px; background: var(--paars-lijn); color: var(--inkt); font-weight: 800; }
+.kamer-uitnodiging .kamer-knoppen { display: flex; gap: 8px; margin-left: auto; }
+.kamer-uitnodiging button { min-height: 38px; padding: 4px 16px; border: 0; border-radius: 999px; background: var(--vlak); box-shadow: 0 3px 0 var(--lijn); color: var(--inkt); font: inherit; font-size: 15px; font-weight: 800; }
+.kamer-uitnodiging button.kom { background: var(--roze); color: var(--vlak); box-shadow: 0 3px 0 var(--roze-diep); }
+.kamerbalk .kamer-label { font-weight: 800; font-size: 17px; color: var(--inkt); min-width: 0; }
+.kamerbalk .kamer-label small { font-weight: 700; font-size: 13px; color: var(--zacht); }
+.kamerbalk button { flex: none; min-height: 38px; padding: 4px 16px; border: 0; border-radius: 999px; background: var(--vlak); box-shadow: 0 3px 0 var(--lijn); color: var(--inkt); font: inherit; font-size: 15px; font-weight: 800; }
+.kamerbalk button:active:not(:disabled) { transform: none; box-shadow: 0 1px 0 var(--lijn); }
+.kamer .pg { filter: brightness(calc(.78 + .22 * var(--licht, 1))); }
+.kamer .klik-rimpel { position: absolute; z-index: 9; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; border: 3px solid var(--roze); pointer-events: none; animation: klik-rimpel .7s ease-out forwards; }
+@keyframes klik-rimpel { from { transform: scale(.3); opacity: .9; } to { transform: scale(2); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .kamer .klik-rimpel { display: none; } }
+.kamermini { display: block; width: 100%; aspect-ratio: 5 / 4; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 0 var(--lijn); }
+.kamermini svg { display: block; width: 100%; height: 100%; }
+.item .plaatje:has(.kamermini) { width: 100%; max-width: 150px; height: auto; margin: 0 auto; }
+.detail .plaatje:has(.kamermini) { width: 100%; max-width: 280px; height: auto; margin: 0 auto; }
+.kaart-groot { display: flex; flex-direction: column; align-items: center; gap: 6px; padding-bottom: 12px; }
+.vogel.kam-vogel { width: 184px; height: 202px; }
+.anderen { display: flex; align-items: center; gap: 12px; padding: 10px 14px; }
+.anderen .vogel { width: 62px; height: 68px; flex: none; }
+.anderen p { margin: 0; font-weight: 700; }
+.proef { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; text-align: center; }
+.proef p { margin: 0; font-weight: 700; }
+.proef .rij { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 0; }
+.chips button { min-height: 40px; padding: 8px 16px; border: 0; border-radius: 999px; background: var(--vlak); box-shadow: var(--schaduw-kaart); color: var(--inkt); font: inherit; font-weight: 700; cursor: pointer; }
+.chips button[aria-pressed="true"] { background: var(--roze); color: var(--vlak); }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.item { display: flex; flex-direction: column; align-items: center; gap: 6px; min-height: 190px; padding: 14px 10px; text-align: center; background: var(--vlak); border: 0; border-radius: 22px; box-shadow: var(--schaduw-kaart); color: var(--inkt); font: inherit; cursor: pointer; }
+.item .plaatje { position: relative; display: block; width: 88px; height: 97px; }
+.item .naam { font-weight: 800; }
+.tq-knop .gem, .detail .gem { width: 18px; height: 18px; vertical-align: -3px; }
+.tq-knop span, .detail span { display: inline-flex; align-items: center; gap: 4px; }
+.item .prijs { display: inline-flex; align-items: center; gap: 5px; font-weight: 800; font-size: 17px; }
+.item .prijs .gem { width: 24px; height: 24px; }
+.item .bezit { min-height: 1.2em; font-size: 13px; font-weight: 700; color: var(--roze-diep); }
+.item.is-van-jou { outline: 3px solid var(--mint); outline-offset: -3px; }
+.item.past { outline: 3px dashed var(--roze); outline-offset: -3px; }
+.detail { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+.detail .plaatje { position: relative; display: block; width: 150px; height: 165px; }
+.statusregel { margin: 14px 0 18px; min-height: 1.4em; font-weight: 700; color: var(--inkt); }
+@media (max-width: 600px) {
+  html, body { max-width: 100%; overflow-x: hidden; }
+  main { width: 100%; max-width: 100%; box-sizing: border-box; padding-left: 12px; padding-right: 12px; }
+  .winkelvlak { margin-left: -12px; margin-right: -12px; padding-left: 12px; padding-right: 12px; }
+  .winkelvlak #groep-chips { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px; }
+  .winkelvlak #groep-chips button { min-width: 0; width: 100%; padding-left: 2px; padding-right: 2px; font-size: clamp(10px, 2.8vw, 13px); }
+  .winkelvlak #chips { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .winkelvlak #chips button { width: 100%; padding-left: 3px; padding-right: 3px; font-size: clamp(11px, 3.2vw, 14px); }
+  .kamerbalk .kamer-knoppen { width: 100%; margin-left: 0; }
+  .kamerbalk .kamer-knoppen button { flex: 1 1 0; min-width: 0; padding-left: 8px; padding-right: 8px; font-size: 13px; }
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .item { min-width: 0; }
+}
+[hidden] { display: none !important; }
+</style>
+<link rel="stylesheet" href="app.css?v=22">
+</head>
+<body class="heeft-tabs"><div class="app-inhoud">
+<main>
+  <header class="top">
+    <p class="eyebrow">Kamer</p>
+    <div class="kop-rij"><h1 id="huis-kop">Ritchies huis</h1><button type="button" class="saldo-balk" id="saldo-balk" aria-expanded="false" aria-controls="hoe-rij" aria-label="Diamanten. Tik voor hoe je ze verdient." hidden></button></div>
+    <div class="hoe-rij" id="hoe-rij" hidden></div>
+  </header>
+
+  <section class="poppen" id="poppen" aria-label="Poppetjes"></section>
+
+  <div class="winkelvlak">
+  <h2 class="winkel-titel">Catalogus</h2>
+  <div class="winkelkop">
+    <div class="chips" id="groep-chips" role="group" aria-label="Soort"></div>
+  </div>
+  <div class="chips" id="chips" role="group" aria-label="Plek"></div>
+
+  <p class="statusregel" id="melding" role="status" aria-live="polite"></p>
+  <section class="grid" id="grid" aria-label="Items"></section>
+  <p class="muted" id="leeg" hidden></p>
+  </div>
+</main>
+
+</div>
+<nav class="tabs" aria-label="Hoofdmenu">
+  <a href="index.html" class="tab" data-tab="vandaag">Vandaag</a>
+  <a href="punten.html" class="tab" data-tab="punten">Punten</a>
+  <a href="chat.html" class="tab" data-tab="chat">Chat</a>
+  <a href="logboek.html" class="tab" data-tab="logboek">Terugblik</a>
+  <a href="catalogus.html" class="tab" data-tab="winkel" aria-current="page">Kamer</a>
+</nav>
+
+<div class="uitslag-overlay" id="detail" hidden>
+  <div class="uitslag-kaart" role="dialog" aria-modal="true" aria-labelledby="detail-naam">
+    <div class="detail">
+      <span class="plaatje" id="detail-plaatje"></span>
+      <h2 id="detail-naam"></h2>
+      <p class="muted" id="detail-tekst"></p>
+      <p class="statusregel" id="detail-melding" role="status"></p>
+      <button type="button" class="tq-knop" id="detail-pas">Pas dit</button>
+      <button type="button" class="tq-knop" id="detail-koop">Koop</button>
+      <button type="button" class="tq-knop" id="detail-draag">Draag</button>
+      <button type="button" class="tq-knop" id="detail-verkoop" hidden>Verkoop</button>
+      <button type="button" class="opnieuw" id="detail-sluit">Sluiten</button>
+    </div>
+  </div>
+</div>
+
+<script src="supabase-shim.js"></script>
+<script src="skins.js?v=2"></script>
+<script src="kostuum-vec.js?v=8"></script>
+<script src="kostuums.js?v=56"></script>
+<script src="kamerstijlen.js?v=19"></script>
+<script src="poppetje.js?v=34"></script>
+<script src="chatteller.js"></script>
+<script src="kleuren.js"></script>
+<script src="naam.js"></script>
+<script src="uitslagen.js?v=2"></script>
+<script src="weekrad.js"></script>
+<script>
+// NAMEN komt uit uitslagen.js
+// Kleuren: elk onderdeel van het poppetje apart (bij Rachel heet het haar "Strik").
+function plekkenNu() {
+  if (huidigeGroep === "Kamer") return [["Muur", "muur"], ["Vloer", "vloer"], ["Raam", "raam"], ["Lamp", "lamp"], ["Kleden", "kleed"]];
+  if (huidigeGroep !== "Kleuren") return PLEKKEN.filter(function (p) { return p[1] !== null && p[1] !== "kostuum"; });
+  return Skins.DELEN.map(function (d) { return [d.deel === "haar" && toonVoor === "Rachel" ? "Strik" : d.label, d.deel]; });
+}
+function itemNaam(i) {
+  const d = Skins.isSkin(i) ? Skins.DELEN.filter(function (x) { return x.deel === i.plek; })[0] : null;
+  // Kleuren: alleen de kleur ("Oranje"), zonder "Lichaam:", "Buikje:" enzovoort. Het onderdeel staat al in de knoppen erboven.
+  if (d) return i.naam.replace(/^[^:]+:\s*/, "");
+  return i.naam;
+}
+const PLEKKEN = [["Alles", null], ["Kleren", "lijf"], ["Hoofd", "hoofd"], ["Strik", "strik"], ["Gezicht", "gezicht"], ["Borst", "borst"], ["Onder", "onder"], ["Kostuum", "kostuum"]];
+// Van achter naar voren: shirt/jas, dan broek of jurk, dan sjaal of ketting, dan bril, dan hoed.
+const LAAGVOLGORDE = ["lijf", "onder", "borst", "gezicht", "strik", "hoofd", "kostuum"];
+
+// Eigen tekeningen in de Feitje-kleuren (geen emoji).
+const GEM = '<svg class="gem" viewBox="0 0 24 24" aria-hidden="true">' + '<path d=\"M3.4 9.6L7.4 4.6L10 9.6Z\" fill=\"#b9d6ff\" stroke=\"#b9d6ff\" stroke-width=\"1.6\" stroke-linejoin=\"round\"/><path d=\"M7.4 4.6H16.6L14.2 9.6H9.8Z\" fill=\"#e6f0ff\" stroke=\"#e6f0ff\" stroke-width=\"1.6\" stroke-linejoin=\"round\"/><path d=\"M16.6 4.6L20.6 9.6L14 9.6Z\" fill=\"#8fb8ff\" stroke=\"#8fb8ff\" stroke-width=\"1.6\" stroke-linejoin=\"round\"/><path d=\"M3.4 9.6H9.8L12 19.6Z\" fill=\"#6c9ce6\" stroke=\"#6c9ce6\" stroke-width=\"1.6\" stroke-linejoin=\"round\"/><path d=\"M9.8 9.6H14.2L12 19.6Z\" fill=\"#8fb8ff\" stroke=\"#8fb8ff\" stroke-width=\"1.6\" stroke-linejoin=\"round\"/><path d=\"M14.2 9.6H20.6L12 19.6Z\" fill=\"#5b86cf\" stroke=\"#5b86cf\" stroke-width=\"1.6\" stroke-linejoin=\"round\"/><path d=\"M8.6 6.6L10.2 6.6\" stroke=\"#fff\" stroke-width=\"1.4\" stroke-linecap=\"round\"/></svg>';
+
+
+// Elke persoon heeft een eigen kamer: muur, plint, houten vloer, raam, hanglamp en een kleedje. Eigen tekening in de app-kleuren.
+// Ritchie: blauwe muur (zoals de kamer was). Rachel: precies dezelfde kamer met een lichtroze muur. Later kan iedereen zijn of haar eigen kamer inrichten.
+// Het raam laat de echte tijd en het seizoen zien (Amsterdam): zon en maan op hun baan, sterren, schemering, en lente, zomer, herfst of winter buiten.
+// Test: voeg ?uur=22 en/of ?maand=0 (januari = 0) aan de link toe om een ander moment te zien.
+const KAMER_MUUR = {
+  Ritchie: { muur: "#d9e4ff", streep: "#e7eeff", plint: "#bccbf2" },
+  Rachel: { muur: "#ffe6f1", streep: "#fff2f8", plint: "#f7cde0" }
+};
+function hemelNu() {
+  let d;
+  try { d = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Amsterdam" })); } catch (e) { d = new Date(); }
+  const q = new URLSearchParams(location.search);
+  let uur = d.getHours() + d.getMinutes() / 60, maand = d.getMonth();
+  if (q.get("uur") !== null && !isNaN(Number(q.get("uur")))) uur = Number(q.get("uur"));
+  if (q.get("maand") !== null && !isNaN(Number(q.get("maand")))) maand = Number(q.get("maand"));
+  const doy = Math.floor(maand * 30.4 + 15);
+  const c = Math.cos(2 * Math.PI * (doy - 172) / 365);
+  const op = 7.0 - 1.75 * c, onder = 19.25 + 2.75 * c;
+  const sm = function (a, b, x) { const t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+  const licht = sm(op - 0.6, op + 0.6, uur) * (1 - sm(onder - 0.6, onder + 0.6, uur));
+  const seizoen = maand === 11 || maand <= 1 ? "winter" : maand <= 4 ? "lente" : maand <= 7 ? "zomer" : "herfst";
+  return { uur: uur, maand: maand, op: op, onder: onder, licht: licht, seizoen: seizoen, minuut: Math.floor((uur * 60) % 60) };
+}
+function mix(c1, c2, t) {
+  const p = function (c) { return [1, 3, 5].map(function (i) { return parseInt(c.slice(i, i + 2), 16); }); };
+  const a = p(c1), b = p(c2);
+  return "#" + a.map(function (v, i) { return Math.round(v + (b[i] - v) * t).toString(16).padStart(2, "0"); }).join("");
+}
+const KAMER_RAAM_X = 96;   // linkerbovenhoek van het raam in de kamer: het raam hangt links van het midden, de lamp rechts, zodat ze elkaar nooit raken
+function raamScene(t, vorm, uid) {
+  vorm = vorm || KamerStijlen.raamDef(); uid = uid || "";
+  const nacht = 1 - t.licht, tw = 4 * t.licht * (1 - t.licht);
+  const boven = mix(mix("#161d4d", "#7fc4ff", t.licht), "#b58be0", tw * 0.35);
+  const onder = mix(mix("#2b3a7a", "#d6ecff", t.licht), "#ffb38a", tw * 0.8);
+  const donker = function (c) { return mix(c, "#1b2150", nacht * 0.6); };
+  let s = '<defs><clipPath id="raamklem' + uid + '">' + vorm.clip + '</clipPath><linearGradient id="hemelverloop' + uid + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + boven + '"/><stop offset="1" stop-color="' + onder + '"/></linearGradient></defs>';
+  s += '<g clip-path="url(#raamklem' + uid + ')"><rect x="-30" y="-12" width="140" height="112" fill="url(#hemelverloop' + uid + ')"/>';
+  // sterren
+  if (nacht > 0.15) [[10, 12, 1.2], [26, 24, 1], [44, 10, 1.3], [60, 20, 1], [70, 8, 1.1], [18, 38, 0.9], [52, 34, 1], [34, 46, 0.8]].forEach(function (st) { s += '<circle cx="' + st[0] + '" cy="' + st[1] + '" r="' + st[2] + '" fill="#fffbe0" opacity="' + Math.min(1, nacht * 1.1).toFixed(2) + '"/>'; });
+  // zon of maan op hun baan
+  const dagLengte = t.onder - t.op;
+  if (t.uur >= t.op - 0.3 && t.uur <= t.onder + 0.3) {
+    const f = Math.max(0, Math.min(1, (t.uur - t.op) / dagLengte));
+    const x = 10 + 60 * f, y = 62 - Math.sin(Math.PI * f) * 46;
+    s += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="16" fill="#fff1a8" opacity="' + (0.28 * t.licht).toFixed(2) + '"/><circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="9" fill="' + mix("#ff9d57", "#ffe27a", Math.min(1, Math.sin(Math.PI * f) * 1.6)) + '"/>';
+  }
+  if (nacht > 0.05) {
+    const nl = 24 - dagLengte, f = (((t.uur - t.onder) % 24) + 24) % 24 / nl;
+    if (f >= 0 && f <= 1) {
+      const x = 10 + 60 * f, y = 60 - Math.sin(Math.PI * f) * 40;
+      s += '<g opacity="' + Math.min(1, nacht * 1.2).toFixed(2) + '"><circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="8" fill="#fff6d0"/><circle cx="' + (x + 4).toFixed(1) + '" cy="' + (y - 2).toFixed(1) + '" r="7" fill="' + mix(boven, onder, Math.min(1, Math.max(0, (y - 20) / 40))) + '"/></g>';
+    }
+  }
+  // wolken: binnen het raam, zacht en langzaam verschuivend
+  const drift = (t.minuut % 60) / 60 * 8, wolk = mix("#ffffff", "#6e7bb8", nacht * 0.75);
+  s += '<g opacity="' + (0.95 - nacht * 0.45).toFixed(2) + '" fill="' + wolk + '"><path transform="translate(' + (4 + drift).toFixed(1) + ' 6)" d="M2 14q2-8 11-5q4-7 12 0q8-1 9 6H2z"/><path transform="translate(' + (38 - drift).toFixed(1) + ' 28)" d="M2 11q2-6 9-4q3-5 9 0q6 0 7 4H2z" opacity=".8"/></g>';
+  // landschap per seizoen
+  const heuvel = { winter: "#f4f8ff", lente: "#9fdc8f", zomer: "#6cc27a", herfst: "#e0a54f" }[t.seizoen];
+  s += '<path d="M-30 70L0 68Q18 56 38 64T80 60L110 62V100H-30Z" fill="' + donker(heuvel) + '"/><path d="M-30 78L0 76Q24 68 46 74T80 72L110 73V100H-30Z" fill="' + donker(mix(heuvel, "#5a7a4a", t.seizoen === "winter" ? 0.1 : 0.25)) + '"/>';
+  const stam = donker("#8a6a4a");
+  s += '<rect x="60" y="52" width="4" height="22" fill="' + stam + '"/>';
+  if (t.seizoen === "winter") s += '<path d="M62 54L54 44M62 58L70 48M62 50L62 42M58 49L55 46M66 53L69 51" stroke="' + stam + '" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M53 44h4M69 48h4M60 42h4" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".9"/>';
+  else {
+    const blad = { lente: "#a9e49a", zomer: "#4fae60", herfst: "#f09a3c" }[t.seizoen];
+    s += '<circle cx="62" cy="46" r="10" fill="' + donker(blad) + '"/><circle cx="55" cy="51" r="7" fill="' + donker(blad) + '"/><circle cx="69" cy="51" r="7" fill="' + donker(blad) + '"/>';
+    if (t.seizoen === "lente") [[58, 44], [66, 48], [55, 51], [70, 52], [62, 40]].forEach(function (b) { s += '<circle cx="' + b[0] + '" cy="' + b[1] + '" r="1.6" fill="' + donker("#ffb7d5") + '"/>'; });
+    if (t.seizoen === "herfst") [[58, 45], [67, 49], [62, 52]].forEach(function (b) { s += '<circle cx="' + b[0] + '" cy="' + b[1] + '" r="1.5" fill="' + donker("#d8452f") + '"/>'; });
+  }
+  // het weer van het seizoen: sneeuwvlokken, vallende blaadjes of bloemblaadjes
+  const val = (t.minuut % 30) / 30 * 10;
+  if (t.seizoen === "winter") [[8, 8], [22, 20], [36, 6], [48, 28], [70, 14], [14, 40], [58, 36]].forEach(function (v, i) { s += '<circle cx="' + v[0] + '" cy="' + ((v[1] + val * (1 + i % 3 * 0.3)) % 66).toFixed(1) + '" r="1.3" fill="#fff" opacity=".9"/>'; });
+  if (t.seizoen === "herfst") [[10, 10], [30, 24], [50, 8]].forEach(function (v, i) { s += '<ellipse cx="' + (v[0] + val * 0.5).toFixed(1) + '" cy="' + ((v[1] + val * (1.4 + i * 0.3)) % 66).toFixed(1) + '" rx="2" ry="1.2" fill="' + donker("#e2733a") + '"/>'; });
+  if (t.seizoen === "lente") [[12, 14], [40, 8], [54, 30]].forEach(function (v, i) { s += '<ellipse cx="' + (v[0] + val * 0.4).toFixed(1) + '" cy="' + ((v[1] + val * (1.2 + i * 0.3)) % 66).toFixed(1) + '" rx="1.6" ry="1" fill="' + donker("#ffb7d5") + '"/>'; });
+  s += '</g>';
+  // raamkruis erbovenop (niets valt buiten het raam, ook de wolken niet)
+  if (vorm.kruis) s += '<path d="' + vorm.kruis + '" stroke="' + mix("#ffffff", "#9aa4d8", nacht * 0.55) + '" stroke-width="5"/>';
+  return '<g class="k-raam" transform="translate(' + KAMER_RAAM_X + ' 28)">' + s + '</g>';
+}
+function zetKamerLicht() { if (kamerEl) kamerEl.style.setProperty("--licht", hemelNu().licht.toFixed(2)); }
+function kamerSvg(eigenaar, stijl, uid, focus) {
+  stijl = stijl || {}; uid = uid || "";
+  // focus: een uitsnede voor op een kaartje (Finch-achtig: het kamerspul groot in beeld, de rest weggelaten)
+  const VB = { lamp: "210 0 136 109", raam: "46 4 180 144", muur: "0 0 360 280", vloer: "56 184 128 96", kleed: "20 196 320 84" };
+  const LX = 278, LS = 1.15, LUP = 40; // de lamp hangt rechts (x), iets verkleind en 34 eenheden omhoog geschoven: kort koord, hangt niet in de kamer
+  const KS = KamerStijlen, t = hemelNu(), nacht = 1 - t.licht;
+  const raam = KS.raamDef(stijl.raam), lampOntw = KS.lampDef(stijl.lamp), lamp = lampOntw.teken(false, uid);
+  const metRaam = focus !== "lamp" && focus !== "muur" && focus !== "vloer" && focus !== "kleed", metLamp = focus !== "raam" && focus !== "muur" && focus !== "vloer" && focus !== "kleed", metKleed = !focus || focus === "kleed";
+  const lampGroep = function (svg, vast) { return vast ? '<g class="k-lamp" transform="translate(' + (LX - 292) + ' 0)">' + svg + '</g>' : '<g class="k-lamp" transform="translate(' + LX + ' 0) scale(' + LS + ') translate(-268 ' + (-LUP) + ')">' + svg + '</g>'; };
+  const PY = 0;  // in de hele kamer staat een plafondrand: op een brede kamer is de bovenste strook afgesneden, de rozet moet zichtbaar blijven
+  const plafondBand = true ? '' : '<rect x="0" y="-4" width="360" height="' + (PY + 4) + '" fill="#efe3cf"/><rect x="0" y="' + PY + '" width="360" height="2" fill="#d9c9ae"/>';
+  const plafondRoos = (lampOntw.vast ? '' : '<path d="M' + (LX - 9) + ' ' + PY + 'h18l-3 7h-12z" fill="#d8c7ad"/>');
+  return '<svg class="achter" viewBox="' + (VB[focus] || "0 0 360 280") + '" preserveAspectRatio="xMidYMid slice" aria-hidden="true">' +
+  KS.muurSvg(KS.muurDef(stijl.muur, eigenaar), uid) +
+  KS.vloerSvg(KS.vloerDef(stijl.vloer), uid) + plafondBand +
+  (metRaam ? '<g class="k-raam" transform="translate(' + KAMER_RAAM_X + ' 28)">' + raam.frame + '</g>' : '') +
+  (metLamp ? '<g class="k-top">' + lampGroep(lamp.svg, lampOntw.vast) + plafondRoos + '</g>' : '') +
+  (metKleed ? KS.kleedDef(stijl.kleed).teken(uid) : '') +
+  (nacht > 0.02 ? '<rect width="360" height="280" fill="#141a45" opacity="' + (nacht * 0.42).toFixed(3) + '"/>' : '') +
+  (metRaam ? raamScene(t, raam, uid) + (raam.voor ? '<g class="k-raam" transform="translate(' + KAMER_RAAM_X + ' 28)">' + raam.voor(function (c) { return KS.mix(c, "#1b2150", nacht * 0.45); }) + '</g>' : '') : '') +
+  (nacht > 0.1 && metLamp ? '<g class="k-top"><defs><radialGradient id="lampgloed' + uid + '"><stop offset="0" stop-color="#ffe08a" stop-opacity=".85"/><stop offset="1" stop-color="#ffe08a" stop-opacity="0"/></radialGradient></defs><circle cx="' + (lampOntw.vast ? lamp.gx + (LX - 292) : LX + LS * (lamp.gx - 268)).toFixed(0) + '" cy="' + (lampOntw.vast ? lamp.gy : LS * (lamp.gy - LUP)).toFixed(0) + '" r="92" fill="url(#lampgloed' + uid + ')" opacity="' + Math.min(1, nacht * 0.9).toFixed(2) + '"/>' + '<g opacity="' + Math.min(1, nacht * 1.2).toFixed(2) + '">' + lampGroep(lampOntw.teken(true, uid + "n").svg, lampOntw.vast) + '</g></g>' : '') +
+  '</svg>';
+}
+// Wat staat er nu in de kamer van deze persoon: opgeslagen kamerspullen, met de proef erbovenop voor je eigen kamer.
+function kamerStijlVan(eigenaar) {
+  const ids = eigenaar === wieNu() ? zichtbaar(eigenaar) : (draagt[eigenaar] || []);
+  const st = {};
+  ids.forEach(function (id) { const it = itemMet(id); if (it && KamerStijlen.isKamer(it)) st[it.plek] = id; });
+  return st;
+}
+// De kamer is een uitsnede (slice): op een breed scherm valt de bovenkant af. Lamp en rozet hangen daarom aan de zichtbare bovenrand, net als op het winkelkaartje.
+function zetPlafond() {
+  if (!kamerEl) return;
+  const sv = kamerEl.querySelector("svg.achter");
+  if (!sv) return;
+  const r = sv.getBoundingClientRect();
+  if (!r.width || !r.height) return;
+  const s = Math.max(r.width / 360, r.height / 280);
+  const y0 = Math.max(0, 140 - r.height / 2 / s);
+  sv.querySelectorAll(".k-top").forEach(function (g) { g.setAttribute("transform", "translate(0 " + y0.toFixed(1) + ")"); });
+}
+let kamerStijlSig = "";
+function vernieuwKamerSvg() {
+  if (!kamerEl) return;
+  const st = kamerStijlVan(kamerBij);
+  const sig = kamerBij + JSON.stringify(st);
+  if (sig === kamerStijlSig) return;
+  kamerStijlSig = sig;
+  const sv = kamerEl.querySelector("svg.achter");
+  if (sv) sv.outerHTML = kamerSvg(kamerBij, st);
+}
+// De hele kamer klein, met één kamerspul erin (voor op een kaartje of in het venster).
+let kamerMiniTeller = 0;
+function kamerMini(item, groot) {
+  const owner = toonVoor || wieNu() || "Ritchie";
+  const st = Object.assign({}, kamerStijlVan(owner)); st[item.plek] = item.id;
+  return '<span class="kamermini' + (groot ? " groot" : "") + '">' + kamerSvg(owner, st, "m" + (++kamerMiniTeller), item.plek).replace('class="achter"', 'class="mini"') + "</span>";
+}
+
+let items = [];                         // alleen items met een plek (pinguin-items)
+let bezit = {};                         // item id -> aantal van de speler die de app gebruikt
+let draagt = { Ritchie: [], Rachel: [] }; // opgeslagen uitrusting per persoon
+let proef = [];                         // ids die de gebruiker nu past (nog niet opgeslagen)
+let saldo = 0;
+let huidigePlek = "Alles";
+const GROEPEN = ["Kleding", "Kleuren", "Kamer", "Kostuum", "Alles"];   // Alles toont de volledige catalogus in één overzicht.
+// Kleding is de standaardcategorie; daarna kun je overschakelen naar Kleuren, Kamer of Kostuum.
+let huidigeGroep = "Kleding";
+let gekozen = null;
+let toonVoor = null;                    // van wie de items zijn die je nu bekijkt (jezelf of de ander)
+
+function wieNu() {
+  try { const w = localStorage.getItem("wie"); return NAMEN.indexOf(w) >= 0 ? w : null; } catch (e) { return null; }
+}
+function meld(tekst) { document.getElementById("melding").textContent = tekst; }
+function prijsHTML(bedrag) { return GEM + '<span>' + bedrag + '</span>'; }
+function isKledingItem(i) { return !KamerStijlen.isKamer(i) && !Skins.isSkin(i); }  // alleen kleding pas je; kleuren en kamerspullen probeer je
+function itemMet(id) { return items.find(function (i) { return i.id === id; }); }
+
+// Twee vaste figuurtjes, één per persoon: Ritchie = blauw mannetje, Rachel = lila vrouwje.
+const MANNETJE_SVG = '<svg viewBox="0 0 200 220" aria-hidden="true">' +
+  '<ellipse cx="100" cy="206" rx="46" ry="6" fill="#2b2333" opacity=".12"/>' +
+  '<ellipse cx="82" cy="196" rx="13" ry="8" fill="#ffb35c"/><ellipse cx="118" cy="196" rx="13" ry="8" fill="#ffb35c"/>' +
+  '<path d="M34 118 Q18 138 28 164 Q44 160 50 138Z" fill="#6c9ce6"/><path d="M166 118 Q182 138 172 164 Q156 160 150 138Z" fill="#6c9ce6"/>' +
+  '<path d="M100 26 C146 26 170 60 170 116 C170 172 140 198 100 198 C60 198 30 172 30 116 C30 60 54 26 100 26Z" fill="#8fb8ff"/>' +
+  '<path d="M84 32 Q86 12 98 18 Q96 8 108 12 Q110 22 118 28 Q104 30 92 36Z" fill="#ff4f9a"/>' +
+  '<ellipse cx="100" cy="156" rx="40" ry="34" fill="#e6f0ff"/>' +
+  '<ellipse cx="78" cy="106" rx="10" ry="13" fill="#2b2333"/><ellipse cx="122" cy="106" rx="10" ry="13" fill="#2b2333"/>' +
+  '<circle cx="81" cy="101" r="3.5" fill="#fff"/><circle cx="125" cy="101" r="3.5" fill="#fff"/>' +
+  '<ellipse cx="56" cy="130" rx="10" ry="6" fill="#ff9fc0"/><ellipse cx="144" cy="130" rx="10" ry="6" fill="#ff9fc0"/>' +
+  '<path d="M94 122 Q100 128 106 122 Q100 134 94 122Z" fill="#ff9f3f"/></svg>';
+const VROUWJE_SVG = '<svg viewBox="0 0 200 220" aria-hidden="true">' +
+  '<ellipse cx="100" cy="206" rx="46" ry="6" fill="#2b2333" opacity=".12"/>' +
+  '<ellipse cx="82" cy="196" rx="13" ry="8" fill="#ffb35c"/><ellipse cx="118" cy="196" rx="13" ry="8" fill="#ffb35c"/>' +
+  '<path d="M34 118 Q18 138 28 164 Q44 160 50 138Z" fill="#b39bf0"/><path d="M166 118 Q182 138 172 164 Q156 160 150 138Z" fill="#b39bf0"/>' +
+  '<path d="M100 26 C146 26 170 60 170 116 C170 172 140 198 100 198 C60 198 30 172 30 116 C30 60 54 26 100 26Z" fill="#c9b3ff"/>' +
+  '<path d="M100 40 Q84 18 72 26 Q62 36 74 52 Q86 56 100 40Z" fill="#ff4f9a"/><path d="M100 40 Q116 18 128 26 Q138 36 126 52 Q114 56 100 40Z" fill="#ff4f9a"/><circle cx="100" cy="40" r="6" fill="#ff9fc0"/>' +
+  '<ellipse cx="100" cy="156" rx="40" ry="34" fill="#e8dfff"/>' +
+  '<ellipse cx="78" cy="106" rx="10" ry="13" fill="#2b2333"/><ellipse cx="122" cy="106" rx="10" ry="13" fill="#2b2333"/>' +
+  '<circle cx="81" cy="101" r="3.5" fill="#fff"/><circle cx="125" cy="101" r="3.5" fill="#fff"/>' +
+  '<path d="M68 96 L64 90 M74 92 L71 86 M132 96 L136 90 M126 92 L129 86" stroke="#2b2333" stroke-width="2.5" stroke-linecap="round"/>' +
+  '<ellipse cx="56" cy="130" rx="10" ry="6" fill="#ff9fc0"/><ellipse cx="144" cy="130" rx="10" ry="6" fill="#ff9fc0"/>' +
+  '<path d="M94 122 Q100 128 106 122 Q100 134 94 122Z" fill="#ff9f3f"/></svg>';
+const FIGUUR = { Ritchie: MANNETJE_SVG, Rachel: VROUWJE_SVG };
+
+// Het poppetje met een lijst items eroverheen (elke laag heeft dezelfde 200x220-ruimte, dus past 1 op 1).
+function figuurHTML(naam, ids) {
+  const alle = ids.map(itemMet).filter(Boolean).filter(function (i) { return !KamerStijlen.isKamer(i); });
+  const kostuum = alle.filter(function (i) { return Kostuums.isKostuum(i); })[0];
+  if (kostuum) return '<span class="pop">' + Kostuums.svg(kostuum.id, naam) + '</span>';  // een kostuum vervangt het hele poppetje
+  const skinItems = alle.filter(function (i) { return Skins.isSkin(i); });
+  const lagen = alle.filter(function (i) { return !Skins.isSkin(i); })
+    .sort(function (a, b) { return LAAGVOLGORDE.indexOf(a.plek) - LAAGVOLGORDE.indexOf(b.plek); })
+    .map(function (i) { return '<img class="laag" src="icons/winkel/' + i.icoon + '?v=5" alt="" draggable="false" onerror="if(!this.dataset.r){this.dataset.r=1;this.src=this.src.split(\'?\')[0]+\'?r=\'+Date.now()}else{this.style.display=\'none\'}">'; }).join("");
+  return '<span class="pop">' + Skins.pas(FIGUUR[naam], naam, skinItems) + lagen + '</span>';
+}
+function gedragenKleuren(naam) {
+  return (draagt[naam] || []).filter(function (id) { var it = itemMet(id); return it && Skins.isSkin(it); });
+}
+// Wat het poppetje van deze persoon nu draagt: opgeslagen items, met de proef erbovenop (zelfde plek wordt vervangen).
+function zichtbaar(naam) {
+  const opgeslagen = draagt[naam] || [];
+  if (naam !== wieNu() || !proef.length) return opgeslagen;
+  const plekken = proef.map(function (id) { return (itemMet(id) || {}).plek; });
+  return opgeslagen.filter(function (id) { return plekken.indexOf((itemMet(id) || {}).plek) < 0; }).concat(proef);
+}
+// Zelfde, maar met één extra item erbij (voor het grote voorbeeld in het venster).
+function metItem(naam, item) {
+  return zichtbaar(naam).filter(function (id) { return (itemMet(id) || {}).plek !== item.plek; }).concat([item.id]);
+}
+
+// Kleding is per persoon; kleuren (skins) zijn voor iedereen en horen dus niet bij één persoon.
+function magKopen(i, wie) { return !!wie && (i.voor || toonVoor) === wie; }
+function winkelItems() {
+  if (huidigeGroep === "Alles") return items.filter(function (i) {
+    return Skins.isSkin(i) || KamerStijlen.isKamer(i) || i.voor === toonVoor;
+  });
+  if (huidigeGroep === "Kleuren") return items.filter(function (i) { return Skins.isSkin(i); });
+  if (huidigeGroep === "Kamer") return items.filter(function (i) { return KamerStijlen.isKamer(i); });
+  if (huidigeGroep === "Kostuum") return items.filter(function (i) { return Kostuums.isKostuum(i); });
+  return items.filter(function (i) { return !Skins.isSkin(i) && !KamerStijlen.isKamer(i) && !Kostuums.isKostuum(i) && i.voor === toonVoor; });
+}
+
+// Wie je bekijkt kies je door op een poppetje te tikken: het gekozen poppetje is gemarkeerd, de winkel laat zijn of haar kleding zien.
+function tekenWieChips() {
+  NAMEN.forEach(function (n) { if (pop[n]) pop[n].el.classList.toggle("gekozen", n === toonVoor); });
+}
+
+// Tik op de diamanten: zie hoe je ze verdient. Nog een tik en het is weer weg.
+document.addEventListener("click", function (e) {
+  const b = e.target.closest && e.target.closest("#saldo-balk");
+  if (!b) return;
+  const rij = document.getElementById("hoe-rij");
+  rij.hidden = !rij.hidden;
+  b.setAttribute("aria-expanded", rij.hidden ? "false" : "true");
+});
+function tekenSaldo() {
+  const el = document.getElementById("saldo-balk");
+  if (!wieNu()) { el.hidden = true; return; }
+  el.hidden = false;
+  el.innerHTML = '<span class="getal">' + saldo + '</span>' + GEM;
+}
+
+function tekenGroepen() {
+  const el = document.getElementById("groep-chips");
+  el.innerHTML = "";
+  GROEPEN.filter(function (g) { return g !== "Kamer" || items.some(function (i) { return KamerStijlen.isKamer(i); }); }).forEach(function (g) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.textContent = g;
+    b.setAttribute("aria-pressed", g === huidigeGroep ? "true" : "false");
+    b.addEventListener("click", function () { huidigeGroep = g; huidigePlek = g === "Kleuren" ? plekkenNu()[0][0] : "Alles"; /* normaliseerPlek kiest zo nodig een ander onderdeel */ tekenGroepen(); tekenChips(); tekenWieChips(); tekenGrid(); });
+    el.appendChild(b);
+  });
+}
+
+// Alleen de onderdelen tonen waar voor het bekeken poppetje iets te koop is (geen knop voor een lege lijst).
+function plekkenZichtbaar() {
+  const lijst = winkelItems();
+  return plekkenNu().filter(function (p) { return p[1] === null ? lijst.length > 0 : lijst.some(function (i) { return i.plek === p[1]; }); });
+}
+function normaliseerPlek() {
+  if (huidigeGroep === "Alles" || huidigeGroep === "Kostuum") return;
+  const z = plekkenZichtbaar();
+  if (z.length && !z.some(function (p) { return p[0] === huidigePlek; })) huidigePlek = z[0][0];
+}
+function tekenChips() {
+  const el = document.getElementById("chips");
+  el.innerHTML = "";
+  if (!huidigeGroep || huidigeGroep === "Alles" || huidigeGroep === "Kostuum") { el.hidden = true; return; }
+  normaliseerPlek();
+  const zichtbaar_ = plekkenZichtbaar();
+  el.hidden = zichtbaar_.length === 0;
+  zichtbaar_.forEach(function (p) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.textContent = p[0];
+    b.setAttribute("aria-pressed", p[0] === huidigePlek ? "true" : "false");
+    b.addEventListener("click", function () { huidigePlek = p[0]; tekenChips(); tekenGrid(); });
+    el.appendChild(b);
+  });
+}
+
+function tekenGrid() {
+  const el = document.getElementById("grid");
+  const wie = wieNu();
+  el.innerHTML = "";
+  const leeg = document.getElementById("leeg");
+  if (!huidigeGroep) { el.hidden = true; leeg.hidden = true; return; }
+  el.hidden = false;
+  normaliseerPlek();
+  const plek = (plekkenNu().find(function (p) { return p[0] === huidigePlek; }) || [])[1];
+  const lijst = huidigeGroep === "Alles" || huidigeGroep === "Kostuum" ? winkelItems() : winkelItems().filter(function (i) { return !plek || i.plek === plek; });
+  leeg.hidden = lijst.length > 0;
+  leeg.textContent = items.length ? "Hier is niets te koop." : "De catalogus is nog niet geladen.";
+  lijst.forEach(function (i) {
+    const b = document.createElement("button");
+    const eigen = magKopen(i, wie);
+    const draag = eigen && (draagt[wie] || []).indexOf(i.id) >= 0;
+    const past = eigen && proef.indexOf(i.id) >= 0;
+    b.type = "button";
+    b.className = "item" + (eigen && bezit[i.id] ? " is-van-jou" : "") + (past ? " past" : "");
+    b.innerHTML = '<span class="plaatje"></span><span class="naam"></span><span class="prijs"></span><span class="bezit"></span>';
+    const kaartVoor = i.voor || toonVoor || wie || "Ritchie";
+    // Het poppetje op het kaartje heeft zijn of haar eigen (gekochte en gedragen) kleuren; wat je alleen past telt hier niet mee.
+    b.querySelector(".plaatje").innerHTML = KamerStijlen.isKamer(i) ? kamerMini(i) : figuurHTML(kaartVoor, Skins.isSkin(i) ? [i.id] : [i.id].concat(gedragenKleuren(kaartVoor)));
+    b.querySelector(".naam").textContent = itemNaam(i);
+    b.querySelector(".prijs").innerHTML = eigen && bezit[i.id] ? "" : prijsHTML(i.prijs);
+    b.querySelector(".bezit").textContent = !eigen ? "Voor " + (i.voor || toonVoor) : (past ? (isKledingItem(i) ? "Je past dit" : "Je probeert dit") : (draag ? "Draag je nu" : (bezit[i.id] ? "Van jou" : "")));
+    b.addEventListener("click", function () { openDetail(i); });
+    el.appendChild(b);
+  });
+}
+
+// Ritchie en Rachel staan samen in één lege kamer en lopen daar rond (poppetje.js). De kamer wordt één keer gebouwd en daarna alleen bijgewerkt,
+// zodat de poppetjes niet terug springen als je iets past, koopt of aantrekt.
+
+// Naam van een poppetje: tik op het poppetje om de naam te zien. Op je eigen poppetje kun je de naam aanpassen; die staat voor iedereen in profielen/<naam>.poppetjeNaam.
+const poppetNaam = { Ritchie: "Ritchie", Rachel: "Rachel" };
+let naamKaartje = null, naamTimer = null;
+const POTLOOD = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1-4L16.5 4.5a2.1 2.1 0 013 3L8 19z"/></svg>';
+function tekenHuisKop() {
+  const el = document.getElementById("huis-kop");
+  if (!el) return;
+  const eigenaar = kamerBij || wieNu() || "Ritchie";
+  const naam = poppetNaam[eigenaar] || eigenaar;
+  el.textContent = naam + "'s huis";
+}
+async function laadPoppetNaam(n) {
+  try {
+    const db = await window.claude.use("db");
+    const d = await db.doc("profielen/" + n).get();
+    const p = d.exists ? d.data() : {};
+    poppetNaam[n] = p.poppetjeNaam || n;
+    tekenHuisKop();
+  } catch (e) { /* de laatst bekende naam blijft */ }
+}
+async function bewaarPoppetNaam(n, tekst) {
+  const naam = tekst.trim().slice(0, 16);
+  const db = await window.claude.use("db"), ref = db.doc("profielen/" + n);
+  const d = await ref.get(), p = d.exists ? d.data() : {};
+  if (naam && naam !== n) p.poppetjeNaam = naam; else delete p.poppetjeNaam;
+  await ref.set(p);
+  poppetNaam[n] = p.poppetjeNaam || n;
+  tekenHuisKop();
+}
+function sluitNaam() { clearTimeout(naamTimer); if (naamKaartje) naamKaartje.hidden = true; }
+function toonNaam(n) {
+  clearTimeout(naamTimer);
+  if (!naamKaartje) {
+    naamKaartje = document.createElement("div");
+    naamKaartje.className = "kam-naam";
+    kamerEl.appendChild(naamKaartje);
+    naamKaartje.addEventListener("click", function (e) { e.stopPropagation(); }); // de knop wordt bij het klikken vervangen, dus niet laten sluiten
+  }
+  const eigen = n === wieNu();
+  naamKaartje.hidden = false;
+  naamKaartje.className = "kam-naam" + (eigen ? " eigen" : "");
+  naamKaartje.innerHTML = "";
+  const sluitStraks = function () { clearTimeout(naamTimer); naamTimer = setTimeout(sluitNaam, 4000); };
+  const toonLezen = function () {
+    naamKaartje.innerHTML = "";
+    if (eigen) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.innerHTML = "<span></span>" + POTLOOD;
+      b.firstChild.textContent = poppetNaam[n];
+      b.addEventListener("click", toonBewerken);
+      naamKaartje.appendChild(b);
+    } else {
+      const t = document.createElement("span");
+      t.textContent = poppetNaam[n];
+      t.style.paddingRight = "8px";
+      naamKaartje.appendChild(t);
+    }
+    sluitStraks();
+  };
+  const toonBewerken = function () {
+    clearTimeout(naamTimer);
+    naamKaartje.innerHTML = "";
+    const inv = document.createElement("input");
+    inv.type = "text"; inv.maxLength = 16; inv.value = poppetNaam[n]; inv.setAttribute("aria-label", "Naam van je poppetje");
+    const ok = document.createElement("button");
+    ok.type = "button"; ok.className = "opslaan"; ok.textContent = "Opslaan";
+    const opslaan = async function () {
+      ok.disabled = true;
+      try { await bewaarPoppetNaam(n, inv.value); } catch (e) { /* naam blijft zoals hij was */ }
+      toonLezen();
+    };
+    ok.addEventListener("click", opslaan);
+    inv.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); opslaan(); } });
+    naamKaartje.append(inv, ok);
+    inv.focus(); inv.select();
+  };
+  toonLezen();
+  laadPoppetNaam(n).then(function () { if (naamKaartje && !naamKaartje.hidden && !naamKaartje.querySelector("input")) toonLezen(); });
+}
+let kamerEl = null, proefSlot = null;
+const pop = {};
+// Kamers: je begint in je eigen kamer en kunt de kamer van de ander bezoeken (en later vrienden). Wie waar is, staat in docs coll 'kamers' (id 'bezoek-<naam>': { bij, ts }),
+// elke 8 seconden vernieuwd door wie de pagina open heeft. Een poppetje staat thuis, tenzij het een verse melding heeft dat het bij een ander op bezoek is.
+// Bij verversen sta je weer in je eigen kamer.
+let kamerBij = null, kamerBalk = null, laatsteAanwezig = "", uitgenodigdOp = 0, uitnodiging = null, uitnodigingEl = null;
+const UITNODIGING_VERS = 180000;
+const waarIs = {};
+const BEZOEK_VERS = 20000;
+function andereNaam() { return NAMEN.filter(function (n) { return n !== wieNu(); })[0] || "Rachel"; }
+function plekVan(n) {
+  if (n === wieNu()) return kamerBij;
+  const w = waarIs[n];
+  return w && w.bij && Date.now() - (w.ts || 0) < BEZOEK_VERS ? w.bij : n;
+}
+// Thuis = in je eigen kamer. Je kunt alleen iemand bezoeken die thuis is: wie al bij jou op bezoek is (of zelf op bezoek is) kan niet ineens verdwijnen.
+function isThuis(n) { return n === wieNu() ? kamerBij === n : plekVan(n) === n; }
+function aanwezigen() { return NAMEN.filter(function (n) { return plekVan(n) === kamerBij; }); }
+function tekenKamerBalk() {
+  if (!kamerBalk) return;
+  tekenHuisKop();
+  const wie = wieNu();
+  const eigen = !wie || kamerBij === wie;
+  const hier = aanwezigen();
+  const gasten = hier.filter(function (n) { return n !== kamerBij; });
+  let tekst = eigen ? "Jouw kamer" : "Kamer van " + kamerBij;
+  let klein = "";
+  if (eigen && gasten.length) klein = gasten.join(" en ") + " is op bezoek";
+  else if (!eigen && hier.indexOf(kamerBij) < 0) klein = kamerBij + " is niet thuis";
+  kamerBalk.innerHTML = "";
+  const l = document.createElement("span");
+  l.className = "kamer-label";
+  l.textContent = tekst;
+  if (klein) { const k = document.createElement("small"); k.textContent = " · " + klein; l.appendChild(k); }
+  kamerBalk.appendChild(l);
+  if (wie) {
+    const knoppen = document.createElement("span");
+    knoppen.className = "kamer-knoppen";
+    const anderThuis = isThuis(andereNaam());
+    const anderBijMij = gasten.indexOf(andereNaam()) >= 0;
+    if (eigen && !anderBijMij) {
+      const u = document.createElement("button");
+      u.type = "button";
+      const net = Date.now() - uitgenodigdOp < 60000;
+      u.textContent = net ? "Uitgenodigd" : "Nodig " + andereNaam() + " uit";
+      u.disabled = net || !anderThuis;
+      u.addEventListener("click", nodigUit);
+      knoppen.appendChild(u);
+    }
+    if (!(eigen && anderBijMij)) { // is de ander al bij jou op bezoek, dan zijn jullie samen en is er niets te bezoeken
+      const b = document.createElement("button");
+      b.type = "button";
+      if (eigen) {
+        b.textContent = "Bezoek " + andereNaam();
+        b.disabled = !anderThuis;
+        if (b.disabled) b.title = andereNaam() + " is niet thuis";
+      } else b.textContent = "Naar mijn kamer";
+      b.addEventListener("click", function () { wisselKamer(eigen ? andereNaam() : wie); });
+      knoppen.appendChild(b);
+    }
+    kamerBalk.appendChild(knoppen);
+  }
+}
+// Uitnodigen: de ander krijgt een melding in de chat (met een knop naar jouw kamer, dus ook een pushmelding) en, als de winkelpagina openstaat, meteen een kaartje met "Kom".
+async function nodigUit() {
+  const wie = wieNu(), ander = andereNaam();
+  if (!wie) return;
+  try {
+    const db = await window.claude.use("db");
+    const ts = Date.now();
+    await db.doc("kamers/uitnodiging-" + ander).set({ van: wie, ts: ts });
+    const id = "b-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    await db.doc("berichten/" + id).set({ van: wie, aan: ander, tekst: wie + " nodigt je uit voor een bezoekje.", soort: "kamer", link: "catalogus.html?kamer=" + encodeURIComponent(wie), uitnodiging: ts, foto: null, tijd: new Date().toISOString() });
+    uitgenodigdOp = Date.now();
+    tekenKamerBalk();
+    setTimeout(tekenKamerBalk, 61000);
+  } catch (e) { meld("Uitnodigen lukte niet. Probeer het nog eens."); }
+}
+function uitnodigingAfgehandeld(u) { try { return !!localStorage.getItem("kamerUitn-" + u.ts); } catch (e) { return false; } }
+function zetUitnodigingAfgehandeld(u) { try { localStorage.setItem("kamerUitn-" + u.ts, "1"); } catch (e) { /* zonder opslag blijft hij tot hij verloopt */ } }
+// Geaccepteerd of afgewezen staat ook op de server, zodat het kaartje in de winkel én in de chat meeverandert, op elk toestel.
+async function markeerUitnodiging(u, waarde) {
+  zetUitnodigingAfgehandeld(u);
+  u.afgehandeld = waarde;
+  try { const db = await window.claude.use("db"); await db.doc("kamers/uitnodiging-" + wieNu()).set(Object.assign({}, u, { afgehandeld: waarde })); } catch (e) { /* lokaal staat het al */ }
+}
+function tekenUitnodiging() {
+  const u = uitnodiging;
+  const geldig = u && u.van && NAMEN.indexOf(u.van) >= 0 && u.van !== wieNu() && Date.now() - (u.ts || 0) < UITNODIGING_VERS && !u.afgehandeld && !uitnodigingAfgehandeld(u) && kamerBij !== u.van;
+  if (!geldig) { if (uitnodigingEl) { uitnodigingEl.remove(); uitnodigingEl = null; } return; }
+  if (uitnodigingEl && uitnodigingEl.dataset.ts === String(u.ts)) return;
+  if (uitnodigingEl) uitnodigingEl.remove();
+  uitnodigingEl = document.createElement("div");
+  uitnodigingEl.className = "kamer-uitnodiging";
+  uitnodigingEl.dataset.ts = String(u.ts);
+  const t = document.createElement("span");
+  t.textContent = u.van + " nodigt je uit voor een bezoekje";
+  const knoppen = document.createElement("span");
+  knoppen.className = "kamer-knoppen";
+  const kom = document.createElement("button");
+  kom.type = "button"; kom.className = "kom"; kom.textContent = "Accepteer";
+  kom.addEventListener("click", function () { markeerUitnodiging(u, "ja"); wisselKamer(u.van); tekenUitnodiging(); });
+  const nee = document.createElement("button");
+  nee.type = "button"; nee.textContent = "Nu niet";
+  nee.addEventListener("click", function () { markeerUitnodiging(u, "nee"); tekenUitnodiging(); });
+  knoppen.append(kom, nee);
+  uitnodigingEl.append(t, knoppen);
+  kamerBalk.parentNode.insertBefore(uitnodigingEl, kamerEl);
+}
+function synchroniseerKamer(direct) {
+  const nu = aanwezigen().map(function (n) { return pop[n]; });
+  const sig = kamerBij + ":" + nu.map(function (p) { return p.naam; }).join(",");
+  if (sig === laatsteAanwezig) return;
+  laatsteAanwezig = sig;
+  if (direct) { Kamer.zetLijst(nu); tekenKamerBalk(); return; } // bij het openen: wie er niet is, is er gewoon niet
+  const huidig = Kamer.lijst.slice();
+  const weg = huidig.filter(function (p) { return nu.indexOf(p) < 0 && !p.vertrekt; });
+  const nieuw = nu.filter(function (p) { return huidig.indexOf(p) < 0; });
+  // Wie weggaat zegt eerst doei en loopt dan de kamer uit; pas daarna is hij uit de lijst.
+  weg.forEach(function (p) {
+    if (huidig.length < 2) { Kamer.zetLijst(Kamer.lijst.filter(function (x) { return x !== p; })); return; }
+    p.vertrekt = true;
+    Kamer.verlaat(p, Math.random() < 0.5 ? 1 : -1, function () { p.vertrekt = false; Kamer.zetLijst(Kamer.lijst.filter(function (x) { return x !== p; })); });
+  });
+  if (nieuw.length) Kamer.zetLijst(Kamer.lijst.concat(nieuw));
+  tekenKamerBalk();
+}
+let kamerWisselt = false;
+// Naar een andere kamer: eerst loop je jouw poppetje de kamer uit (bij een bezoek naar rechts, op weg naar huis naar links), dan verschijnt de andere kamer
+// met wie daar al is (staat er meteen) en loop jij erin vanaf de kant waar je weggegaan bent, richting de gastheer.
+function wisselKamer(naar) {
+  if (kamerWisselt) return;
+  const wie = wieNu();
+  if (wie && naar !== wie && !isThuis(naar)) { tekenKamerBalk(); return; } // die is niet thuis: je kunt alleen iemand bezoeken die thuis is
+  const richting = naar !== wie ? 1 : -1;
+  sluitNaam();
+  const doe = function () {
+    kamerBij = naar;
+    tekenHuisKop();
+    if (wie) { try { if (naar === wie) { sessionStorage.removeItem("kamerBij-" + wie); sessionStorage.removeItem("kamerSinds-" + wie); sessionStorage.removeItem("kamerDuur-" + wie); } else { sessionStorage.setItem("kamerBij-" + wie, naar); sessionStorage.setItem("kamerSinds-" + wie, String(Date.now())); sessionStorage.setItem("kamerDuur-" + wie, String(Math.round((5 + Math.random() * 5) * 60000))); } } catch (e) { /* niet erg */ } }
+    const svgEl = kamerEl.querySelector("svg.achter");
+    if (svgEl) svgEl.outerHTML = kamerSvg(kamerBij, kamerStijlVan(kamerBij));
+    kamerStijlSig = kamerBij + JSON.stringify(kamerStijlVan(kamerBij));
+    const nu = aanwezigen();
+    laatsteAanwezig = kamerBij + ":" + nu.join(",");
+    const anderen = nu.filter(function (n) { return n !== wie; }).map(function (n) { return pop[n]; });
+    Kamer.zetLijst(nu.map(function (n) { return pop[n]; }), {
+      instant: anderen,
+      opnieuw: wie && nu.indexOf(wie) >= 0 ? [pop[wie]] : [],
+      vanLinks: richting > 0,
+      snel: true,
+      doel: function () { const h = anderen[0]; return h ? (richting > 0 ? h.x - 100 : h.x + 100) : null; }
+    });
+    tekenKamerBalk();
+    tekenUitnodiging();
+    meldAanwezig();
+  };
+  const ikHier = wie && pop[wie] && pop[wie].el.style.display !== "none" && aanwezigen().indexOf(wie) >= 0;
+  if (!ikHier) { doe(); return; }
+  kamerWisselt = true;
+  let gedaan = false;
+  const klaar = function () { if (gedaan) return; gedaan = true; kamerWisselt = false; doe(); };
+  Kamer.verlaat(pop[wie], richting, klaar); // eerst doei zeggen tegen wie er is, dan de kamer uit
+  setTimeout(klaar, 6000); // als het lopen niet lukt, toch wisselen
+}
+async function meldAanwezig() {
+  const wie = wieNu();
+  if (!wie || document.hidden || !kamerBij) return;
+  try { const db = await window.claude.use("db"); await db.doc("kamers/bezoek-" + wie).set({ bij: kamerBij, ts: Date.now() }); } catch (e) { /* zonder de SQL voor kamers zien anderen je bezoek niet */ }
+}
+async function leesBezoek() {
+  const wie = wieNu();
+  try {
+    const db = await window.claude.use("db");
+    for (const n of NAMEN) {
+      if (n === wie) continue;
+      const d = await db.doc("kamers/bezoek-" + n).get();
+      waarIs[n] = d.exists ? d.data() : null;
+    }
+    if (wie) { const u = await db.doc("kamers/uitnodiging-" + wie).get(); uitnodiging = u.exists ? u.data() : null;
+      // Via de link uit de chat of de melding hier gekomen: dat telt als accepteren.
+      const gevraagd = new URLSearchParams(location.search).get("kamer");
+      if (uitnodiging && gevraagd && uitnodiging.van === gevraagd && !uitnodiging.afgehandeld) markeerUitnodiging(uitnodiging, "ja");
+    }
+  } catch (e) { /* de laatst bekende plekken blijven */ }
+  synchroniseerKamer();
+  tekenUitnodiging();
+}
+function tekenPoppen() {
+  const el = document.getElementById("poppen");
+  const wie = wieNu();
+  if (!kamerEl) {
+    el.innerHTML = "";
+    el.className = "hero";
+    kamerEl = document.createElement("div");
+    kamerEl.className = "kamer";
+    try { new MutationObserver(zetPlafond).observe(kamerEl, { childList: true }); new ResizeObserver(zetPlafond).observe(kamerEl); } catch (e) { /* oude browser: lamp blijft op de standaardplek */ }
+    kamerBij = wie || "Ritchie";
+    const gevraagd = new URLSearchParams(location.search).get("kamer"); // link uit de chat of de melding
+    if (wie && gevraagd && NAMEN.indexOf(gevraagd) >= 0) kamerBij = gevraagd;
+    else if (wie) { // Je blijft bij de ander tot je zelf naar huis gaat of de app sluit (sessionStorage blijft bij verversen, verdwijnt bij sluiten).
+      try { const b = sessionStorage.getItem("kamerBij-" + wie); if (b && NAMEN.indexOf(b) >= 0 && b !== wie) kamerBij = b; } catch (e) { /* zonder opslag begin je thuis */ }
+    }
+    if (wie && kamerBij !== wie) { try { sessionStorage.setItem("kamerBij-" + wie, kamerBij); } catch (e) { /* niet erg */ } }
+    tekenHuisKop();
+    kamerEl.innerHTML = kamerSvg(kamerBij, kamerStijlVan(kamerBij));
+    zetKamerLicht();
+    setInterval(function () { const sv = kamerEl.querySelector("svg.achter"); if (sv) sv.outerHTML = kamerSvg(kamerBij, kamerStijlVan(kamerBij)); zetKamerLicht(); }, 60000);
+    kamerBalk = document.createElement("div");
+    kamerBalk.className = "kamerbalk";
+    el.appendChild(kamerBalk);
+    el.appendChild(kamerEl);
+    NAMEN.forEach(function (n, k) {
+      pop[n] = new Poppetje(n, kamerEl, 128);
+    });
+    Promise.all(NAMEN.map(laadPoppetNaam)).then(tekenHuisKop);
+    proefSlot = document.createElement("div");
+    el.appendChild(proefSlot);
+    NAMEN.forEach(function (n) {
+      pop[n].el.addEventListener("click", function (e) {
+        e.stopPropagation();
+        // Een tik doet drie dingen: het poppetje zwaait (poppetje.js), de winkel wisselt naar dit poppetje en de naam verschijnt.
+        if (n !== toonVoor) { toonVoor = n; if (huidigeGroep === "Kleuren" && (huidigePlek === "Haar" || huidigePlek === "Strik")) huidigePlek = n === "Rachel" ? "Strik" : "Haar"; tekenWieChips(); tekenChips(); tekenGrid(); }
+        toonNaam(n); // een tik doet beide: de winkel wisselt naar dit poppetje en de naam verschijnt
+      });
+    });
+    kamerEl.addEventListener("click", function (e) {
+      if (naamKaartje && !naamKaartje.contains(e.target)) sluitNaam();
+      if (naamKaartje && naamKaartje.contains(e.target)) return;
+      // Klik in de kamer (niet op een poppetje): de poppetjes kijken nieuwsgierig die kant op, soms gaat er een kijken wat er is.
+      const r = kamerEl.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+      const rimpel = document.createElement("span");
+      rimpel.className = "klik-rimpel";
+      rimpel.style.left = x + "px"; rimpel.style.top = y + "px";
+      kamerEl.appendChild(rimpel);
+      setTimeout(function () { rimpel.remove(); }, 700);
+      Kamer.klikIn(x, y, r.height);
+    });
+    Kamer.start(kamerEl, [pop.Ritchie, pop.Rachel]);
+    synchroniseerKamer(true);
+    meldAanwezig();
+    leesBezoek();
+    setInterval(function () { // Na 5 tot 10 minuten op bezoek (elke keer anders) zegt je poppetje doei en gaat naar huis.
+      const w = wieNu();
+      if (!w || kamerBij === w || kamerWisselt) return;
+      let sinds = 0;
+      try { sinds = Number(sessionStorage.getItem("kamerSinds-" + w)) || 0; } catch (e) { sinds = 0; }
+      if (!sinds) { try { sessionStorage.setItem("kamerSinds-" + w, String(Date.now())); } catch (e) { /* niet erg */ } return; } // bij verversen telt de tijd van het bezoek door
+      let duur = 0;
+      try { duur = Number(sessionStorage.getItem("kamerDuur-" + w)) || 0; } catch (e) { duur = 0; }
+      if (!duur) { duur = Math.round((5 + Math.random() * 5) * 60000); try { sessionStorage.setItem("kamerDuur-" + w, String(duur)); } catch (e) { /* niet erg */ } }
+      if (Date.now() - sinds > duur) wisselKamer(w);
+    }, 30000);
+    setInterval(meldAanwezig, 8000);
+    setInterval(leesBezoek, 4000);
+  }
+  NAMEN.forEach(function (n) {
+    pop[n].zetItems(zichtbaar(n).map(itemMet).filter(Boolean).filter(function (i) { return !KamerStijlen.isKamer(i); }));
+  });
+  vernieuwKamerSvg(); // kamerspullen die je draagt of past, direct in de kamer
+  proefSlot.innerHTML = "";
+  if (wie && proef.length) {
+    const kaart = document.createElement("div");
+    kaart.className = "card";
+    kaart.appendChild(proefBlok());
+    proefSlot.appendChild(kaart);
+  }
+}
+
+// Onder jouw poppetje: wat je nu past, wat het kost en de knoppen om te kopen of te stoppen.
+// Weg van deze pagina (ander tabblad, terug, app wisselen): niet meer passen. Ook als de browser de pagina uit het geheugen terughaalt.
+window.addEventListener("pagehide", function () { proef = []; });
+window.addEventListener("pageshow", function (e) { if (e.persisted && proef.length) { proef = []; alles(); } });
+function proefBlok() {
+  const blok = document.createElement("div");
+  blok.className = "proef";
+  const nieuw = proef.map(itemMet).filter(function (i) { return i && !bezit[i.id]; });
+  const totaal = nieuw.reduce(function (s, i) { return s + i.prijs; }, 0);
+  const rij = document.createElement("div");
+  rij.className = "rij";
+  if (nieuw.length) {
+    const koopAlles = document.createElement("button");
+    koopAlles.type = "button";
+    koopAlles.className = "tq-knop";
+    koopAlles.innerHTML = "Koop alles voor " + totaal;
+    koopAlles.addEventListener("click", koopProef);
+    rij.appendChild(koopAlles);
+  }
+  const stop = document.createElement("button");
+  stop.type = "button";
+  stop.className = "opnieuw";
+  stop.textContent = proef.every(function (id) { const it = itemMet(id); return it && isKledingItem(it); }) ? "Stop met passen" : "Stop met proberen";
+  stop.addEventListener("click", function () { proef = []; meld(""); alles(); });
+  rij.appendChild(stop);
+  blok.append(rij);
+  return blok;
+}
+
+function openDetail(i) {
+  gekozen = i;
+  const wie = wieNu();
+  const eigen = magKopen(i, wie);
+  const voorWie = i.voor || toonVoor || "Ritchie";
+  document.getElementById("detail-plaatje").innerHTML = KamerStijlen.isKamer(i) ? kamerMini(i, true) : (eigen ? figuurHTML(wie, metItem(wie, i)) : figuurHTML(voorWie, (draagt[voorWie] || []).filter(function (id) { return (itemMet(id) || {}).plek !== i.plek; }).concat([i.id])));
+  document.getElementById("detail-naam").textContent = itemNaam(i);
+  document.getElementById("detail-melding").textContent = "";
+  const pasKnop = document.getElementById("detail-pas");
+  const koopKnop = document.getElementById("detail-koop");
+  const draagKnop = document.getElementById("detail-draag");
+  const verkoopKnop = document.getElementById("detail-verkoop");
+  pasKnop.hidden = koopKnop.hidden = draagKnop.hidden = verkoopKnop.hidden = true;
+  koopKnop.disabled = false;
+  const tekst = document.getElementById("detail-tekst");
+  if (!eigen) {
+    tekst.innerHTML = '<span class="chip-prijs">' + (wie ? "Voor " + voorWie + " " : "") + prijsHTML(i.prijs) + '</span>';
+  } else if (bezit[i.id]) {
+    const aan = (draagt[wie] || []).indexOf(i.id) >= 0;
+    tekst.innerHTML = '<span class="chip-prijs">Van jou</span>';
+    draagKnop.hidden = false;
+    draagKnop.textContent = aan ? "Trek uit" : "Draag";
+    verkoopKnop.hidden = false;
+    verkoopKnop.innerHTML = "Verkoop " + prijsHTML(Math.floor(i.prijs / 2));
+  } else {
+    const past = proef.indexOf(i.id) >= 0;
+    tekst.innerHTML = '<span class="chip-prijs">' + prijsHTML(i.prijs) + '</span>';
+    pasKnop.hidden = false;
+    pasKnop.textContent = isKledingItem(i) ? (past ? "Niet meer passen" : "Pas dit") : (past ? "Stop met proberen" : "Probeer dit");
+    koopKnop.hidden = false;
+    koopKnop.innerHTML = "Koop " + prijsHTML(i.prijs);
+    koopKnop.disabled = saldo < i.prijs;
+  }
+  document.getElementById("detail").hidden = false;
+}
+function sluitDetail() { document.getElementById("detail").hidden = true; }
+
+function alles() { tekenSaldo(); tekenPoppen(); tekenWieChips(); tekenChips(); tekenGrid(); }
+
+// Passen: alleen zichtbaar op jouw poppetje, nergens opgeslagen. Eén item per plek.
+function pas() {
+  if (!gekozen) return;
+  const plek = gekozen.plek;
+  const al = proef.indexOf(gekozen.id) >= 0;
+  proef = proef.filter(function (id) { return id !== gekozen.id && (itemMet(id) || {}).plek !== plek; });
+  if (!al) proef.push(gekozen.id);
+  sluitDetail();
+  meld("");
+  alles();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+async function actie(naam, args) {
+  const wie = wieNu();
+  if (!wie) return null;
+  const knoppen = Array.prototype.slice.call(document.querySelectorAll("#detail button, #poppen button.tq-knop"));
+  knoppen.forEach(function (k) { k.disabled = true; });
+  try { return await window.dbRpc(naam, Object.assign({ p_wie: wie }, args)); }
+  catch (e) { return { ok: false, reden: "geen verbinding" }; }
+  finally { knoppen.forEach(function (k) { k.disabled = false; }); }
+}
+
+async function koop() {
+  if (!gekozen) return;
+  const i = gekozen;
+  const melding = document.getElementById("detail-melding");
+  const r = await actie("koop_item", { p_item: i.id });
+  if (r && r.ok) {
+    await actie("draag_item", { p_item: i.id, p_aan: true });
+    proef = proef.filter(function (id) { return id !== i.id; });
+    await laadAlles();
+    sluitDetail();
+    meld("Gekocht en aan: " + i.naam + ".");
+    alles();
+  } else {
+    melding.textContent = "Niet gelukt: " + (r && r.reden ? r.reden : "probeer het nog eens") + ".";
+  }
+}
+
+// Alles kopen wat je nu past, in één keer. Stopt bij de eerste die niet lukt.
+async function koopProef() {
+  const wie = wieNu();
+  if (!wie) return;
+  const lijst = proef.map(itemMet).filter(function (i) { return i && !bezit[i.id]; });
+  let gelukt = 0, fout = "";
+  for (const i of lijst) {
+    const r = await actie("koop_item", { p_item: i.id });
+    if (r && r.ok) { gelukt++; await actie("draag_item", { p_item: i.id, p_aan: true }); proef = proef.filter(function (id) { return id !== i.id; }); }
+    else { fout = (r && r.reden) ? r.reden : "probeer het nog eens"; break; }
+  }
+  await laadAlles();
+  meld(fout ? "Gekocht: " + gelukt + ". Daarna niet gelukt: " + fout + "." : "Gekocht en aan: " + gelukt + " item" + (gelukt === 1 ? "" : "s") + ".");
+  alles();
+}
+
+async function draagOfUit() {
+  if (!gekozen) return;
+  const wie = wieNu();
+  const aan = (draagt[wie] || []).indexOf(gekozen.id) < 0;
+  const r = await actie("draag_item", { p_item: gekozen.id, p_aan: aan });
+  if (r && r.ok) {
+    if (aan) proef = proef.filter(function (id) { return (itemMet(id) || {}).plek !== gekozen.plek; });
+    await laadAlles();
+    sluitDetail();
+    meld(aan ? gekozen.naam + " staat aan." : gekozen.naam + " is uit.");
+    alles();
+  } else {
+    document.getElementById("detail-melding").textContent = "Niet gelukt: " + (r && r.reden ? r.reden : "probeer het nog eens") + ".";
+  }
+}
+
+async function verkoop() {
+  if (!gekozen) return;
+  const i = gekozen;
+  const r = await actie("verkoop_item", { p_item: i.id });
+  if (r && r.ok) {
+    await laadAlles();
+    sluitDetail();
+    meld("Verkocht: " + i.naam + " voor " + r.bedrag + ".");
+    alles();
+  } else {
+    document.getElementById("detail-melding").textContent = "Niet gelukt: " + (r && r.reden ? r.reden : "probeer het nog eens") + ".";
+  }
+}
+
+// Alles in een paar verzoeken in plaats van één per item (voorheen ruim 100): bezit uit de aankopen en verkopen van de speler, saldo en uitrusting.
+async function laadAlles() {
+  const wie = wieNu();
+  bezit = {};
+  if (wie) {
+    try {
+      const db = await window.claude.use("db");
+      const delen = await Promise.all([
+        window.dbRpc("munten_saldo", { p_wie: wie }).catch(function () { return saldo; }),
+        db.collection("aankopen").where("wie", "==", wie).get(),
+        db.collection("verkopen").where("wie", "==", wie).get()
+      ]);
+      saldo = delen[0];
+      const tel = {};
+      delen[1].docs.filter(function (d) { return d.exists; }).forEach(function (d) { const it = d.data().item; if (it) tel[it] = (tel[it] || 0) + 1; });
+      delen[2].docs.filter(function (d) { return d.exists; }).forEach(function (d) { const it = d.data().item; if (it) tel[it] = (tel[it] || 0) - 1; });
+      Object.keys(tel).forEach(function (k) { if (tel[k] > 0) bezit[k] = tel[k]; });
+    } catch (e) {
+      // Terugval: de oude manier, per item.
+      const delen = await Promise.all([
+        window.dbRpc("munten_saldo", { p_wie: wie }).catch(function () { return saldo; }),
+        Promise.all(items.map(function (i) { return window.dbRpc("bezit_aantal", { p_wie: wie, p_item: i.id }).then(function (n) { return [i.id, n]; }).catch(function () { return [i.id, 0]; }); }))
+      ]);
+      saldo = delen[0];
+      delen[1].forEach(function (p) { if (p[1] > 0) bezit[p[0]] = p[1]; });
+    }
+  }
+  await Promise.all(NAMEN.map(function (n) {
+    return window.dbRpc("uitrusting_van", { p_wie: n }).then(function (l) { draagt[n] = l || []; }).catch(function () { /* oude stand blijft */ });
+  }));
+}
+// De winkel staat meteen op het scherm met wat de vorige keer bekend was (cache in localStorage) en wordt daarna stil bijgewerkt: alleen als er iets veranderd is, tekent hij opnieuw. Zo verspringt er niets.
+function winkelSleutel() { return "winkelcache-v1-" + (wieNu() || "gast"); }
+function winkelHandtekening() { return JSON.stringify([items.map(function (i) { return i.id + ":" + i.prijs; }), bezit, draagt, saldo]); }
+function bewaarWinkelCache() { try { localStorage.setItem(winkelSleutel(), JSON.stringify({ items: items, bezit: bezit, draagt: draagt, saldo: saldo })); } catch (e) { /* te groot of geen opslag: dan geen cache */ } }
+function leesWinkelCache() { try { const c = JSON.parse(localStorage.getItem(winkelSleutel()) || "null"); return c && c.items && c.items.length ? c : null; } catch (e) { return null; } }
+let laatsteWinkel = "";
+function verversAlsNodig() { const nu = winkelHandtekening(); if (nu !== laatsteWinkel) { laatsteWinkel = nu; alles(); bewaarWinkelCache(); } }
+async function werkMuntenBij() {
+  try {
+    const db = await window.claude.use("db");
+    const stand = await berekenStand(db);
+    for (const n of NAMEN) {
+      const aantal = (stand.gewonnen[n] || 0) * MUNTEN_PER_QUIZ + (stand.wekenGewonnen[n] || 0) * MUNTEN_PER_WEEK;
+      await window.dbRpc("zet_verdiend", { p_wie: n, p_aantal: aantal });
+    }
+    await laadAlles();
+    verversAlsNodig();
+  } catch (e) { /* het saldo blijft zoals het was */ }
+}
+
+async function start() {
+  toonVoor = wieNu() || "Ritchie";
+  const cache = leesWinkelCache();
+  if (cache) { // meteen een volledige winkel, zonder te wachten op het netwerk
+    items = cache.items; bezit = cache.bezit || {}; draagt = cache.draagt || draagt; saldo = cache.saldo || 0;
+    tekenGroepen(); tekenChips(); tekenPoppen(); alles();
+    laatsteWinkel = winkelHandtekening();
+  }
+  try {
+    // Lijst en eigen spullen tegelijk ophalen (de terugval per item gebruikt de lijst, dus die staat bij een koude start al in `items` als er een cache was).
+    const resultaat = await Promise.all([window.dbRpc("shop_lijst", {}), laadAlles()]);
+    items = resultaat[0].filter(function (i) { return i.plek; });
+  } catch (e) {
+    document.getElementById("leeg").hidden = false;
+    document.getElementById("leeg").textContent = "De catalogus is nog niet geladen.";
+  }
+  if (!cache) { tekenGroepen(); tekenChips(); tekenPoppen(); alles(); laatsteWinkel = winkelHandtekening(); bewaarWinkelCache(); } // niets eerder getekend: nu in één keer
+  else verversAlsNodig();
+  document.getElementById("hoe-rij").innerHTML = '<span class="chip-prijs">Quiz gewonnen ' + prijsHTML(MUNTEN_PER_QUIZ) + '</span><span class="chip-prijs">Week gewonnen ' + prijsHTML(MUNTEN_PER_WEEK) + '</span>';
+  werkMuntenBij();
+}
+
+document.getElementById("detail-pas").addEventListener("click", pas);
+document.getElementById("detail-koop").addEventListener("click", koop);
+document.getElementById("detail-draag").addEventListener("click", draagOfUit);
+document.getElementById("detail-verkoop").addEventListener("click", verkoop);
+document.getElementById("detail-sluit").addEventListener("click", sluitDetail);
+document.getElementById("detail").addEventListener("click", function (e) { if (e.target.id === "detail") sluitDetail(); });
+start();
+</script>
+</body>
+</html>

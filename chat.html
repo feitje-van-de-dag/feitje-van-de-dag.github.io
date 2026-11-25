@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Chat · Feitje van de dag</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png?v=4">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Feitje van de dag">
+<meta name="theme-color" content="#fff6d6">
+<style>
+main { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; padding: 24px 16px 0; min-width: 0; }
+.chat-kop h1 { margin: 6px 0 0; font-size: clamp(30px, 8vw, 40px); }
+.berichten { display: flex; flex-direction: column; gap: 10px; }
+.dag-label { align-self: center; margin: 8px 0 0; font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--zacht); }
+.bel-rij { display: flex; flex-direction: column; gap: 4px; max-width: 82%; }
+.bel-rij.eigen { align-self: flex-end; align-items: flex-end; }
+.bel-rij.ander { align-self: flex-start; align-items: flex-start; }
+.bel-naam { font-size: 12px; font-weight: 800; color: var(--zacht); padding: 0 6px; }
+.bel { padding: 10px 14px; border-radius: 18px; font-size: 16px; line-height: 1.4; overflow-wrap: anywhere; box-shadow: 0 2px 0 rgba(42, 31, 74, 0.08); }
+.bel { background: var(--p-zacht, var(--mint-zacht)); }
+.bel-rij.eigen .bel { border-bottom-right-radius: 6px; }
+.bel .alleen-emoji { font-size: 48px; line-height: 1.2; display: inline-block; }
+.smiley { display: inline-block; font-size: 1.35em; line-height: 1; vertical-align: -0.15em; transform-origin: 50% 80%; }
+/* Smileys bewegen altijd (ook als "Verminder beweging" op het toestel aan staat). */
+.bel.nieuwste .smiley.knipoog { animation: knipoog 2s ease-in-out 5; }
+.bel.nieuwste .smiley.lach { animation: lach 1.2s ease-in-out 5; }
+.bel.nieuwste .smiley.schud { animation: schud 0.4s ease-in-out 13; }
+.bel.nieuwste .smiley.hart { animation: hart 1s ease-in-out 5; }
+.bel.nieuwste .smiley.huil { animation: huil 1.6s ease-in-out 5; }
+.bel.nieuwste .smiley.duim { animation: duim 1.4s ease-in-out 5; }
+@keyframes knipoog { 0%, 100% { transform: rotate(0) scale(1); } 15% { transform: rotate(-18deg) scale(1.25, 0.8); } 30%, 60% { transform: rotate(0) scale(1); } 75% { transform: rotate(14deg) scale(1.2); } }
+@keyframes lach { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-7px) scale(1.2); } }
+@keyframes schud { 0%, 100% { transform: rotate(-12deg); } 50% { transform: rotate(12deg); } }
+@keyframes hart { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.4); } 30% { transform: scale(1); } 45% { transform: scale(1.3); } }
+@keyframes huil { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(5px) rotate(8deg); } }
+@keyframes duim { 0%, 100% { transform: rotate(0) scale(1); } 25% { transform: rotate(-18deg) scale(1.2); } 50% { transform: rotate(0) scale(1); } }
+.bel-rij.ander .bel { border-bottom-left-radius: 6px; }
+.bel-tijd { font-size: 11px; color: var(--zacht); padding: 0 6px; }
+.bel-kaart { display: flex; flex-direction: column; gap: 10px; padding: 14px; background: var(--vlak); border-radius: 18px; box-shadow: var(--schaduw-kaart); width: 280px; max-width: 100%; box-sizing: border-box; }
+.bel-kaart p { margin: 0; font-size: 15px; font-weight: 700; }
+.bel-kaart.kamer { background: var(--paars-lijn); box-shadow: 0 4px 0 var(--paars); }
+.bel-kaart.kamer a.tq-knop { background: var(--paars-diep); box-shadow: 0 6px 0 rgba(42, 31, 74, .35); }
+.bel-kaart.kamer .kamer-status { align-self: flex-start; display: inline-flex; align-items: center; min-height: 28px; padding: 2px 12px; border-radius: 999px; background: var(--vlak); font-size: 13px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--zacht); }
+.bel-kaart a.tq-knop { text-decoration: none; display: flex; align-items: center; justify-content: center; text-align: center; }
+/* Kaart met een knop: meer ruimte onder de knop, zodat de onderkant van de knop niet tegen de kaartrand aan staat. */
+.bel-kaart:has(> a.tq-knop) { padding-bottom: 20px; }
+/* De kaart heeft een schaduw van 6 px aan de onderkant: die ruimte reserveren, zodat de tijd eronder staat zoals bij gewone berichten. */
+.bel-rij > .bel-kaart { margin-bottom: 4px; }
+.bel img.foto { display: block; max-width: 220px; width: 100%; border-radius: 14px; }
+.chat-invoer label.foto-knop { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; min-width: 48px; padding: 0 16px; border: 0; border-radius: 999px; background: var(--roze); box-shadow: 0 4px 0 var(--roze-diep); cursor: pointer; }
+.chat-invoer label.foto-knop svg { width: 22px; height: 22px; fill: none; stroke: var(--vlak); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.chat-invoer label.foto-knop:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--roze-diep); }
+.bel-kaart .tq-knop { min-height: 56px; font-size: 18px; }
+.chat-invoer { position: sticky; margin-top: 16px; bottom: 0; z-index: 19; display: flex; gap: 8px; padding: 10px 16px; background: rgba(255, 255, 255, 0.95); box-shadow: 0 -2px 0 var(--lijn); }
+.chat-invoer + .tabs { margin-top: 0; }
+.chat-invoer input { flex: 1; min-width: 0; min-height: 48px; padding: 10px 16px; border: 2px solid var(--lijn); border-radius: 999px; background: var(--vlak); color: var(--inkt); font-size: 16px; }
+.chat-invoer input:focus { outline: none; border-color: var(--roze); }
+.chat-invoer .verstuur { min-height: 48px; padding: 0 20px; border: 0; border-radius: 999px; background: var(--roze); color: var(--vlak); font-size: 16px; font-weight: 800; box-shadow: 0 4px 0 var(--roze-diep); }
+.leeg-chat { text-align: center; color: var(--zacht); margin: 40px 0 0; }
+.kiezer { display: flex; gap: 8px; flex-wrap: wrap; }
+.kies-chip { min-height: 44px; padding: 8px 18px; border: 2px solid var(--inkt); border-radius: 999px; background: var(--vlak); color: var(--inkt); font-size: 15px; font-weight: 800; }
+.kies-chip[aria-selected="true"] { background: var(--inkt); color: var(--vlak); }
+.kies-chip[aria-selected="true"] { background: var(--p-kern, var(--mint)); }
+.kiezer { gap: 10px; }
+.kies-chip { display: inline-flex; align-items: center; gap: 10px; min-height: 52px; padding: 6px 18px 6px 6px; border: 2px solid transparent; border-radius: 999px; background: var(--vlak); color: var(--inkt); box-shadow: 0 3px 0 var(--lijn); font-size: 16px; font-weight: 800; }
+.kies-chip .kies-foto { width: 40px; height: 40px; font-size: 16px; }
+.kies-chip[aria-selected="true"] { border-color: var(--inkt); box-shadow: 0 3px 0 rgba(42, 31, 74, 0.2); }
+.kies-chip[aria-selected="false"] { opacity: 0.8; }
+.thema-kaart { gap: 12px; padding: 12px; }
+.thema-kaart a.tq-knop { display: flex; align-items: center; justify-content: center; text-decoration: none; width: 100%; }
+</style>
+<link rel="stylesheet" href="app.css">
+</head>
+<body class="heeft-tabs"><div class="app-inhoud">
+<main>
+  <header class="chat-kop">
+    <p class="eyebrow">Chat</p>
+    <h1 id="gesprek-kop">Berichten</h1>
+  </header>
+  <div class="kiezer" id="kiezer" role="tablist" aria-label="Kies met wie je chat"></div>
+  <div class="bel-kaart thema-kaart" id="thema-kaart" hidden></div>
+  <div class="uitdaag-rij"><button type="button" class="tq-knop" id="uitdaag">Daag uit voor een quiz</button></div>
+  <div id="berichten" class="berichten"></div>
+</main>
+
+<form id="invoer" class="chat-invoer" autocomplete="off">
+  <label class="foto-knop" title="Foto kiezen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.4 11.1l-9.2 9.2a5 5 0 0 1-7.1-7.1l9.2-9.2a3.5 3.5 0 0 1 5 5l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5" /></svg><input id="foto-kies" type="file" accept="image/*" hidden></label>
+  <input id="tekst" type="text" maxlength="500" placeholder="Schrijf een bericht" aria-label="Bericht">
+  <button type="submit" class="verstuur">Stuur</button>
+</form>
+
+</div>
+<nav class="tabs" aria-label="Hoofdmenu">
+  <a href="index.html" class="tab" data-tab="vandaag">Vandaag</a>
+  <a href="punten.html" class="tab" data-tab="punten">Punten</a>
+  <a href="chat.html" class="tab" data-tab="chat" aria-current="page">Chat</a>
+  <a href="logboek.html" class="tab" data-tab="logboek">Terugblik</a>
+  <a href="catalogus.html" class="tab" data-tab="winkel">Winkel</a></nav>
+
+<script src="supabase-shim.js"></script>
+<script src="chatteller.js"></script>
+<script src="kleuren.js"></script>
+<script>
+const NAMEN = ["Ritchie", "Rachel"];
+let wie = null;
+try { const w = localStorage.getItem("wie"); if (NAMEN.indexOf(w) >= 0) wie = w; } catch (e) { /* geen opslag */ }
+let db = null;
+let gesprek = null;
+let laatsteAantal = -1;
+let laatsteSig = "";
+const el = (id) => document.getElementById(id);
+
+function maak(tag, cls, tekst) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (tekst !== undefined) e.textContent = tekst;
+  return e;
+}
+// Smileys worden bewegende emoji (zoals op Hyves). Alleen emoji in het bericht = groot.
+const SMILEYS = [
+  { code: ";)", emoji: "😉", klas: "knipoog" },
+  { code: ":)", emoji: "🙂", klas: "lach" },
+  { code: ":D", emoji: "😀", klas: "lach" },
+  { code: "xD", emoji: "😂", klas: "schud" },
+  { code: "<3", emoji: "❤️", klas: "hart" },
+  { code: ":(", emoji: "😢", klas: "huil" },
+  { code: "(y)", emoji: "👍", klas: "duim" }
+];
+function emojiTekst(tekst) {
+  const deel = document.createElement("span");
+  const codes = SMILEYS.map(function (s) { return s.code.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }).join("|");
+  const regel = new RegExp("(" + codes + ")", "g");
+  const stukken = String(tekst || "").split(regel);
+  const beweging = ["lach", "knipoog", "hart", "duim", "schud"];
+  // Elke emoji in het bericht beweegt; ook de emoji van het toetsenbord.
+  const emojiRegel = /\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic}|\p{Emoji_Modifier})*/gu;
+  stukken.forEach(function (stuk) {
+    const s = SMILEYS.find(function (x) { return x.code === stuk; });
+    if (s) {
+      deel.appendChild(maak("span", "smiley " + s.klas, s.emoji));
+      return;
+    }
+    let laatste = 0;
+    let i = 0;
+    String(stuk).replace(emojiRegel, function (em, pos) {
+      if (pos > laatste) deel.appendChild(document.createTextNode(stuk.slice(laatste, pos)));
+      deel.appendChild(maak("span", "smiley " + beweging[i % beweging.length], em));
+      i += 1;
+      laatste = pos + em.length;
+      return em;
+    });
+    if (laatste < stuk.length) deel.appendChild(document.createTextNode(stuk.slice(laatste)));
+  });
+  const zonderTekst = String(tekst || "").replace(new RegExp(codes, "g"), "").replace(/\s/g, "");
+  if (zonderTekst === "" || /^\p{Extended_Pictographic}+$/u.test(zonderTekst)) deel.className = "alleen-emoji";
+  return deel;
+}
+function tijdTekst(iso) {
+  const d = new Date(iso);
+  if (isNaN(d)) return "";
+  return d.toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" });
+}
+function dagTekstKort(iso) {
+  const d = new Date(iso);
+  if (isNaN(d)) return "";
+  return d.toLocaleDateString("nl-NL", { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Amsterdam" });
+}
+function dagSleutel(iso) {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Amsterdam", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(iso));
+}
+
+// Alle berichten, oud naar nieuw.
+async function laadBerichten() {
+  const r = await db.collection("berichten").get();
+  return r.docs.filter(function (d) { return d.exists; }).map(function (d) { return Object.assign({ id: d.id }, d.data()); })
+    .filter(function (b) { return b.tijd && b.van && b.aan; })
+    .filter(function (b) { return (b.van === wie && b.aan === gesprek) || (b.van === gesprek && b.aan === wie); })
+    .sort(function (a, b) { return a.tijd < b.tijd ? -1 : a.tijd > b.tijd ? 1 : 0; });
+}
+
+let laatsteAnimatie = null;
+const KAMER_VERLOOPT = 180000;
+// Een uitnodiging staat alleen in de chat zolang hij nog open is: is hij geaccepteerd, afgewezen of verlopen, dan verdwijnt hij uit de chat (niet verwijderd uit de database).
+async function kamerIsAfgehandeld(b) {
+  if (b.uitnodiging && Date.now() - b.uitnodiging > KAMER_VERLOOPT) return true;
+  try {
+    const genodigde = b.van === wie ? b.aan : wie;
+    const d = await db.doc("kamers/uitnodiging-" + genodigde).get();
+    const u = d.exists ? d.data() : null;
+    return !!(u && b.uitnodiging && u.ts === b.uitnodiging && u.afgehandeld);
+  } catch (e) { return false; }
+}
+async function kamerOpruimen(rij, b) {
+  if (await kamerIsAfgehandeld(b) && rij.parentNode) rij.remove();
+}
+setInterval(function () {
+  document.querySelectorAll(".bel-rij[data-kamer]").forEach(function (rij) {
+    try { kamerOpruimen(rij, JSON.parse(rij.dataset.kamer)); } catch (e) { /* laat staan */ }
+  });
+}, 5000);
+async function kamerAccepteren(b) {
+  try {
+    const d = await db.doc("kamers/uitnodiging-" + wie).get();
+    const u = d.exists ? d.data() : null;
+    if (u && b.uitnodiging && u.ts === b.uitnodiging && !u.afgehandeld) await db.doc("kamers/uitnodiging-" + wie).set(Object.assign({}, u, { afgehandeld: "ja" }));
+  } catch (e) { /* de winkel markeert het ook zodra de pagina opent */ }
+}
+function bouwBericht(b) {
+  const rij = bouwBerichtInhoud(b);
+  if (b.van === wie) koppelVerwijderen(rij, b);
+  return rij;
+}
+function bouwBerichtInhoud(b) {
+  const eigen = b.van === wie;
+  if (b.soort === "kamer") {
+    // Uitnodiging voor de kamer: een paarse kaart. De genodigde kan hier accepteren; dat staat ook op de server, dus het kaartje in de winkel verdwijnt dan ook.
+    const kaart = maak("div", "bel-kaart kamer");
+    kaart.appendChild(maak("p", "", eigen ? "Je hebt " + (b.aan || "de ander") + " uitgenodigd voor een bezoekje." : (b.tekst || "Uitnodiging voor een bezoekje.")));
+    if (!eigen && b.link) {
+      const knop = maak("a", "tq-knop", "Ga op bezoek");
+      knop.href = b.link;
+      knop.addEventListener("click", function () { kamerAccepteren(b); });
+      kaart.appendChild(knop);
+    }
+    const rij = maak("div", "bel-rij " + (eigen ? "eigen" : "ander"));
+    rij.dataset.kamer = JSON.stringify({ van: b.van, aan: b.aan, uitnodiging: b.uitnodiging });
+    kamerOpruimen(rij, b);
+    rij.appendChild(maak("span", "bel-naam", b.van));
+    rij.appendChild(kaart);
+    rij.appendChild(maak("span", "bel-tijd", tijdTekst(b.tijd)));
+    return rij;
+  }
+  if (b.soort === "quiz" || b.soort === "uitdaging") {
+    const kaart = maak("div", "bel-kaart");
+    const quiz = quizBericht(b);
+    kaart.appendChild(maak("p", "", quiz.tekst));
+    if (quiz.link) {
+      const knop = maak("a", "tq-knop", b.soort === "uitdaging" ? "Speel mee" : "Open de quiz");
+      knop.href = quiz.link;
+      kaart.appendChild(knop);
+    }
+    const rij = maak("div", "bel-rij " + (eigen ? "eigen" : "ander"));
+    rij.appendChild(maak("span", "bel-naam", b.van));
+    rij.appendChild(kaart);
+    rij.appendChild(maak("span", "bel-tijd", tijdTekst(b.tijd)));
+    return rij;
+  }
+  const rij = maak("div", "bel-rij " + (eigen ? "eigen" : "ander"));
+  if (!eigen) rij.appendChild(maak("span", "bel-naam", b.van));
+  const bel = maak("div", "bel");
+  if (b.soort === "foto" && b.foto) {
+    const img = maak("img", "foto");
+    img.src = b.foto;
+    img.alt = "Foto";
+    bel.appendChild(img);
+  } else {
+    bel.appendChild(emojiTekst(b.tekst));
+  }
+  zetPersoonKleur(bel, b.van);
+  rij.appendChild(bel);
+  // Tik op het bericht: de smileys spelen nog een keer af (ze stoppen na een paar seconden).
+  bel.addEventListener("click", function () {
+    bel.classList.remove("nieuwste");
+    bel.offsetWidth;
+    bel.classList.add("nieuwste");
+  });
+  rij.appendChild(maak("span", "bel-tijd", tijdTekst(b.tijd)));
+  return rij;
+}
+
+// Eigen bericht: een lange druk (ongeveer een halve seconde) vraagt of je het wilt verwijderen.
+// Scrollen of loslaten vóór die tijd annuleert het, zodat gewoon scrollen niets doet.
+// Op de computer: één klik op je eigen bericht. Op de telefoon: lange druk (de klik na een tik telt dan niet).
+function koppelVerwijderen(rij, b) {
+  rij.classList.add("eigen-bericht");
+  let timer = null;
+  let muis = false;
+  function annuleer() { clearTimeout(timer); timer = null; }
+  rij.addEventListener("pointerdown", function (e) {
+    annuleer();
+    muis = e.pointerType === "mouse";
+    if (muis) return;
+    timer = setTimeout(function () { timer = null; vraagVerwijderen(b); }, 500);
+  });
+  ["pointerup", "pointerleave", "pointercancel", "pointermove"].forEach(function (naam) {
+    rij.addEventListener(naam, annuleer);
+  });
+  rij.addEventListener("click", function (e) {
+    if (!muis || e.target.closest("a")) return;
+    vraagVerwijderen(b);
+  });
+  rij.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+}
+function vraagVerwijderen(b) {
+  if (el("verwijder-dialoog")) return;
+  const over = maak("div", "uitslag-overlay");
+  over.id = "verwijder-dialoog";
+  const kaart = maak("div", "uitslag-kaart");
+  kaart.appendChild(maak("p", "uitslag-titel", "Verwijderen?"));
+  kaart.appendChild(maak("p", "uitslag-tekst", "Wil je dit bericht verwijderen?"));
+  const knoppen = maak("div", "vraag-knoppen");
+  const nee = maak("button", "opnieuw", "Nee");
+  const ja = maak("button", "tq-knop", "Ja");
+  nee.type = "button";
+  ja.type = "button";
+  function sluit() { over.remove(); }
+  nee.addEventListener("click", sluit);
+  over.addEventListener("click", function (e) { if (e.target === over) sluit(); });
+  ja.addEventListener("click", async function () {
+    ja.disabled = true;
+    nee.disabled = true;
+    try {
+      const aantal = await window.dbRpc("verwijder_bericht", { p_id: b.id, p_wie: wie });
+      if (!aantal) throw new Error("niet verwijderd");
+      sluit();
+      laatsteSig = "";
+      ververs();
+    } catch (err) {
+      ja.disabled = false;
+      nee.disabled = false;
+      alert("Verwijderen lukte niet. Probeer het nog eens.");
+    }
+  });
+  knoppen.appendChild(nee);
+  knoppen.appendChild(ja);
+  kaart.appendChild(knoppen);
+  over.appendChild(kaart);
+  document.body.appendChild(over);
+}
+
+// Een uitdaging verdwijnt uit de chat zodra de quiz niet meer bestaat (verwijderd of weg).
+let bestaandeQuizzen = null;
+// Namen uit de database: een hernoemde quiz past dan ook in de chat aan.
+let themaQuizzen = [];
+let oefNamen = {};
+// Welke themaquiz bij welk aanvraagbericht hoort: elke aanvraag krijgt de eerste nog niet gekoppelde quiz die daarna is gemaakt.
+let themaKoppel = {};
+function koppelThemaverzoeken(lijst) {
+  const vrij = themaQuizzen.slice().sort(function (x, y) { return Date.parse(x.aangemaakt) - Date.parse(y.aangemaakt); });
+  themaKoppel = {};
+  lijst.forEach(function (b) {
+    if (b.soort !== "quiz" || b.link !== "index.html") return;
+    const moment = Date.parse(b.tijd || "") || 0;
+    const i = vrij.findIndex(function (q) { return Date.parse(q.aangemaakt || "") >= moment; });
+    if (i >= 0) themaKoppel[b.id] = vrij.splice(i, 1)[0];
+  });
+}
+// Tekst en knop van een quiz-bericht, met de actuele naam van de quiz.
+function quizBericht(b) {
+  if (b.soort === "uitdaging") {
+    const m = /[?&]id=([^&]+)/.exec(b.link || "");
+    const naam = (m && oefNamen[decodeURIComponent(m[1])]) || "de quiz";
+    return { tekst: b.van + " nodigt je uit: doe mee aan " + naam + "!", link: b.link };
+  }
+  if (b.link === "index.html") {
+    const q = themaKoppel[b.id];
+    if (!q) return { tekst: b.van + " vraagt een themaquiz aan.", link: null };
+    const naam = q.naam || "de themaquiz";
+    const ander = NAMEN.filter(function (n) { return n !== b.van; })[0] || "";
+    const tekst = b.van === wie ? "Je hebt " + ander + " uitgedaagd voor " + naam + "." : b.van + " heeft je uitgedaagd voor " + naam + ".";
+    return { tekst: tekst, link: "themaquiz.html?id=" + encodeURIComponent(q.id) };
+  }
+  return { tekst: b.tekst, link: b.link };
+}
+function bestaatNog(b) {
+  if (bestaandeQuizzen === null || b.soort !== "uitdaging" || !b.link) return true;
+  const m = /[?&]id=([^&]+)/.exec(b.link);
+  return !m || bestaandeQuizzen.has(decodeURIComponent(m[1]));
+}
+function toonBerichten(lijst) {
+  koppelThemaverzoeken(lijst);
+  const box = el("berichten");
+  const onderaan = window.innerHeight + window.scrollY >= document.body.scrollHeight - 220;
+  box.textContent = "";
+  if (!lijst.length) {
+    box.appendChild(maak("p", "leeg-chat", "Nog geen berichten."));
+    return;
+  }
+  let vorigeDag = "";
+  const nieuwste = lijst[lijst.length - 1];
+  // Alleen animeren als het bericht nog niet gezien is (de markering wordt pas na het tekenen bijgewerkt).
+  const gezienTot = (wie && localStorage.getItem("chatGezien-" + wie)) || "";
+  lijst.forEach(function (b) {
+    const dag = dagSleutel(b.tijd);
+    if (dag !== vorigeDag) {
+      box.appendChild(maak("p", "dag-label", dagTekstKort(b.tijd)));
+      vorigeDag = dag;
+    }
+    const rij = bouwBericht(b);
+    if (b === nieuwste && b.tijd > gezienTot && b.tijd !== laatsteAnimatie) {
+      const bel = rij.querySelector(".bel");
+      if (bel) bel.classList.add("nieuwste");
+      laatsteAnimatie = b.tijd;
+    }
+    box.appendChild(rij);
+  });
+  if (onderaan || lijst.length !== laatsteAantal) window.scrollTo(0, document.body.scrollHeight);
+}
+
+async function ververs() {
+  if (!db || !wie) return;
+  try {
+    const lijst = await laadBerichten();
+    const oq = await db.collection("oefquizzen").get();
+    bestaandeQuizzen = new Set(oq.docs.filter(function (d) { return d.exists && !d.data().verwijderd; }).map(function (d) { return d.id; }));
+    oefNamen = {};
+    oq.docs.forEach(function (d) { if (d.exists) oefNamen[d.id] = d.data().naam || ""; });
+    const tq = await db.collection("themaquizzen").get();
+    themaQuizzen = tq.docs.filter(function (d) { return d.exists; }).map(function (d) { return Object.assign({ id: d.id }, d.data()); });
+    const sig = lijst.map(function (b) { return b.id; }).join("|") + "#" + themaQuizzen.map(function (q) { return q.id + ":" + q.naam; }).join(",") + "#" + Object.values(oefNamen).join(",");
+    if (sig === laatsteSig) return;
+    laatsteSig = sig;
+    toonBerichten(lijst.filter(bestaatNog));
+    laatsteAantal = lijst.length;
+    // Alles tot nu toe is gezien; de teller op het tabblad gaat dan weer naar nul.
+    const nieuwste = lijst.length ? lijst[lijst.length - 1].tijd : "";
+    if (nieuwste && wie) zetChatGezien(wie, nieuwste).then(function () { if (window.telChatMeldingen) window.telChatMeldingen(); });
+  } catch (e) { /* volgende ronde opnieuw */ }
+}
+
+// Een bericht sturen. Dit is ook de koppeling voor nieuwe quizzen en uitdagingen.
+async function stuurBericht(tekst, soort, link, foto) {
+  const id = "b-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  await db.doc("berichten/" + id).set({ van: wie, aan: gesprek, tekst: tekst, soort: soort || "tekst", link: link || null, foto: foto || null, tijd: new Date().toISOString() });
+}
+// Foto uit de galerij: verkleind naar max. 800 px, zodat hij klein genoeg is om met het bericht op te slaan.
+function verkleinFoto(bestand) {
+  return new Promise(function (resolve, reject) {
+    const lezer = new FileReader();
+    lezer.onerror = reject;
+    lezer.onload = function () {
+      const plaatje = new Image();
+      plaatje.onerror = reject;
+      plaatje.onload = function () {
+        const schaal = Math.min(1, 800 / Math.max(plaatje.width, plaatje.height));
+        const c = document.createElement("canvas");
+        c.width = Math.round(plaatje.width * schaal);
+        c.height = Math.round(plaatje.height * schaal);
+        c.getContext("2d").drawImage(plaatje, 0, 0, c.width, c.height);
+        resolve(c.toDataURL("image/jpeg", 0.75));
+      };
+      plaatje.src = lezer.result;
+    };
+    lezer.readAsDataURL(bestand);
+  });
+}
+el("foto-kies").addEventListener("change", async function (e) {
+  const bestand = e.target.files && e.target.files[0];
+  e.target.value = "";
+  if (!bestand || !wie || !db || !gesprek) return;
+  try {
+    const data = await verkleinFoto(bestand);
+    await stuurBericht("Foto", "foto", null, data);
+    laatsteSig = "";
+    ververs();
+  } catch (err) {
+    alert("Foto sturen lukte niet. Probeer het nog eens.");
+  }
+});
+
+el("invoer").addEventListener("submit", async function (e) {
+  e.preventDefault();
+  const veld = el("tekst");
+  const tekst = veld.value.trim();
+  if (!tekst || !wie || !db) return;
+  veld.value = "";
+  try {
+    await stuurBericht(tekst, "tekst", null);
+    laatsteSig = "";
+    ververs();
+  } catch (err) {
+    veld.value = tekst;
+    alert("Bericht sturen lukte niet. Probeer het nog eens.");
+  }
+});
+
+el("uitdaag").addEventListener("click", async function () {
+  if (!wie || !db) return;
+  const knop = el("uitdaag");
+  knop.disabled = true;
+  try {
+    const id = await window.dbRpc("maak_oefquiz", { p_wie: wie, p_modus: "samen" });
+    await stuurBericht(wie + " daagt je uit voor een quiz.", "uitdaging", "oefenquiz.html?id=" + encodeURIComponent(id));
+    location.href = "oefenquiz.html?id=" + encodeURIComponent(id);
+  } catch (err) {
+    alert("Uitdagen lukte niet. Probeer het nog eens.");
+    knop.disabled = false;
+  }
+});
+
+// Zolang er een themaquiz open staat, is die de eerstvolgende: de chat toont hem, en uitdagen wacht tot hij klaar is.
+async function verversThema() {
+  if (!db || !wie) return;
+  try {
+    const r = await db.collection("themaquizzen").where("status", "==", "actief").get();
+    // Staan er meerdere open, dan de laatst aangemaakte (de nieuwste).
+    const actief = r.docs.filter(function (d) { return d.exists; });
+    actief.sort(function (a, b) { return String(b.data().aangemaakt || "") > String(a.data().aangemaakt || "") ? 1 : -1; });
+    const q = actief[0];
+    const kaart = el("thema-kaart");
+    const knop = el("uitdaag");
+    kaart.textContent = "";
+    if (q) {
+      // Er staat een themaquiz klaar: de knop om te spelen.
+      const link = maak("a", "tq-knop");
+      link.href = "themaquiz.html?id=" + encodeURIComponent(q.id);
+      link.textContent = "Speel de themaquiz";
+      kaart.appendChild(link);
+      knop.hidden = true;
+    } else {
+      // Geen themaquiz open: één knop om iemand uit te dagen voor een quiz (de bovenste plek).
+      knop.hidden = false;
+      knop.disabled = false;
+      if (gesprek) knop.textContent = "Daag " + gesprek + " uit voor een quiz";
+      kaart.appendChild(knop);
+    }
+    kaart.hidden = false;
+  } catch (e) { /* volgende ronde opnieuw */ }
+}
+function kiesGesprek(naam) {
+  gesprek = naam;
+  laatsteSig = "";
+  el("gesprek-kop").textContent = "Chat met " + naam;
+  verversThema();
+  el("invoer").hidden = false;
+  el("uitdaag").textContent = "Daag " + naam + " uit voor een quiz";
+  document.querySelectorAll("#kiezer button").forEach(function (b) {
+    b.setAttribute("aria-selected", String(b.dataset.naam === naam));
+  });
+  ververs();
+}
+function bouwKiezer() {
+  const box = el("kiezer");
+  box.textContent = "";
+  NAMEN.filter(function (n) { return n !== wie; }).forEach(function (n) {
+    const knop = maak("button", "kies-chip");
+    zetPersoonKleur(knop, n);
+    knop.type = "button";
+    knop.dataset.naam = n;
+    const foto = maak("span", "avatar kies-foto");
+    foto.dataset.avatar = n;
+    zetPersoonKleur(foto, n);
+    foto.textContent = n.charAt(0);
+    knop.append(foto, maak("span", "kies-naam", n));
+    knop.addEventListener("click", function () { kiesGesprek(n); });
+    box.appendChild(knop);
+  });
+  verversFotos();
+}
+// Profielfoto's van de personen (dezelfde als op de puntenpagina).
+async function verversFotos() {
+  try {
+    const r = await db.collection("profielen").get();
+    const fotos = {};
+    r.docs.forEach(function (d) { if (d.exists) fotos[d.id] = d.data().foto; });
+    document.querySelectorAll("[data-avatar]").forEach(function (el) {
+      const naam = el.dataset.avatar;
+      el.textContent = "";
+      if (fotos[naam]) {
+        const img = document.createElement("img");
+        img.src = fotos[naam];
+        img.alt = naam;
+        el.appendChild(img);
+      } else {
+        el.textContent = naam.charAt(0);
+      }
+    });
+  } catch (e) { /* letters blijven staan */ }
+}
+async function start() {
+  if (!wie) {
+    el("berichten").textContent = "";
+    el("berichten").appendChild(maak("p", "leeg-chat", "Kies eerst wie je bent op de beginpagina."));
+    el("invoer").hidden = true;
+    el("uitdaag").hidden = true;
+    el("kiezer").hidden = true;
+    return;
+  }
+  db = await window.claude.use("db");
+  bouwKiezer();
+  verversThema();
+  setInterval(verversThema, 6000);
+  const andere = NAMEN.find(function (n) { return n !== wie; });
+  kiesGesprek(andere);
+}
+start();
+setInterval(ververs, 4000);
+document.addEventListener("visibilitychange", function () { if (!document.hidden) ververs(); });
+
+// Teller op het Chat-tabblad: zie chatteller.js
+</script>
+</body>
+</html>
